@@ -1,6 +1,11 @@
 ﻿using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Domain.Models;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MedicalAppointments.Tests
 {
@@ -51,12 +56,14 @@ namespace MedicalAppointments.Tests
                     Patient = patient
                 },
                 new() {
-                    Id = 2,
-                    Date = DateTime.Now.AddDays(2),
+                Id = 2,
+                Date = DateTime.Now.AddDays(2),
                     Doctor = doctor,
                     Patient = patient
                 }
             };
+
+            _appointments.Add(_appointment);
         }
 
         [Test]
