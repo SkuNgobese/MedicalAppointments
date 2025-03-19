@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MedicalAppointments.Migrations
+namespace MedicalAppointments.Persistence.Data.Migrations
 {
     /// <inheritdoc />
     public partial class Identity : Migration

@@ -17,8 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="API\" />
-    <Folder Include="Infrastructure\" />
     <Folder Include="Tests\" />
   </ItemGroup>
 

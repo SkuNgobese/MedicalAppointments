@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace MedicalAppointments.Data;
+namespace MedicalAppointments.Persistence.Data;
 
 public class ApplicationDbContext : IdentityDbContext
 {

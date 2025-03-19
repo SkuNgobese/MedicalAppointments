@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MedicalAppointments.Data;
 using MedicalAppointments.Application.Services;
 using MedicalAppointments.Domain.Interfaces;
-using MedicalAppointments.Persistence;
+using MedicalAppointments.Persistence.Data;
+using MedicalAppointments.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
