@@ -1,9 +1,9 @@
-﻿using MedicalAppointments.Data;
-using MedicalAppointments.Domain.Interfaces;
+﻿using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Domain.Models;
+using MedicalAppointments.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace MedicalAppointments.Persistence
+namespace MedicalAppointments.Infrastructure
 {
     public class AppointmentRepository : IAppointmentRepository
     {
