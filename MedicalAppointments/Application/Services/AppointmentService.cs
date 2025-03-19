@@ -3,7 +3,7 @@ using MedicalAppointments.Domain.Models;
 
 namespace MedicalAppointments.Application.Services
 {
-    public class AppointmentService
+    public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _repository;
 

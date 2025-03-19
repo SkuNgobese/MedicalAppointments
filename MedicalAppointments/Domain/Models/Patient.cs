@@ -1,13 +1,16 @@
 ﻿using MedicalAppointments.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointments.Domain.Models
 {
     public class Patient
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
 
+        public User? User { get; set; }
+        public Contact? Contact { get; set; }
+        public Address? Address { get; set; }
+        public Hospital? Hospital { get; set; }
         public List<Appointment>? Appointments { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 using System.Diagnostics;
+using MedicalAppointments.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using MedicalAppointments.Models;
 
 namespace MedicalAppointments.Controllers;
 
