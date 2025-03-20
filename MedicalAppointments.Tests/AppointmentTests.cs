@@ -2,6 +2,7 @@
 using MedicalAppointments.Domain.Models;
 using Moq;
 using MedicalAppointments.Application.Services;
+using MedicalAppointments.Domain.Interfaces;
 
 namespace MedicalAppointments.Tests
 {
@@ -12,13 +13,13 @@ namespace MedicalAppointments.Tests
         private List<Appointment> _appointments;
 
         private Mock<IRepository<Appointment>> _appointmentRepositoryMock;
-        private Mock<AppointmentService> _appointmentServiceMock;
+        private AppointmentService _appointmentService;
 
         [SetUp]
         public void Setup()
         {
             _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
-            _appointmentServiceMock = new Mock<AppointmentService>();
+            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object);
 
             // Create mock objects for Doctor and Patient
             var doctor = new Doctor
@@ -37,8 +38,9 @@ namespace MedicalAppointments.Tests
             {
                 Id = 1,
                 Date = DateTime.Now.AddDays(1),
-                Doctor = doctor,  // Use real object
-                Patient = patient // Use real object
+                Doctor = doctor,
+                Patient = patient,
+                IsCancelled = false
             };
 
             _appointments =
@@ -47,15 +49,16 @@ namespace MedicalAppointments.Tests
                     Id = 1,
                     Date = DateTime.Now.AddDays(1),
                     Doctor = doctor,
-                    Patient = patient
+                    Patient = patient,
+                    IsCancelled = false
                 },
                 new() {
-                Id = 2,
-                Date = DateTime.Now.AddDays(2),
+                    Id = 2,
+                    Date = DateTime.Now.AddDays(2),
                     Doctor = doctor,
-                    Patient = patient
-                },
-                _appointment,
+                    Patient = patient,
+                    IsCancelled = false
+                }
             ];
         }
 
@@ -64,42 +67,68 @@ namespace MedicalAppointments.Tests
         {
             // Arrange
             _appointmentRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_appointments);
-            _appointmentServiceMock.Setup(service => service.GetAllAppointmentsAsync()).ReturnsAsync(_appointments);
 
             // Act
-            var result = await _appointmentServiceMock.Object.GetAllAppointmentsAsync();
+            var result = await _appointmentService.GetAllAppointmentsAsync();
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count(), Is.EqualTo(2));
+            Assert.That(result, Has.Exactly(2).Items);
         }
 
         [Test]
         public async Task GetAppointmentByIdAsync_ShouldReturnAppointment_WhenExists()
         {
             // Arrange
+            _appointment.Description = "Dental Checkup";
             _appointmentRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(_appointment);
-            _appointmentServiceMock.Setup(service => service.GetAppointmentByIdAsync(1)).ReturnsAsync(_appointment);
 
             // Act
-            var result = await _appointmentServiceMock.Object.GetAppointmentByIdAsync(1);
+            var result = await _appointmentService.GetAppointmentByIdAsync(1);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result?.Id, Is.EqualTo(1));
+                Assert.That(result?.Description, Is.EqualTo("Dental Checkup"));
+            });
         }
 
         [Test]
-        public async Task BookAppointmentAsync_ShouldCallRepositoryOnce()
+        public async Task GetAppointmentByIdAsync_ShouldReturnNull_WhenNotExists()
         {
             // Arrange
-            _appointmentServiceMock.Setup(service => service.BookAppointmentAsync(_appointment)).Returns(Task.CompletedTask);
+            _appointmentRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync((Appointment?)null);
 
             // Act
-            await _appointmentServiceMock.Object.BookAppointmentAsync(_appointment);
+            var result = await _appointmentService.GetAppointmentByIdAsync(1);
 
             // Assert
-            _appointmentRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Appointment>()), Times.Once);
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task BookAppointmentAsync_ShouldCallAddAsyncOnce()
+        {
+            // Act
+            await _appointmentService.BookAppointmentAsync(_appointment);
+
+            // Assert
+            _appointmentRepositoryMock.Verify(repo => repo.AddAsync(_appointment), Times.Once);
+        }
+
+        [Test]
+        public async Task CancelAppointmentAsync_ShouldCallUpdateAsyncOnce()
+        {
+            // Arrange
+            _appointment.IsCancelled = true;
+
+            // Act
+            await _appointmentService.CancelAppointmentAsync(_appointment);
+
+            // Assert
+            _appointmentRepositoryMock.Verify(repo => repo.UpdateAsync(_appointment), Times.Once);
         }
     }
 }
