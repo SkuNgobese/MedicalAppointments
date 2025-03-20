@@ -1,11 +1,9 @@
-﻿namespace MedicalAppointments.Domain.Models
+﻿namespace MedicalAppointments.Domain.Models;
+
+public class Contact
 {
-    public class Contact
-    {
-        public int Id { get; set; }
-        public string? Phone { get; set; }
-        public string? Fax { get; set; }
-        public string? Email { get; set; }
-        
-    }
+    public int Id { get; set; }
+    public string? Phone { get; set; }
+    public string? Fax { get; set; }
+    public string? Email { get; set; }
 }

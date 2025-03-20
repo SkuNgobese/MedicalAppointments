@@ -1,13 +1,14 @@
 ﻿using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Domain.Models;
+using MedicalAppointments.Infrastructure.Interfaces;
 
 namespace MedicalAppointments.Application.Services
 {
-    public class AppointmentService : IAppointmentService
+    public class AppointmentService : IAppointment
     {
-        private readonly IAppointmentRepository _repository;
+        private readonly IRepository<Appointment> _repository;
 
-        public AppointmentService(IAppointmentRepository repository)
+        public AppointmentService(IRepository<Appointment> repository)
         {
             _repository = repository;
         }
@@ -20,5 +21,10 @@ namespace MedicalAppointments.Application.Services
 
         public async Task BookAppointmentAsync(Appointment appointment) =>
             await _repository.AddAsync(appointment);
+
+        public Task CancelAppointmentAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

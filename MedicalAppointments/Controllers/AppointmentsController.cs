@@ -1,14 +1,14 @@
-﻿using MedicalAppointments.Domain.Interfaces;
-using MedicalAppointments.Domain.Models;
+﻿using MedicalAppointments.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using MedicalAppointments.Domain.Interfaces;
 
 namespace MedicalAppointments.Controllers
 {
     public class AppointmentsController : Controller
     {
-        private readonly IAppointmentService _service;
+        private readonly IAppointment _service;
 
-        public AppointmentsController(IAppointmentService service) => _service = service;
+        public AppointmentsController(IAppointment service) => _service = service;
 
         public async Task<IActionResult> Index()
         {

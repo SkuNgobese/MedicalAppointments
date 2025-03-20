@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
+        public bool IsCancelled { get; set; }
 
         public Doctor? Doctor { get; set; }
         public Patient? Patient { get; set; }

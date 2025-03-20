@@ -1,11 +1,7 @@
-﻿using MedicalAppointments.Domain.Interfaces;
+﻿using MedicalAppointments.Infrastructure.Interfaces;
 using MedicalAppointments.Domain.Models;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MedicalAppointments.Application.Services;
 
 namespace MedicalAppointments.Tests
 {
@@ -14,17 +10,15 @@ namespace MedicalAppointments.Tests
     {
         private Appointment _appointment;
         private List<Appointment> _appointments;
-        private Mock<Doctor> _mockDoctor;
-        private Mock<Patient> _mockPatient;
 
-        private Mock<IAppointmentRepository> _appointmentRepositoryMock;
-        private Mock<IAppointmentService> _appointmentServiceMock;
+        private Mock<IRepository<Appointment>> _appointmentRepositoryMock;
+        private Mock<AppointmentService> _appointmentServiceMock;
 
         [SetUp]
         public void Setup()
         {
-            _appointmentRepositoryMock = new Mock<IAppointmentRepository>();
-            _appointmentServiceMock = new Mock<IAppointmentService>();
+            _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
+            _appointmentServiceMock = new Mock<AppointmentService>();
 
             // Create mock objects for Doctor and Patient
             var doctor = new Doctor
@@ -47,8 +41,8 @@ namespace MedicalAppointments.Tests
                 Patient = patient // Use real object
             };
 
-            _appointments = new List<Appointment>
-            {
+            _appointments =
+            [
                 new() {
                     Id = 1,
                     Date = DateTime.Now.AddDays(1),
@@ -60,10 +54,9 @@ namespace MedicalAppointments.Tests
                 Date = DateTime.Now.AddDays(2),
                     Doctor = doctor,
                     Patient = patient
-                }
-            };
-
-            _appointments.Add(_appointment);
+                },
+                _appointment,
+            ];
         }
 
         [Test]
