@@ -1,9 +1,6 @@
-﻿using MedicalAppointments.Domain.Models;
-using MedicalAppointments.Infrastructure.Interfaces;
-
-namespace MedicalAppointments.Application.Services
+﻿namespace MedicalAppointments.Application.Services
 {
-    public class DoctorService : IDoctor
+    public class DoctorService
     {
     }
 }
