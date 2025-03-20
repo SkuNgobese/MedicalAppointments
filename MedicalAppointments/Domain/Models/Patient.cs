@@ -1,7 +1,4 @@
-﻿using MedicalAppointments.Domain.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace MedicalAppointments.Domain.Models
+﻿namespace MedicalAppointments.Domain.Models
 {
     public class Patient
     {

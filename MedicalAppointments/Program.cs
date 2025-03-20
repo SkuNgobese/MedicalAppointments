@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MedicalAppointments.Application.Services;
-using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Infrastructure.Interfaces;
 using MedicalAppointments.Persistence.Data;
-using MedicalAppointments.Infrastructure;
+using MedicalAppointments.Domain.Models;
+using MedicalAppointments.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +18,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IRepository<Hospital>, Repository<Hospital>>();
+builder.Services.AddScoped<IRepository<Doctor>, Repository<Doctor>>();
+builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
+builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
 
 var app = builder.Build();
 
