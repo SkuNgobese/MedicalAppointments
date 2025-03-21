@@ -6,6 +6,7 @@ using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Infrastructure.Services;
 using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Infrastructure.Persistence.Data;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,18 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+// Add logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs/app-.log");
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Services.AddScoped<IRepository<Hospital>, Repository<Hospital>>();
 builder.Services.AddScoped<IRepository<Doctor>, Repository<Doctor>>();
