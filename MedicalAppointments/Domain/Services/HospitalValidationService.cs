@@ -1,6 +1,5 @@
 ﻿using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Domain.Models;
-using MedicalAppointments.Domain.Interfaces;
 
 namespace MedicalAppointments.Domain.Services
 {
