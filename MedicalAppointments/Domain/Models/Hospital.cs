@@ -3,7 +3,7 @@
     public class Hospital
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
 
         public Address? Address { get; set; }
         public Contact? Contact { get; set; }

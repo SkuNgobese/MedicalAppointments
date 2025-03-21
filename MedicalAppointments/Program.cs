@@ -24,6 +24,7 @@ builder.Services.AddScoped<IRepository<Doctor>, Repository<Doctor>>();
 builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
 builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
 
+builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IPatient, PatientService>();
 builder.Services.AddScoped<IAppointment, AppointmentService>();

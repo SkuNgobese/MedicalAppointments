@@ -6,10 +6,9 @@ namespace MedicalAppointments.Application.Services
     public class PatientService : IPatient
     {
         private readonly IRepository<Patient> _repository;
-        public PatientService(IRepository<Patient> repository)
-        {
-            _repository = repository;
-        }
+
+        public PatientService(IRepository<Patient> repository) => _repository = repository;
+
         public async Task<IEnumerable<Patient>> GetAllPatientsAsync() =>
             await _repository.GetAllAsync();
         public async Task AddPatientAsync(Patient patient) =>
