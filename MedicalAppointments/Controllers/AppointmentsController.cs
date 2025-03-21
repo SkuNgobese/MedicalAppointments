@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Domain.Models;
+﻿using MedicalAppointments.Application.Models;
 using Microsoft.AspNetCore.Mvc;
-using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Application.Interfaces;
 
 namespace MedicalAppointments.Controllers
 {

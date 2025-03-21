@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Domain.Models;
+﻿using MedicalAppointments.Application.Models;
 
-namespace MedicalAppointments.Infrastructure.Interfaces
+namespace MedicalAppointments.Application.Interfaces
 {
     public interface IHospital
     {
