@@ -5,6 +5,7 @@ using MedicalAppointments.Infrastructure.Interfaces;
 using MedicalAppointments.Persistence.Data;
 using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Infrastructure.Services;
+using MedicalAppointments.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddScoped<IRepository<Hospital>, Repository<Hospital>>();
 builder.Services.AddScoped<IRepository<Doctor>, Repository<Doctor>>();
 builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
 builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
+
+builder.Services.AddScoped<IDoctor, DoctorService>();
+builder.Services.AddScoped<IAppointment, AppointmentService>();
 
 var app = builder.Build();
 
