@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Domain.Models;
+﻿using MedicalAppointments.Application.Interfaces;
+using MedicalAppointments.Application.Models;
 using MedicalAppointments.Infrastructure.Interfaces;
-using System.Numerics;
 
 namespace MedicalAppointments.Application.Services
 {

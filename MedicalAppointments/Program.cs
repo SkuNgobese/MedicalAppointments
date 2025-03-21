@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using MedicalAppointments.Application.Services;
 using MedicalAppointments.Infrastructure.Interfaces;
 using MedicalAppointments.Persistence.Data;
-using MedicalAppointments.Domain.Models;
+using MedicalAppointments.Application.Models;
 using MedicalAppointments.Infrastructure.Services;
-using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +28,8 @@ builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IPatient, PatientService>();
 builder.Services.AddScoped<IAppointment, AppointmentService>();
+
+builder.Services.AddScoped<IAppointmentValidation, AppointmentValidationService>();
 
 var app = builder.Build();
 

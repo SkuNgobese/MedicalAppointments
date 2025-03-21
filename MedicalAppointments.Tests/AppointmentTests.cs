@@ -1,8 +1,9 @@
 ﻿using MedicalAppointments.Infrastructure.Interfaces;
-using MedicalAppointments.Domain.Models;
+using MedicalAppointments.Application.Models;
 using Moq;
 using MedicalAppointments.Application.Services;
-using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Application.Interfaces;
+using MedicalAppointments.Domain.Enums;
 
 namespace MedicalAppointments.Tests
 {
@@ -14,23 +15,26 @@ namespace MedicalAppointments.Tests
 
         private Mock<IRepository<Appointment>> _appointmentRepositoryMock;
         private IAppointment _appointmentService;
+        private IAppointmentValidation _appointmentValidation;
 
         [SetUp]
         public void Setup()
         {
             _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
-            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object);
+            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object, _appointmentValidation);
 
             // Create mock objects for Doctor and Patient
             var doctor = new Doctor
             {
                 Id = "1",
-                Specialization = "Cardiology"
+                Specialization = "Cardiology",
+                IsActive = true
             };
 
             var patient = new Patient
             {
-                Id = "2"
+                Id = "2",
+                IsActive = true
             };
 
             // Initialize Appointment with real objects
@@ -40,7 +44,7 @@ namespace MedicalAppointments.Tests
                 Date = DateTime.Now.AddDays(1),
                 Doctor = doctor,
                 Patient = patient,
-                IsCancelled = false
+                Status = AppointmentStatus.Confirmed
             };
 
             _appointments =
@@ -50,14 +54,14 @@ namespace MedicalAppointments.Tests
                     Date = DateTime.Now.AddDays(1),
                     Doctor = doctor,
                     Patient = patient,
-                    IsCancelled = false
+                    Status = AppointmentStatus.Scheduled
                 },
                 new() {
                     Id = 2,
                     Date = DateTime.Now.AddDays(2),
                     Doctor = doctor,
                     Patient = patient,
-                    IsCancelled = false
+                    Status = AppointmentStatus.Confirmed
                 }
             ];
         }
@@ -121,9 +125,6 @@ namespace MedicalAppointments.Tests
         [Test]
         public async Task CancelAppointmentAsync_ShouldCallUpdateAsyncOnce()
         {
-            // Arrange
-            _appointment.IsCancelled = true;
-
             // Act
             await _appointmentService.CancelAppointmentAsync(_appointment);
 

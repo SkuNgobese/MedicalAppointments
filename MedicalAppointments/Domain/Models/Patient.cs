@@ -1,7 +1,8 @@
-﻿namespace MedicalAppointments.Domain.Models
+﻿namespace MedicalAppointments.Application.Models
 {
     public class Patient : User
     {
+        public string? IDNumber { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? RemoveDate { get; set; }
         public bool IsActive { get; set; }

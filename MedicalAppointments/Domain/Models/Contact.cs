@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointments.Domain.Models;
+﻿namespace MedicalAppointments.Application.Models;
 
 public class Contact
 {
