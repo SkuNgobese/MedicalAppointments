@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Application.Services;
-using MedicalAppointments.Application.Models;
+﻿using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Domain.Services;
+using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Infrastructure.Interfaces;
 using Moq;
 using System;

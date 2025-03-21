@@ -1,4 +1,4 @@
-namespace MedicalAppointments.Application.Models
+namespace MedicalAppointments.Domain.Models
 {
     public class ErrorViewModel
     {

@@ -1,8 +1,8 @@
-﻿using MedicalAppointments.Application.Models;
+﻿using MedicalAppointments.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace MedicalAppointments.Persistence.Data;
+namespace MedicalAppointments.Infrastructure.Persistence.Data;
 
 public class ApplicationDbContext : IdentityDbContext
 {

@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Application.Models;
+﻿using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Domain.Enums;
 using MedicalAppointments.Domain.Interfaces;
 

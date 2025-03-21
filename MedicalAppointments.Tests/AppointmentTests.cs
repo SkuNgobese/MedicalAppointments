@@ -1,8 +1,8 @@
 ﻿using MedicalAppointments.Infrastructure.Interfaces;
-using MedicalAppointments.Application.Models;
+using MedicalAppointments.Domain.Models;
 using Moq;
-using MedicalAppointments.Application.Services;
-using MedicalAppointments.Application.Interfaces;
+using MedicalAppointments.Domain.Services;
+using MedicalAppointments.Domain.Interfaces;
 using MedicalAppointments.Domain.Enums;
 
 namespace MedicalAppointments.Tests

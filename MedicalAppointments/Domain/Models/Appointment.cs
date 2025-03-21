@@ -1,7 +1,7 @@
 ﻿using MedicalAppointments.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Application.Models
+namespace MedicalAppointments.Domain.Models
 {
     public class Appointment
     {

@@ -1,5 +1,5 @@
 ﻿using MedicalAppointments.Infrastructure.Interfaces;
-using MedicalAppointments.Persistence.Data;
+using MedicalAppointments.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalAppointments.Infrastructure.Services

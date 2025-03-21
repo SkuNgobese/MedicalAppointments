@@ -1,9 +1,9 @@
-﻿using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Application.Models;
+﻿using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Domain.Enums;
 using MedicalAppointments.Infrastructure.Interfaces;
 
-namespace MedicalAppointments.Application.Services
+namespace MedicalAppointments.Domain.Services
 {
     public class AppointmentService : IAppointment
     {

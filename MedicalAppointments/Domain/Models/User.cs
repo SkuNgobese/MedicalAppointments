@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MedicalAppointments.Application.Models
+namespace MedicalAppointments.Domain.Models
 {
     public class User : IdentityUser
     {

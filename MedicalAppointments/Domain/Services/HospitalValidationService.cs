@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Application.Models;
+﻿using MedicalAppointments.Domain.Interfaces;
+using MedicalAppointments.Domain.Models;
 using MedicalAppointments.Domain.Interfaces;
 
 namespace MedicalAppointments.Domain.Services
