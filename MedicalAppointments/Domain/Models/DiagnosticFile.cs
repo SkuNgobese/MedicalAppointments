@@ -15,6 +15,6 @@ namespace MedicalAppointments.Application.Models
         public string? Treatment { get; set; }
         public string? AttachmentFileName { get; set; }
 
-        public Patient? Patient { get; set; }
+        public required Patient Patient { get; set; }
     }
 }

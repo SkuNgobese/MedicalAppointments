@@ -15,15 +15,13 @@ namespace MedicalAppointments.Tests
 
         private Mock<IRepository<Appointment>> _appointmentRepositoryMock;
         private IAppointment _appointmentService;
-        private IAppointmentValidation _appointmentValidation;
 
         [SetUp]
         public void Setup()
         {
             _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
-            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object, _appointmentValidation);
+            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object);
 
-            // Create mock objects for Doctor and Patient
             var doctor = new Doctor
             {
                 Id = "1",
@@ -37,7 +35,6 @@ namespace MedicalAppointments.Tests
                 IsActive = true
             };
 
-            // Initialize Appointment with real objects
             _appointment = new Appointment
             {
                 Id = 1,

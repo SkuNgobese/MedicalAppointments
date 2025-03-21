@@ -1,4 +1,5 @@
 ﻿using MedicalAppointments.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointments.Application.Models
 {
@@ -9,7 +10,7 @@ namespace MedicalAppointments.Application.Models
         public string? Description { get; set; }
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Scheduled;
 
-        public Doctor? Doctor { get; set; }
-        public Patient? Patient { get; set; }
+        public required Doctor Doctor { get; set; }
+        public required Patient Patient { get; set; }
     }
 }
