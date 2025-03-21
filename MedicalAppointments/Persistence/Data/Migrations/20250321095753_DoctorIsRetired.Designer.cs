@@ -4,6 +4,7 @@ using MedicalAppointments.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalAppointments.Persistence.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250321095753_DoctorIsRetired")]
+    partial class DoctorIsRetired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,8 +67,8 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DoctorId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("DoctorId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("HospitalId")
                         .HasColumnType("int");
@@ -73,8 +76,8 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.Property<bool>("IsCancelled")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PatientId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("PatientId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -109,6 +112,45 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.ToTable("Contacts");
                 });
 
+            modelBuilder.Entity("MedicalAppointments.Domain.Models.Doctor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HospitalId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRetired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Specialization")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("ContactId");
+
+                    b.HasIndex("HospitalId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Doctors");
+                });
+
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Hospital", b =>
                 {
                     b.Property<int>("Id")
@@ -134,6 +176,39 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.HasIndex("ContactId");
 
                     b.ToTable("Hospitals");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Domain.Models.Patient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HospitalId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("ContactId");
+
+                    b.HasIndex("HospitalId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -347,111 +422,20 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Domain.Models.Doctor", b =>
+            modelBuilder.Entity("MedicalAppointments.Domain.Models.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ContactId")
-                        .HasColumnType("int");
-
                     b.Property<string>("FirstName")
-                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("HireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("HospitalId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRetired")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RemoveDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("RetireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Specialization")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("ContactId");
-
-                    b.HasIndex("HospitalId");
-
-                    b.ToTable("AspNetUsers", t =>
-                        {
-                            t.Property("AddressId")
-                                .HasColumnName("Doctor_AddressId");
-
-                            t.Property("ContactId")
-                                .HasColumnName("Doctor_ContactId");
-
-                            t.Property("HospitalId")
-                                .HasColumnName("Doctor_HospitalId");
-
-                            t.Property("RemoveDate")
-                                .HasColumnName("Doctor_RemoveDate");
-                        });
-
-                    b.HasDiscriminator().HasValue("Doctor");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Domain.Models.Patient", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ContactId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FirstName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("HospitalId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RemoveDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("ContactId");
-
-                    b.HasIndex("HospitalId");
-
-                    b.HasDiscriminator().HasValue("Patient");
+                    b.HasDiscriminator().HasValue("User");
                 });
 
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Appointment", b =>
@@ -473,6 +457,33 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("MedicalAppointments.Domain.Models.Doctor", b =>
+                {
+                    b.HasOne("MedicalAppointments.Domain.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.Hospital", "Hospital")
+                        .WithMany("Doctors")
+                        .HasForeignKey("HospitalId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Hospital");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Hospital", b =>
                 {
                     b.HasOne("MedicalAppointments.Domain.Models.Address", "Address")
@@ -486,6 +497,33 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Contact");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Domain.Models.Patient", b =>
+                {
+                    b.HasOne("MedicalAppointments.Domain.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.Hospital", "Hospital")
+                        .WithMany("Patients")
+                        .HasForeignKey("HospitalId");
+
+                    b.HasOne("MedicalAppointments.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Hospital");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -541,44 +579,7 @@ namespace MedicalAppointments.Persistence.Data.Migrations
 
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Doctor", b =>
                 {
-                    b.HasOne("MedicalAppointments.Domain.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("MedicalAppointments.Domain.Models.Contact", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId");
-
-                    b.HasOne("MedicalAppointments.Domain.Models.Hospital", "Hospital")
-                        .WithMany("Doctors")
-                        .HasForeignKey("HospitalId");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Contact");
-
-                    b.Navigation("Hospital");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Domain.Models.Patient", b =>
-                {
-                    b.HasOne("MedicalAppointments.Domain.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("MedicalAppointments.Domain.Models.Contact", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId");
-
-                    b.HasOne("MedicalAppointments.Domain.Models.Hospital", "Hospital")
-                        .WithMany("Patients")
-                        .HasForeignKey("HospitalId");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Contact");
-
-                    b.Navigation("Hospital");
+                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Hospital", b =>
@@ -588,11 +589,6 @@ namespace MedicalAppointments.Persistence.Data.Migrations
                     b.Navigation("Doctors");
 
                     b.Navigation("Patients");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Domain.Models.Doctor", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("MedicalAppointments.Domain.Models.Patient", b =>

@@ -24,13 +24,13 @@ namespace MedicalAppointments.Tests
             // Create mock objects for Doctor and Patient
             var doctor = new Doctor
             {
-                Id = 1,
+                Id = "1",
                 Specialization = "Cardiology"
             };
 
             var patient = new Patient
             {
-                Id = 2
+                Id = "2"
             };
 
             // Initialize Appointment with real objects

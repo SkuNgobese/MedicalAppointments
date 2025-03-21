@@ -1,10 +1,12 @@
 ﻿namespace MedicalAppointments.Domain.Models
 {
-    public class Patient
+    public class Patient : User
     {
-        public int Id { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime? RemoveDate { get; set; }
+        public bool IsActive { get; set; }
 
-        public User? User { get; set; }
+        //public User? User { get; set; }
         public Contact? Contact { get; set; }
         public Address? Address { get; set; }
         public Hospital? Hospital { get; set; }
