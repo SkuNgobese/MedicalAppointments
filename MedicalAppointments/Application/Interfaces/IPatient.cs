@@ -4,7 +4,7 @@ namespace MedicalAppointments.Domain.Interfaces
 {
     public interface IPatient
     {
-        Task<IEnumerable<Patient>> GetAllPatientsAsync();
+        Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital);
 
         Task AddPatientAsync(Patient patient);
 

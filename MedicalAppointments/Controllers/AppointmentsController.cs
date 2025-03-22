@@ -141,7 +141,7 @@ namespace MedicalAppointments.Controllers
                 Hospital = hospital
             };
 
-            var patients = await _patient.GetAllPatientsAsync();
+            var patients = await _patient.GetAllPatientsAsync(hospital);
 
             if (_patientValidation.CanAddPatient(patient, [.. patients]))
                 await _patient.AddPatientAsync(patient);

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace MedicalAppointments.Tests
 {
@@ -32,14 +33,19 @@ namespace MedicalAppointments.Tests
                 Title = "Mr",
                 FirstName = "Innocent",
                 LastName = "Ngobese",
-                IsActive = true
+                IsActive = true,
+                Hospital = new Hospital
+                {
+                    Id = 1,
+                    Name = "City Hospital"
+                }
             };
 
-            _patients =
-            [
-                new() { Id = "1", IsActive = true },
-                new() { Id = "2", IsActive = true }
-            ];
+            _patients = new List<Patient>
+            {
+                new() { Id = "1", IsActive = true, Hospital = _patient.Hospital },
+                new() { Id = "2", IsActive = true, Hospital = _patient.Hospital }
+            };
         }
 
         [Test]
@@ -49,7 +55,7 @@ namespace MedicalAppointments.Tests
             _patientRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_patients);
 
             // Act
-            var result = await _patientService.GetAllPatientsAsync();
+            var result = await _patientService.GetAllPatientsAsync(_patient.Hospital!);
 
             // Assert
             Assert.That(result, Is.Not.Null);

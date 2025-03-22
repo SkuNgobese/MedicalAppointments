@@ -10,8 +10,13 @@ namespace MedicalAppointments.Domain.Services
 
         public PatientService(IRepository<Patient> repository) => _repository = repository;
 
-        public async Task<IEnumerable<Patient>> GetAllPatientsAsync() =>
-            await _repository.GetAllAsync();
+        public async Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital)
+        {
+            var patients = await _repository.GetAllAsync();
+
+            return patients.Where(p => p.Hospital != null && p.Hospital.Equals(hospital));
+        }
+            
 
         public async Task AddPatientAsync(Patient patient) =>
             await _repository.AddAsync(patient);
