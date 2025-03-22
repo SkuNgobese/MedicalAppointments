@@ -9,6 +9,10 @@ namespace MedicalAppointments.Domain.Models
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
 
+        public Contact? Contact { get; set; }
+        public Address? Address { get; set; }
+        public Hospital? Hospital { get; set; }
+
         [NotMapped]
         public string FullName => $"{Title}. {FirstName?[..1]} {LastName}";
     }

@@ -7,7 +7,7 @@ namespace MedicalAppointments.Domain.Interfaces
         Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
         Task<Appointment?> GetAppointmentByIdAsync(int id);
         Task BookAppointmentAsync(Appointment appointment);
-        Task ReAssignAppointmentAsync(Doctor doctor, Appointment appointment);
+        Task ReAssignAppointmentAsync(Appointment appointment);
         Task CancelAppointmentAsync(Appointment appointment);
     }
 }
