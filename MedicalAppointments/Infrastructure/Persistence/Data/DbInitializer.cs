@@ -5,23 +5,22 @@ namespace MedicalAppointments.Infrastructure.Persistence.Data
 {
     public static class DbInitializer
     {
-        public static async Task SeedRolesAndSuperAdmin(IServiceProvider serviceProvider)
+        /// <summary>
+        /// Seeds initial roles and the SuperAdmin user.
+        /// </summary>
+        public static async Task SeedRolesAndSuperAdmin(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
             string[] roles = { "SuperAdmin", "Admin", "Doctor", "Patient" };
 
             // Create roles if they do not exist
             foreach (var role in roles)
-            {
                 if (!await roleManager.RoleExistsAsync(role))
-                {
                     await roleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
 
-            // Create the SuperAdmin user
+            // Create the SuperAdmin user if not exists
             var superAdminEmail = "i.skngobese@gmail.com";
             var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
 
@@ -36,11 +35,12 @@ namespace MedicalAppointments.Infrastructure.Persistence.Data
                     LastName = "Admin"
                 };
 
-                var createUserResult = await userManager.CreateAsync(newSuperAdmin, "SuperAdmin@123*#");
-
-                if (createUserResult.Succeeded)
+                var superAdminPassword = configuration["SuperAdmin:Password"];
+                if (!string.IsNullOrWhiteSpace(superAdminPassword))
                 {
-                    await userManager.AddToRoleAsync(newSuperAdmin, "SuperAdmin");
+                    var createUserResult = await userManager.CreateAsync(newSuperAdmin, superAdminPassword);
+                    if (createUserResult.Succeeded)
+                        await userManager.AddToRoleAsync(newSuperAdmin, "SuperAdmin");
                 }
             }
         }

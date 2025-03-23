@@ -7,7 +7,7 @@ namespace MedicalAppointments.Application.ViewModels
         [Phone]
         public required string PhoneNumber { get; set; }
         [EmailAddress]
-        public required string Email { get; set; }
+        public string? Email { get; set; }
         [Phone]
         public string? Fax { get; set; }
     }

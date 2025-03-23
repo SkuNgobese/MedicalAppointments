@@ -9,10 +9,7 @@ namespace MedicalAppointments.Domain.Services
     {
         private readonly IRepository<Appointment> _repository;
 
-        public AppointmentService(IRepository<Appointment> repository)
-        {
-            _repository = repository;
-        }
+        public AppointmentService(IRepository<Appointment> repository) => _repository = repository;
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync() =>
             await _repository.GetAllAsync();
