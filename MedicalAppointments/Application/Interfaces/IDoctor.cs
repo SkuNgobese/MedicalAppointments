@@ -12,6 +12,6 @@ namespace MedicalAppointments.Domain.Interfaces
 
         Task UpdateDoctorAsync(Doctor doctor);
 
-        Task RemoveDoctorAsync(string id);
+        Task RemoveDoctorAsync(Doctor doctor);
     }
 }

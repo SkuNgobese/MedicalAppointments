@@ -10,7 +10,7 @@ namespace MedicalAppointments.Application.Services
 
         public AddressService(IRepository<Address> repository) => _repository = repository;
 
-        public async Task AddAddress(Address address) =>
+        public async Task<Address> AddAddress(Address address) =>
             await _repository.AddAsync(address);
 
         public async Task UpdateAddress(Address address) =>

@@ -10,7 +10,7 @@ namespace MedicalAppointments.Domain.Services
 
         public HospitalService(IRepository<Hospital> repository) => _repository = repository;
 
-        public async Task AddHospitalAsync(Hospital hospital) =>
+        public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
             await _repository.AddAsync(hospital);
 
         public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync() =>
@@ -19,8 +19,8 @@ namespace MedicalAppointments.Domain.Services
         public async Task<Hospital?> GetHospitalByIdAsync(int id) =>
             await _repository.GetByIdAsync(id);
 
-        public async Task RemoveHospitalAsync(int id) =>
-            await _repository.DeleteAsync(id);
+        public async Task RemoveHospitalAsync(Hospital hospital) =>
+            await _repository.DeleteAsync(hospital);
 
         public async Task UpdateHospitalAsync(Hospital hospital) =>
             await _repository.UpdateAsync(hospital);

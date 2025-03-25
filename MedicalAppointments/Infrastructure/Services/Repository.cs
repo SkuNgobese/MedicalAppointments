@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Infrastructure.Interfaces;
 using MedicalAppointments.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace MedicalAppointments.Infrastructure.Services
 {
@@ -13,12 +14,44 @@ namespace MedicalAppointments.Infrastructure.Services
 
         public async Task<T?> GetByIdAsync(string id) => await _dbSet.FindAsync(id);
 
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+            
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        }
+
+        public async Task<T?> GetByIdAsync(string id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<string>(e, "Id") == id);
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
 
-        public async Task AddAsync(T entity)
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+            
+            return await query.ToListAsync();
+        }
+
+        public async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
+
+            return entity;
         }
 
         public async Task UpdateAsync(T entity)
@@ -27,9 +60,8 @@ namespace MedicalAppointments.Infrastructure.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(T entity)
         {
-            var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 _dbSet.Remove(entity);
@@ -37,9 +69,13 @@ namespace MedicalAppointments.Infrastructure.Services
             }
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(T entity, params Expression<Func<T, object>>[] includes)
         {
-            var entity = await _dbSet.FindAsync(id);
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+
             if (entity != null)
             {
                 _dbSet.Remove(entity);

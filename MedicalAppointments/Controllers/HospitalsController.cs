@@ -9,6 +9,8 @@ using MedicalAppointments.Domain.Interfaces.Shared;
 
 namespace MedicalAppointments.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     [Authorize(Roles = "SuperAdmin")]
     public class HospitalsController : Controller
     {
@@ -28,7 +30,6 @@ namespace MedicalAppointments.Controllers
             IHospitalValidation hospitalValidation, 
             UserManager<User> userManager,
             IUserStore<User> userStore,
-            IUserEmailStore<User> userEmailStore,
             IAddress address,
             IContact contact,
             IUserService userService)
@@ -43,170 +44,127 @@ namespace MedicalAppointments.Controllers
             _emailStore = _userService!.GetEmailStore();
         }
 
-        // GET: Hospitals
-        //public async Task<IActionResult> Index()
-        //{
-        //    return View(await _context.Hospitals.ToListAsync());
-        //}
-
-        //// GET: Hospitals/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var hospital = await _context.Hospitals
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (hospital == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(hospital);
-        //}
-
-        // GET: Hospitals/AddNew
-        public IActionResult AddNew()
+        // GET: api/hospitals
+        [HttpGet]
+        public async Task<IActionResult> GetHospitals()
         {
-            return View();
+            var _hospitals = await _hospital.GetAllHospitalsAsync();
+
+            if(_hospitals == null)
+                return NotFound();
+
+            return Ok(_hospitals);
         }
 
-        // POST: Hospitals/AddNew
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // GET: api/hospitals/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetHospital(int id)
+        {
+            var hospital = await _hospital.GetHospitalByIdAsync(id);
+            if (hospital == null)
+                return NotFound();
+
+            return Ok(hospital);
+        }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddNew(HospitalViewModel model)
+        public async Task<IActionResult> AddHospital([FromBody] HospitalViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Create and save Address
+            Address address = new()
             {
-                Address address = new()
-                {
-                    Street = model.AddressDetails.Street,
-                    City = model.AddressDetails.City,
-                    Suburb = model.AddressDetails.Suburb,
-                    PostalCode = model.AddressDetails.PostalCode
-                };
-                await _address.AddAddress(address);
+                Street = model.AddressDetails.Street,
+                City = model.AddressDetails.City,
+                Suburb = model.AddressDetails.Suburb,
+                PostalCode = model.AddressDetails.PostalCode
+            };
+            address = await _address.AddAddress(address);
 
-                Contact contact = new()
-                {
-                    PhoneNumber = model.ContactDetails.PhoneNumber,
-                    Email = model.ContactDetails.Email,
-                    Fax = model.ContactDetails.Fax
-                };
-                await _contact.AddContact(contact);
+            // Create and save Contact
+            Contact contact = new()
+            {
+                PhoneNumber = model.ContactDetails.PhoneNumber,
+                Email = model.ContactDetails.Email,
+                Fax = model.ContactDetails.Fax
+            };
+            contact = await _contact.AddContact(contact);
 
-                Hospital hospital = new()
-                {
-                    Name = model.HospitalName,
-                    Address = address,
-                    Contact = contact
-                };
+            // Create Hospital
+            Hospital hospital = new()
+            {
+                Name = model.HospitalName,
+                Address = address,
+                Contact = contact
+            };
 
-                var hospitals = await _hospital.GetAllHospitalsAsync();
+            // Validate before adding
+            var hospitals = await _hospital.GetAllHospitalsAsync();
+            if (!_hospitalValidation.CanAddHospital(hospital, [.. hospitals]))
+                return Conflict(new { message = "Hospital already exists or validation failed." });
 
-                if (_hospitalValidation.CanAddHospital(hospital, [.. hospitals]))
-                {
-                    await _hospital.AddHospitalAsync(hospital);
-                    //Register the Hospital Admin as a user
-                    await RegisterHospitalAdminAsync(hospital);
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-            return View(model);
+            hospital = await _hospital.AddHospitalAsync(hospital);
+
+            // Register the Hospital Admin as a user
+            await RegisterHospitalAdminAsync(hospital);
+
+            return CreatedAtAction(nameof(GetHospital), new { id = hospital.Id }, hospital);
         }
 
-        // GET: Hospitals/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateHospital(int id, [FromBody] HospitalViewModel model)
+        {
+            if (model == null)
+                return BadRequest("Invalid hospital data.");
+            
+            var existingHospital = await _hospital.GetHospitalByIdAsync(id);
+            if (existingHospital == null)
+                return NotFound($"Hospital with ID {id} not found.");
 
-        //    var hospital = await _context.Hospitals.FindAsync(id);
-        //    if (hospital == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(hospital);
-        //}
+            // Create and save Address
+            existingHospital.Address = new()
+            {
+                Street = model.AddressDetails.Street,
+                City = model.AddressDetails.City,
+                Suburb = model.AddressDetails.Suburb,
+                PostalCode = model.AddressDetails.PostalCode
+            };
+            await _address.UpdateAddress(existingHospital.Address);
 
-        //// POST: Hospitals/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Hospital hospital)
-        //{
-        //    if (id != hospital.Id)
-        //    {
-        //        return NotFound();
-        //    }
+            // Create and save Contact
+            existingHospital.Contact = new()
+            {
+                PhoneNumber = model.ContactDetails.PhoneNumber,
+                Email = model.ContactDetails.Email,
+                Fax = model.ContactDetails.Fax
+            };
+            await _contact.UpdateContact(existingHospital.Contact);
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(hospital);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!HospitalExists(hospital.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(hospital);
-        //}
+            // Update existing hospital properties
+            existingHospital.Name = model.HospitalName;
+            var hospitals = await _hospital.GetAllHospitalsAsync();
 
-        //// GET: Hospitals/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (_hospitalValidation.CanUpdateHospital(existingHospital, [.. hospitals]))
+                await _hospital.UpdateHospitalAsync(existingHospital);
 
-        //    var hospital = await _context.Hospitals
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (hospital == null)
-        //    {
-        //        return NotFound();
-        //    }
+            return Ok(existingHospital);
+        }
 
-        //    return View(hospital);
-        //}
+        // DELETE: api/hospitals/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteHospital(int id)
+        {
+            var hospital = await _hospital.GetHospitalByIdAsync(id);
+            if (hospital == null) 
+                return NotFound();
 
-        //// POST: Hospitals/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var hospital = await _context.Hospitals.FindAsync(id);
-        //    if (hospital != null)
-        //    {
-        //        _context.Hospitals.Remove(hospital);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool HospitalExists(int id)
-        //{
-        //    return _context.Hospitals.Any(e => e.Id == id);
-        //}
+            if (_hospitalValidation.CanDeleteHospital(hospital))
+                await _hospital.RemoveHospitalAsync(hospital);
+            
+            return NoContent();
+        }
 
         private async Task RegisterHospitalAdminAsync(Hospital hospital)
         {

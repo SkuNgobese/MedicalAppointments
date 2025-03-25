@@ -27,7 +27,7 @@ namespace MedicalAppointments.Domain.Services
         public async Task UpdatePatientAsync(Patient patient) =>
             await _repository.UpdateAsync(patient);
 
-        public async Task RemovePatientAsync(string id) =>
-            await _repository.DeleteAsync(id);
+        public async Task RemovePatientAsync(Patient patient) =>
+            await _repository.DeleteAsync(patient);
     }
 }

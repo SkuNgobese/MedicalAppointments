@@ -116,14 +116,11 @@ namespace MedicalAppointments.Tests
         [Test]
         public async Task RemovePatientAsync_ShouldCallDeleteAsyncOnce()
         {
-            // Arrange
-            string patientId = "1";
-
             // Act
-            await _patientService.RemovePatientAsync(patientId);
+            await _patientService.RemovePatientAsync(_patient);
 
             // Assert
-            _patientRepositoryMock.Verify(repo => repo.DeleteAsync(patientId), Times.Once);
+            _patientRepositoryMock.Verify(repo => repo.DeleteAsync(_patient), Times.Once);
         }
     }
 }

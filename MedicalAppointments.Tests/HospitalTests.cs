@@ -26,13 +26,20 @@ namespace MedicalAppointments.Tests
             _hospitalRepositoryMock = new Mock<IRepository<Hospital>>();
             _hospitalService = new HospitalService(_hospitalRepositoryMock.Object);
 
-            Address address = new Address
+            Address address = new()
             {
                 Id = 1,
                 Street = "123 Main St",
                 City = "Pretoria",
                 Suburb = "Heuweloord",
                 PostalCode = "0001"
+            };
+
+            Contact contact = new()
+            {
+                Id = 2,
+                PhoneNumber = "0640617805",
+                Email = "i.skngobese@gmai.com"
             };
 
             _hospital = new Hospital
@@ -45,8 +52,8 @@ namespace MedicalAppointments.Tests
 
             _hospitals =
             [
-                new() { Id = 1, Name = "Raslouw" },
-                new() { Id = 2, Name = "St. Joseph" }
+                new() { Id = 1, Name = "Raslouw", Address = address, Contact = contact },
+                new() { Id = 2, Name = "St. Joseph", Address = address, Contact = contact }
             ];
         }
 
@@ -118,14 +125,11 @@ namespace MedicalAppointments.Tests
         [Test]
         public async Task RemoveHospitalAsync_ShouldCallDeleteAsyncOnce()
         {
-            // Arrange
-            int hospitalId = 1;
-
             // Act
-            await _hospitalService.RemoveHospitalAsync(hospitalId);
+            await _hospitalService.RemoveHospitalAsync(_hospital);
 
             // Assert
-            _hospitalRepositoryMock.Verify(repo => repo.DeleteAsync(hospitalId), Times.Once);
+            _hospitalRepositoryMock.Verify(repo => repo.DeleteAsync(_hospital), Times.Once);
         }
     }
 }

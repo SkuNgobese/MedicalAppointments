@@ -107,10 +107,10 @@ namespace MedicalAppointments.Tests
         public async Task RemoveDoctorAsync_ShouldCallDeleteAsyncOnce()
         {
             // Act
-            await _doctorService.RemoveDoctorAsync("1");
+            await _doctorService.RemoveDoctorAsync(_doctor);
 
             // Assert
-            _doctorRepositoryMock.Verify(repo => repo.DeleteAsync("1"), Times.Once);
+            _doctorRepositoryMock.Verify(repo => repo.DeleteAsync(_doctor), Times.Once);
         }
     }
 }

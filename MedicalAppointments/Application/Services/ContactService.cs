@@ -10,7 +10,7 @@ namespace MedicalAppointments.Application.Services
 
         public ContactService(IRepository<Contact> repository) => _repository = repository;
 
-        public async Task AddContact(Contact contact) =>
+        public async Task<Contact> AddContact(Contact contact) =>
             await _repository.AddAsync(contact);
 
         public async Task UpdateContact(Contact contact) =>
