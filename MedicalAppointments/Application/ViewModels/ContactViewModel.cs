@@ -2,7 +2,7 @@
 
 namespace MedicalAppointments.Application.ViewModels
 {
-    public class ContactViewModel
+    public partial class ContactViewModel
     {
         [Phone]
         public required string PhoneNumber { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace MedicalAppointments.Application.ViewModels
 {
-    public class PatientViewModel
+    public partial class PatientViewModel
     {
         public required string Title { get; set; }
         public required string FirstName { get; set; }

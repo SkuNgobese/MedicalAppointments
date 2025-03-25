@@ -1,4 +1,6 @@
-﻿namespace MedicalAppointments.Application.ViewModels
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace MedicalAppointments.Application.ViewModels
 {
     public partial class HospitalViewModel
     {

@@ -2,7 +2,7 @@
 
 namespace MedicalAppointments.Application.ViewModels
 {
-    public class AppointmentViewModel
+    public partial class AppointmentViewModel
     {
         [FutureDate(ErrorMessage = "Appointment date must be in the future.")]
         public required DateTime Date { get; set; }

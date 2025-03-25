@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using MedicalAppointments.Domain.Models;
-using MedicalAppointments.Infrastructure.Persistence.Data;
 using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Application.ViewModels;
 using MedicalAppointments.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Domain.Services;
 using MedicalAppointments.Domain.Interfaces.Shared;
 
 namespace MedicalAppointments.Controllers
@@ -124,7 +116,6 @@ namespace MedicalAppointments.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-
             return View(model);
         }
 

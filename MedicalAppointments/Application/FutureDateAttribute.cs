@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Application.ViewModels
+namespace MedicalAppointments.Application
 {
     public class FutureDateAttribute : ValidationAttribute
     {

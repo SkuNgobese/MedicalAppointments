@@ -2,7 +2,7 @@
 
 namespace MedicalAppointments.Application.ViewModels
 {
-    public class AddressViewModel
+    public partial class AddressViewModel
     {
         [StringLength(100, ErrorMessage = "Street name cannot exceed 100 characters")]
         public required string Street { get; set; }
