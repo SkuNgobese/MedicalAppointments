@@ -11,7 +11,7 @@ namespace MedicalAppointments.Domain.Models
 
         [Key]
         public Guid Id { get; set; }
-        public string? Diagnosis { get; set; }
+        public required string Diagnosis { get; set; }
         public string? Treatment { get; set; }
         public string? AttachmentFileName { get; set; }
 

@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MedicalAppointments.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Application.ViewModels;
 using MedicalAppointments.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using MedicalAppointments.Application.Interfaces;
 using MedicalAppointments.Domain.Interfaces.Shared;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MedicalAppointments.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "SuperAdmin")]
-    public class HospitalsController : Controller
+    public class HospitalsController : ControllerBase
     {
         private readonly IHospital _hospital;
         private readonly IHospitalValidation _hospitalValidation;
@@ -157,7 +157,7 @@ namespace MedicalAppointments.Controllers
         public async Task<IActionResult> DeleteHospital(int id)
         {
             var hospital = await _hospital.GetHospitalByIdAsync(id);
-            if (hospital == null) 
+            if (hospital == null)
                 return NotFound();
 
             if (_hospitalValidation.CanDeleteHospital(hospital))
@@ -171,7 +171,7 @@ namespace MedicalAppointments.Controllers
             if (hospital.Contact?.Email == null)
                 return;
 
-            var existingUser = await _userManager.FindByEmailAsync(hospital.Contact.Email.ToUpper());
+            var existingUser = await _userManager.FindByEmailAsync(hospital.Contact.Email);
 
             if (existingUser != null)
                 return;
@@ -179,8 +179,8 @@ namespace MedicalAppointments.Controllers
             User user = _userService.CreateUser();
 
             user.UserName = hospital.Contact.Email;
-            user.Title = "Mr/Mrs";
-            user.FirstName = $"{hospital.Name}";
+            user.Title = "Admin";
+            user.FirstName = hospital.Name;
             user.LastName = "Admin";
 
             await _userStore.SetUserNameAsync(user, hospital.Contact.Email, CancellationToken.None);

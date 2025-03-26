@@ -1,14 +1,9 @@
-﻿namespace MedicalAppointments.Application.ViewModels
-{
-    public partial class PatientViewModel
-    {
-        public required string Title { get; set; }
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public required string IDNumber { get; set; }
+﻿using System.ComponentModel;
 
-        public required AddressViewModel AddressDetails { get; set; }
-        public required ContactViewModel ContactDetails { get; set; }
+namespace MedicalAppointments.Application.ViewModels
+{
+    public partial class PatientViewModel : UserViewModel
+    {
         public required DiagnosticFileViewModel DiagnosticDetails { get; set; }
     }
 }

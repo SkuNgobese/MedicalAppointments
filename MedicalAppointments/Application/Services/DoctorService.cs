@@ -13,7 +13,10 @@ namespace MedicalAppointments.Domain.Services
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync() =>
             await _repository.GetAllAsync();
 
-        public async Task EnrollDoctorAsync(Doctor doctor) =>
+        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital) =>
+            await _repository.GetAllAsync(d => d.Hospital == hospital);
+
+        public async Task<Doctor> EnrollDoctorAsync(Doctor doctor) =>
             await _repository.AddAsync(doctor);
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) =>

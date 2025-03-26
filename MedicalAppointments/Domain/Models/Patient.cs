@@ -7,7 +7,8 @@
         public DateTime? RemoveDate { get; set; }
         public bool IsActive { get; set; }
 
-        public List<Appointment>? Appointments { get; set; }
-        public List<DiagnosticFile>? DiagnosticFiles { get; set; }
+        public Doctor? PrimaryDoctor { get; set; }
+        public ICollection<Appointment> Appointments { get; set; } = [];
+        public ICollection<DiagnosticFile> DiagnosticFiles { get; set; } = [];
     }
 }

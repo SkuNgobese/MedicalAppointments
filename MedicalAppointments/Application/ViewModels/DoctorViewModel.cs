@@ -1,12 +1,13 @@
-﻿namespace MedicalAppointments.Application.ViewModels
-{
-    public partial class DoctorViewModel
-    {
-        public required string IDNumber { get; set; }
-        public required string Specialization { get; set; }
-        public required DateTime HireDate { get; set; }
+﻿using System.ComponentModel;
 
-        public required AddressViewModel AddressDetails { get; set; }
-        public required ContactViewModel ContactDetails { get; set; }
+namespace MedicalAppointments.Application.ViewModels
+{
+    public partial class DoctorViewModel : UserViewModel
+    {
+        [DisplayName("Specialization")]
+        public required string Specialization { get; set; }
+
+        [DisplayName("Hire Date")]
+        public required DateTime HireDate { get; set; }
     }
 }

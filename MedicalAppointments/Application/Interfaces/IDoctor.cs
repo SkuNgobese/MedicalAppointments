@@ -6,7 +6,9 @@ namespace MedicalAppointments.Domain.Interfaces
     {
         Task<IEnumerable<Doctor>> GetAllDoctorsAsync();
 
-        Task EnrollDoctorAsync(Doctor doctor);
+        Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital);
+
+        Task<Doctor> EnrollDoctorAsync(Doctor doctor);
 
         Task<Doctor?> GetDoctorByIdAsync(string id);
 

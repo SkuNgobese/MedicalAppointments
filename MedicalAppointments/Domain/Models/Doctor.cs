@@ -12,6 +12,7 @@ namespace MedicalAppointments.Domain.Models
         public bool IsRetired { get; set; }
         public bool IsActive { get; set; }
 
-        public List<Appointment>? Appointments { get; set; }
+        public ICollection<Patient> Patients { get; set; } = [];
+        public ICollection<Appointment> Appointments { get; set; } = [];
     }
 }

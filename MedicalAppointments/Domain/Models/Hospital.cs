@@ -7,8 +7,8 @@
 
         public Address? Address { get; set; }
         public Contact? Contact { get; set; }
-        public List<Doctor>? Doctors { get; set; }
-        public List<Patient>? Patients { get; set; }
-        public List<Appointment>? Appointments { get; set; }
+        public ICollection<Doctor> Doctors { get; set; } = [];
+        public ICollection<Patient> Patients { get; set; } = [];
+        public ICollection<Appointment> Appointments { get; set; } = [];
     }
 }

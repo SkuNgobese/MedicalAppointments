@@ -54,8 +54,40 @@ namespace MedicalAppointments.Infrastructure.Services
             return entity;
         }
 
+        //TODO
+        public async Task<T> AddAsync(T entity, params Expression<Func<T, object>>[] relatedEntities)
+        {
+            // Add related entities if they exist
+            foreach (var relatedEntity in relatedEntities)
+            {
+                var navigationProperty = relatedEntity.Compile().Invoke(entity);
+                if (navigationProperty != null)
+                    await _context.AddAsync(navigationProperty);
+            }
+
+            await _dbSet.AddAsync(entity); // Add the main entity
+            await _context.SaveChangesAsync(); // Save changes
+
+            return entity;
+        }
+
         public async Task UpdateAsync(T entity)
         {
+            _context.Attach(entity);
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(T entity, params Expression<Func<T, object>>[] relatedEntities)
+        {
+            // Attach related entities to prevent EF from treating them as new
+            foreach (var relatedEntity in relatedEntities)
+            {
+                var navigationProperty = relatedEntity.Compile().Invoke(entity);
+                if (navigationProperty != null)
+                    _context.Attach(navigationProperty);
+            }
+
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
         }
@@ -68,7 +100,7 @@ namespace MedicalAppointments.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
-
+        //TODO
         public async Task DeleteAsync(T entity, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
