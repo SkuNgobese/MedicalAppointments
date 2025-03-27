@@ -1,0 +1,19 @@
+﻿using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Domain.Models;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
+
+namespace MedicalAppointments.Api.Application.Services
+{
+    public class ContactService : IContact
+    {
+        private readonly IRepository<Contact> _repository;
+
+        public ContactService(IRepository<Contact> repository) => _repository = repository;
+
+        public async Task<Contact> AddContact(Contact contact) =>
+            await _repository.AddAsync(contact);
+
+        public async Task UpdateContact(Contact contact) =>
+            await _repository.UpdateAsync(contact);
+    }
+}
