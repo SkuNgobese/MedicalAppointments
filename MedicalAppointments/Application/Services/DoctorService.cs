@@ -22,6 +22,13 @@ namespace MedicalAppointments.Domain.Services
         public async Task<Doctor?> GetDoctorByIdAsync(string id) =>
             await _repository.GetByIdAsync(id);
 
+        public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital)
+        {
+            return await _repository.GetByConditionAsync(
+                d => d.Id == id && d.Hospital == hospital
+            );
+        }
+
         public async Task UpdateDoctorAsync(Doctor doctor) =>
             await _repository.UpdateAsync(doctor);
 

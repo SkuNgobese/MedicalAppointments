@@ -8,6 +8,7 @@ namespace MedicalAppointments.Infrastructure.Interfaces
         Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
         Task<T?> GetByIdAsync(string id);
         Task<T?> GetByIdAsync(string id, params Expression<Func<T, object>>[] includes);
+        Task<T?> GetByConditionAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
         Task<T> AddAsync(T entity);

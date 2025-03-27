@@ -9,8 +9,10 @@ using MedicalAppointments.Application.Interfaces.Shared;
 
 namespace MedicalAppointments.Controllers
 {
-    [Authorize(Roles = "Admin,Doctor")]
-    public class AppointmentsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(Roles = "SuperAdmin,Admin,Doctor")]
+    public class AppointmentsController : ControllerBase
     {
         private readonly IDoctor _doctor;
         private readonly IPatient _patient;
@@ -20,6 +22,8 @@ namespace MedicalAppointments.Controllers
 
         private readonly UserManager<User> _userManager;
         private readonly IPatientRegistration _patientRegistration;
+        private readonly Task<User?> _currentUser;
+        private readonly Hospital _hospital;
 
         public AppointmentsController(
             IDoctor doctor,
@@ -37,26 +41,41 @@ namespace MedicalAppointments.Controllers
             _patientValidation = patientValidation ?? throw new ArgumentNullException(nameof(patientValidation));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _patientRegistration = patientRegistration;
+
+            _currentUser = _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("Unauthorized.");
+            _hospital = _currentUser.Result?.Hospital ?? throw new InvalidOperationException("Hospital not found");
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var appointments = await _appointment.GetAllAppointmentsAsync();
-            return View(appointments);
-        }
-
+        // GET: api/<AppointmentController>
         [HttpGet]
-        public IActionResult BookNew()
+        public async Task<IActionResult> GetAppointments()
         {
-            return View();
+            var appointments = await _appointment.GetAllAppointmentsAsync(_hospital);
+
+            if (appointments == null)
+                return NotFound();
+
+            return Ok(appointments);
         }
 
+        // GET api/<AppointmentController>/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAppointment(int id)
+        {
+            var appointment = await _appointment.GetAppointmentByIdAsync(id);
+
+            if (appointment == null)
+                return NotFound();
+
+            return Ok(appointment);
+        }
+
+        // POST api/<AppointmentController>
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BookNew(AppointmentViewModel model)
+        public async Task<IActionResult> BookNew([FromBody] AppointmentViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return BadRequest(ModelState);
 
             Appointment appointment = await CreateAppointment(model);
 
@@ -65,28 +84,25 @@ namespace MedicalAppointments.Controllers
                 await _appointment.BookAppointmentAsync(appointment);
                 //Register the patient as a user
                 await _patientRegistration.RegisterPatientAsync(appointment.Patient);
-                return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError("", "Could not book appointment at this time.");
-            return View(appointment);
+            return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
         }
 
         private async Task<Appointment> CreateAppointment(AppointmentViewModel model)
         {
-            var currentUser = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = currentUser.Hospital ?? throw new InvalidOperationException("Hospital not found");
             Patient patient;
 
             if (!string.IsNullOrEmpty(model.PatientId))
                 patient = await _patient.GetPatientByIdAsync(model.PatientId) ?? throw new InvalidOperationException("Patient not found.");
             else
-                patient = await CreateNewPatient(model, hospital);
+                patient = await CreateNewPatient(model);
 
             Appointment appointment = new()
             {
                 Date = model.Date,
                 Description = model.Description,
+                Hospital = _hospital,
                 Doctor = await _doctor.GetDoctorByIdAsync(model.DoctorId) ?? throw new InvalidOperationException("Doctor not found."),
                 Patient = patient ?? throw new InvalidOperationException("Patient cannot be null.")
             };
@@ -94,7 +110,7 @@ namespace MedicalAppointments.Controllers
             return appointment;
         }
 
-        private async Task<Patient> CreateNewPatient(AppointmentViewModel model, Hospital hospital)
+        private async Task<Patient> CreateNewPatient(AppointmentViewModel model)
         {
             Patient patient = new()
             {
@@ -122,10 +138,10 @@ namespace MedicalAppointments.Controllers
                     Fax = model.PatientViewModel.ContactDetails.Fax
                 },
 
-                Hospital = hospital
+                Hospital = _hospital
             };
 
-            var patients = await _patient.GetAllPatientsAsync(hospital);
+            var patients = await _patient.GetAllPatientsAsync(_hospital);
 
             if (_patientValidation.CanAddPatient(patient, [.. patients]))
                 await _patient.AddPatientAsync(patient);
@@ -133,53 +149,41 @@ namespace MedicalAppointments.Controllers
             return patient;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ReAssign(int id)
+        [HttpPut("{appointmentId}/reassign/{doctorId}")]
+        public async Task<IActionResult> ReAssignAppointment(int appointmentId, string doctorId)
         {
-            var appointment = await _appointment.GetAppointmentByIdAsync(id);
-            if (appointment == null) return NotFound();
-
-            return View(appointment);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReAssign(int appointmentId, string doctorId)
-        {
-            Appointment? appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
+            var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)
-                return NotFound();
+                return NotFound("Appointment not found.");
 
-            Doctor? newDoctor = await _doctor.GetDoctorByIdAsync(doctorId);
+            var newDoctor = await _doctor.GetDoctorByIdAsync(doctorId, _hospital);
             if (newDoctor == null)
-                return NotFound();
+                return NotFound("Doctor not found.");
 
             if (_appointmentValidation.CanReassign(newDoctor, appointment))
             {
                 appointment.Doctor = newDoctor;
                 await _appointment.ReAssignAppointmentAsync(appointment);
-                return RedirectToAction(nameof(Index));
+                return Ok(appointment);
             }
 
-            return View(appointment);
+            return BadRequest("Reassignment is not allowed.");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Cancel(int id)
+        [HttpPut("{id}/cancel")]
+        public async Task<IActionResult> CancelAppointment(int id)
         {
             var appointment = await _appointment.GetAppointmentByIdAsync(id);
             if (appointment == null)
-                return NotFound();
+                return NotFound("Appointment not found.");
 
             if (_appointmentValidation.CanCancel(appointment))
             {
                 appointment.Status = AppointmentStatus.Cancelled;
                 await _appointment.CancelAppointmentAsync(appointment);
-                return RedirectToAction(nameof(Index));
             }
 
-            return View(appointment);
+            return BadRequest("Cancellation is not allowed for this appointment.");
         }
     }
 }

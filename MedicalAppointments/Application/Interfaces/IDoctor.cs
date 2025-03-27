@@ -12,6 +12,8 @@ namespace MedicalAppointments.Domain.Interfaces
 
         Task<Doctor?> GetDoctorByIdAsync(string id);
 
+        Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital);
+
         Task UpdateDoctorAsync(Doctor doctor);
 
         Task RemoveDoctorAsync(Doctor doctor);

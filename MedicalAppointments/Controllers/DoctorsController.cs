@@ -17,7 +17,6 @@ namespace MedicalAppointments.Controllers
     [Authorize(Roles = "SuperAdmin,Admin")]
     public class DoctorsController : ControllerBase
     {
-        private readonly IHospital _hospital;
         private readonly IDoctor _doctor;
         private readonly IDoctorValidation _doctorValidation;
         private readonly IAddress _address;
@@ -31,7 +30,6 @@ namespace MedicalAppointments.Controllers
         private Task<User?> _currentUser;
 
         public DoctorsController(
-            IHospital hospital,
             IDoctor doctor,
             IDoctorValidation doctorValidation,
             UserManager<User> userManager,
@@ -40,7 +38,6 @@ namespace MedicalAppointments.Controllers
             IContact contact,
             IUserService userService)
         {
-            _hospital = hospital;
             _doctor = doctor;
             _doctorValidation = doctorValidation;
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

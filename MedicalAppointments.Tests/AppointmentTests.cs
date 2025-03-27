@@ -22,14 +22,30 @@ namespace MedicalAppointments.Tests
             _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
             _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object);
 
-            var doctor = new Doctor
+            Address address = new()
+            {
+                Id = 1,
+                Street = "123 Main St",
+                City = "Pretoria",
+                Suburb = "Heuweloord",
+                PostalCode = "0001"
+            };
+
+            Hospital hospital = new()
+            {
+                Id = 1,
+                Name = "City Hospital",
+                Address = address
+            };
+
+            Doctor doctor = new()
             {
                 Id = "1",
                 Specialization = "Cardiology",
                 IsActive = true
             };
 
-            var patient = new Patient
+            Patient patient = new() 
             {
                 Id = "2",
                 IsActive = true
@@ -41,6 +57,7 @@ namespace MedicalAppointments.Tests
                 Date = DateTime.Now.AddDays(1),
                 Doctor = doctor,
                 Patient = patient,
+                Hospital = hospital,
                 Status = AppointmentStatus.Confirmed
             };
 
@@ -51,6 +68,7 @@ namespace MedicalAppointments.Tests
                     Date = DateTime.Now.AddDays(1),
                     Doctor = doctor,
                     Patient = patient,
+                    Hospital = hospital,
                     Status = AppointmentStatus.Scheduled
                 },
                 new() {
@@ -58,6 +76,7 @@ namespace MedicalAppointments.Tests
                     Date = DateTime.Now.AddDays(2),
                     Doctor = doctor,
                     Patient = patient,
+                    Hospital = hospital,
                     Status = AppointmentStatus.Confirmed
                 }
             ];
