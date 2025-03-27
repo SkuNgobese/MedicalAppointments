@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MedicalAppointments.Domain.Models;
-using MedicalAppointments.Application.ViewModels;
-using MedicalAppointments.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Domain.Interfaces.Shared;
 using Microsoft.AspNetCore.Authorization;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Api.Domain.Models;
+using MedicalAppointments.Api.Domain.Interfaces.Shared;
+using MedicalAppointments.Api.Application.ViewModels;
 
-namespace MedicalAppointments.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

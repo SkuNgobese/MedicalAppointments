@@ -1,16 +1,15 @@
-﻿using MedicalAppointments.Application.Interfaces;
-using MedicalAppointments.Domain.Interfaces.Shared;
-using MedicalAppointments.Domain.Interfaces;
-using MedicalAppointments.Domain.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MedicalAppointments.Application.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Api.Domain.Models;
+using MedicalAppointments.Api.Domain.Interfaces.Shared;
+using MedicalAppointments.Api.Application.ViewModels;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace MedicalAppointments.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
