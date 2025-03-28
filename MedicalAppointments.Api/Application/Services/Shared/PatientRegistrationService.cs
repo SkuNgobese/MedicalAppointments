@@ -1,7 +1,6 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Api.Domain.Models;
 using MedicalAppointments.Application.Interfaces.Shared;
-using MedicalAppointments.Domain.Services.Shared;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Application.Services.Shared

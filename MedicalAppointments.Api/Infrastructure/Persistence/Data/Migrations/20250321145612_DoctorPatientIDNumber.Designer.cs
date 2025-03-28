@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MedicalAppointments.Persistence.Data.Migrations
+namespace MedicalAppointments.Api.Infrastructure.Persistence.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250321145612_DoctorPatientIDNumber")]
