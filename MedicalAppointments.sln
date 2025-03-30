@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointments.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointments.Api", "MedicalAppointments.Api\MedicalAppointments.Api.csproj", "{7EA4DA49-1391-472A-90EC-D80A56FE8AB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointments.UI", "MedicalAppointments.UI\MedicalAppointments.UI.csproj", "{A9CFFB3D-E43B-4F42-BB86-51FE3BAEA3A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointments.App", "MedicalAppointments.App\MedicalAppointments.App.csproj", "{D0FB9D89-1336-4C59-AAB5-9A211C382880}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{7EA4DA49-1391-472A-90EC-D80A56FE8AB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EA4DA49-1391-472A-90EC-D80A56FE8AB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EA4DA49-1391-472A-90EC-D80A56FE8AB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9CFFB3D-E43B-4F42-BB86-51FE3BAEA3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9CFFB3D-E43B-4F42-BB86-51FE3BAEA3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9CFFB3D-E43B-4F42-BB86-51FE3BAEA3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9CFFB3D-E43B-4F42-BB86-51FE3BAEA3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0FB9D89-1336-4C59-AAB5-9A211C382880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0FB9D89-1336-4C59-AAB5-9A211C382880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0FB9D89-1336-4C59-AAB5-9A211C382880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0FB9D89-1336-4C59-AAB5-9A211C382880}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

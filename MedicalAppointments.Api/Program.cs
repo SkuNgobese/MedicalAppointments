@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using MedicalAppointments.Api.Domain.Models;
-using Microsoft.AspNetCore.Identity.UI.Services; // Add this using directive
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,9 +102,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
-        c.RoutePrefix = string.Empty; // Optional: sets Swagger UI to be the root (e.g., http://localhost:5000/)
+        c.RoutePrefix = string.Empty;
     });
 }
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseWebAssemblyDebugging();
+}
+
+app.UseBlazorFrameworkFiles();
 
 app.UseHttpsRedirection();
 
@@ -117,5 +124,7 @@ app.UseAuthorization();
 app.UseCors("Open");
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
