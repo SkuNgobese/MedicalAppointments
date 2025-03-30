@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Domain.Models;
 
-namespace MedicalAppointments.Application.Interfaces.Shared
+namespace MedicalAppointments.Api.Application.Interfaces.Shared
 {
     public interface IPatientRegistration
     {

@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MedicalAppointments\MedicalAppointments.csproj" />
+    <ProjectReference Include="..\MedicalAppointments.Api\MedicalAppointments.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using MedicalAppointments.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Models;
 using MedicalAppointments.Api.Application.ViewModels;
 using MedicalAppointments.Api.Domain.Enums;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
 
 namespace MedicalAppointments.Api.Controllers
 {
