@@ -19,6 +19,7 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
   WORKING_DIRECTORY: MedicalAppointments.Api
+  API_STARTUP_TYPE: MedicalAppointments.Api.Program
 jobs:
   build:
     runs-on: windows-latest
@@ -44,8 +45,8 @@ jobs:
       run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version ${{ env.SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION }}
       working-directory: ${{ env.WORKING_DIRECTORY }}
     - name: Generate Open API Specification Document
-      run: swagger tofile --output "${{ env.API_IMPORT_SPECIFICATION_PATH }}" "${{ env.API_IMPORT_DLL }}" "${{ env.API_IMPORT_VERSION }}" \
-                      --startup-type MedicalAppointments.Api.Program
+      run: dotnet swagger tofile --output "${{ env.API_IMPORT_SPECIFICATION_PATH }}" "${{ env.API_IMPORT_DLL }}" "${{ env.API_IMPORT_VERSION }}"
+                      "${{ env.API_STARTUP_TYPE }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v4
       with:
