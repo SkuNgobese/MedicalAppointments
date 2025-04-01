@@ -7,6 +7,11 @@
     <UserSecretsId>aspnet-MedicalAppointments.Api-d56228a9-32bd-49de-94fc-1d60ef2b8fa2</UserSecretsId>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>1591</NoWarn>
+	</PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.3" NoWarn="NU1605" />
