@@ -41,14 +41,9 @@ jobs:
       run: dotnet test ${{ env.WORKING_DIRECTORY }} --no-build
     - name: Publish
       run: dotnet publish ${{ env.WORKING_DIRECTORY }} --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Install Swashbuckle CLI .NET Global Tool
-      run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version ${{ env.SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION }}
-      working-directory: ${{ env.WORKING_DIRECTORY }}
-    - name: Verify Swagger Tool Installation
-      run: dotnet swagger --help
     - name: Generate Open API Specification Document
-      run: dotnet swagger tofile --output "${{ env.API_IMPORT_SPECIFICATION_PATH }}" "${{ env.API_IMPORT_DLL }}" "${{ env.API_IMPORT_VERSION }}"
-                      "${{ env.API_STARTUP_TYPE }}"
+      run: |
+        curl http://localhost:7200/swagger/v1/swagger.json -o "${{ env.API_IMPORT_SPECIFICATION_PATH }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v4
       with:
