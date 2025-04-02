@@ -19,7 +19,6 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
   WORKING_DIRECTORY: MedicalAppointments.Api
-  API_STARTUP_TYPE: MedicalAppointments.Api.Program
 jobs:
   build:
     runs-on: windows-latest
@@ -41,14 +40,11 @@ jobs:
       run: dotnet test ${{ env.WORKING_DIRECTORY }} --no-build
     - name: Publish
       run: dotnet publish ${{ env.WORKING_DIRECTORY }} --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Install Swashbuckle CLI .NET Global Tool
-      run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version ${{ env.SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION }}
+    - name: Install Microsoft.Extensions.ApiDescription.Server Global
+      run: dotnet tool install --global Microsoft.Extensions.ApiDescription.Server  --version 9.0.3
       working-directory: ${{ env.WORKING_DIRECTORY }}
-    - name: Verify Swagger Tool Installation
-      run: dotnet swagger --help
     - name: Generate Open API Specification Document
-      run: |
-        curl http://localhost:7200/swagger/v1/swagger.json -o "${{ env.API_IMPORT_SPECIFICATION_PATH }}"
+      run: swagger tofile --output "${{ env.API_IMPORT_SPECIFICATION_PATH }}" "${{ env.API_IMPORT_DLL }}" "${{ env.API_IMPORT_VERSION }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v4
       with:

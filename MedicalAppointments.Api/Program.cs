@@ -101,6 +101,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(policy => policy.Expire(TimeSpan.FromMinutes(10)));
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -117,8 +122,17 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     });
 }
 
+app.UseOutputCache();
+
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi()
+        .CacheOutput();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
     app.UseWebAssemblyDebugging();
 }
 
