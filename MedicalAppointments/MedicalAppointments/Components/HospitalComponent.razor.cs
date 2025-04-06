@@ -15,6 +15,8 @@ namespace MedicalAppointments.Components
         {
             if (Hospital != null)
                 hospitals = await Hospital.GetAllHospitalsAsync();
+            else
+                hospitals = [];
         }
     }
 }

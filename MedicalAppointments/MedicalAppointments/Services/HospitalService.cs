@@ -13,13 +13,38 @@ namespace MedicalAppointments.Services
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital)
         {
-            var response = await _http.PostAsJsonAsync(_http.BaseAddress?.ToString() + _directory, hospital);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Hospital>();
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || hospital is null)
+                throw new ArgumentNullException(nameof(hospital));
+
+            try
+            {
+                var response = await _http.PostAsJsonAsync($"{_http.BaseAddress}{_directory}", hospital);
+                response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadFromJsonAsync<Hospital>();
+                return result is null ? throw new InvalidOperationException("Failed to deserialize the response.") : result;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while adding the hospital.", ex);
+            }
         }
 
-        public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync() => 
-            await _http.GetFromJsonAsync<IEnumerable<Hospital>>(_http.BaseAddress?.ToString() + _directory);
+        public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
+                return [];
+
+            try
+            {
+                var hospitals = await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_http.BaseAddress}{_directory}");
+                return hospitals ?? [];
+            }
+            catch (Exception)
+            {
+                return [];
+            }
+        }
 
         public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
             await _http.GetFromJsonAsync<Hospital>($"{_http.BaseAddress?.ToString() + _directory}/{id}");

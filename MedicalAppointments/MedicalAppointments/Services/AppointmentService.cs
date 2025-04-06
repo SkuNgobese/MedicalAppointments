@@ -12,11 +12,38 @@ namespace MedicalAppointments.Services
 
         public AppointmentService(HttpClient http) => _http = http;
 
-        public async Task<List<Appointment>> GetAppointmentsAsync() =>
-            await _http.GetFromJsonAsync<List<Appointment>>(_http.BaseAddress?.ToString() + _directory);
+        public async Task<List<Appointment>> GetAppointmentsAsync()
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
+                return [];
 
-        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
-            await _http.GetFromJsonAsync<List<Appointment>>($"{_http.BaseAddress?.ToString() + _directory}/{hospital.Id}");
+            try
+            {
+                var appointments = await _http.GetFromJsonAsync<List<Appointment>>($"{_http.BaseAddress}{_directory}");
+                return appointments ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital)
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || hospital?.Id == null)
+                return [];
+
+            try
+            {
+                var appointments = await _http.GetFromJsonAsync<List<Appointment>>(
+                    $"{_http.BaseAddress}{_directory}/{hospital.Id}");
+                return appointments ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
 
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Appointment>($"{_http.BaseAddress?.ToString() + _directory}/{id}");

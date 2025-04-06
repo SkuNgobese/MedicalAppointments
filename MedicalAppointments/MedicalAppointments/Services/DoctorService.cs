@@ -11,17 +11,54 @@ namespace MedicalAppointments.Services
 
         public DoctorService(HttpClient http) => _http = http;
 
-        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync() => 
-            await _http.GetFromJsonAsync<IEnumerable<Doctor>>(_http.BaseAddress?.ToString() + _directory);
+        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
+                return [];
 
-        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital) => 
-            await _http.GetFromJsonAsync<IEnumerable<Doctor>>($"{_http.BaseAddress?.ToString() + _directory}?hospitalId={hospital.Id}");
+            try
+            {
+                var doctors = await _http.GetFromJsonAsync<IEnumerable<Doctor>>($"{_http.BaseAddress}{_directory}");
+                return doctors ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital)
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || hospital?.Id == null)
+                return [];
+
+            try
+            {
+                var doctors = await _http.GetFromJsonAsync<IEnumerable<Doctor>>(
+                    $"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}");
+                return doctors ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
 
         public async Task<Doctor> EnrollDoctorAsync(Doctor doctor)
         {
-            var response = await _http.PostAsJsonAsync(_http.BaseAddress?.ToString() + _directory, doctor);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Doctor>();
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || doctor is null)
+                return null!;
+
+            try
+            {
+                var response = await _http.PostAsJsonAsync($"{_http.BaseAddress}{_directory}", doctor);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<Doctor>() ?? null!;
+            }
+            catch
+            {
+                return null!;
+            }
         }
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) => 
