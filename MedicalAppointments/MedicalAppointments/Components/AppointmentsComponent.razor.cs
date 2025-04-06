@@ -1,8 +1,8 @@
-﻿using MedicalAppointments.Client.Interfaces;
-using MedicalAppointments.Client.Models;
+﻿using MedicalAppointments.Interfaces;
+using MedicalAppointments.Models;
 using Microsoft.AspNetCore.Components;
 
-namespace MedicalAppointments.Client.Pages
+namespace MedicalAppointments.Components
 {
     public partial class AppointmentsComponent
     {
@@ -13,7 +13,10 @@ namespace MedicalAppointments.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            appointments = await Appointment.GetAppointmentsAsync();
+            if (Appointment != null)
+                appointments = await Appointment.GetAppointmentsAsync();
+            else
+                appointments = [];
         }
     }
 }
