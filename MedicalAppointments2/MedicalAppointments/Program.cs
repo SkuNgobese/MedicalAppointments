@@ -2,8 +2,6 @@ using MedicalAppointments.Client.Pages;
 using MedicalAppointments.Components;
 using MedicalAppointments.Components.Account;
 using MedicalAppointments.Data;
-using MedicalAppointments.Interfaces;
-using MedicalAppointments.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +15,6 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<IHospital, HospitalService>();
-builder.Services.AddScoped<IDoctor, DoctorService>();
-builder.Services.AddScoped<IAppointment, AppointmentService>();
-builder.Services.AddScoped<IPatient, PatientService>();
 
 builder.Services.AddAuthentication(options =>
     {
