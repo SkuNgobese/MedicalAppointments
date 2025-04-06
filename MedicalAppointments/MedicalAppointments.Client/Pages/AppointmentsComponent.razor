@@ -1,0 +1,12 @@
+﻿@page "/appointments"
+
+<h2 class="text-2xl font-bold mb-4">Appointments</h2>
+
+<ul class="space-y-2">
+    @foreach (var appointment in appointments)
+    {
+        <li class="p-4 border rounded shadow-sm">
+            <strong>@appointment.Patient.FullName</strong> has an appointment with @appointment.Doctor.FullName on @appointment.Date
+        </li>
+    }
+</ul>

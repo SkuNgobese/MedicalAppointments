@@ -1,0 +1,12 @@
+﻿@page "/doctors"
+
+<h2 class="text-2xl font-bold mb-4">Doctors</h2>
+
+<ul class="space-y-2">
+    @foreach (var doctor in doctors)
+    {
+        <li class="p-4 border rounded shadow-sm">
+            @doctor.FullName - @doctor.Specialization
+        </li>
+    }
+</ul>

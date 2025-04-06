@@ -14,7 +14,7 @@ namespace MedicalAppointments.Api.Application.Services
             await _repository.GetAllAsync();
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
-            await _repository.GetAllAsync(a => a.Hospital == hospital);
+            await _repository.GetAllAsync(a => a.Hospital.Id == hospital.Id);
 
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
             await _repository.GetByIdAsync(id);
