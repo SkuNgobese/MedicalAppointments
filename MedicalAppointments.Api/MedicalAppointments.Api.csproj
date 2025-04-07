@@ -40,10 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MedicalAppointments.Shared\MedicalAppointments.Shared.csproj" />
   </ItemGroup>
 

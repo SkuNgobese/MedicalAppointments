@@ -15,7 +15,7 @@ namespace MedicalAppointments.Components
         protected override async Task OnInitializedAsync()
         {
             if (Appointment != null)
-                appointments = (List<Appointment>?)await Appointment.GetAllAppointmentsAsync();
+                appointments = (await Appointment.GetAllAppointmentsAsync())?.ToList();
             else
                 appointments = [];
         }

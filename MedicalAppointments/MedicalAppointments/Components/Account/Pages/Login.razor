@@ -1,8 +1,9 @@
 ﻿@page "/Account/Login"
-@inject AuthService AuthService
+@inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
 @using System.ComponentModel.DataAnnotations
+@using MedicalAppointments.Interfaces
 @using MedicalAppointments.Services
 @using MedicalAppointments.Shared.DTOs.Auth
 
@@ -19,23 +20,27 @@
                 <ValidationSummary class="text-danger" />
 
                 <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" placeholder="Email" />
-                    <label for="Input.Email">Email</label>
+                    <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label for="Input.Email" class="form-label">Email</label>
                     <ValidationMessage For="@(() => Input.Email)" class="text-danger" />
                 </div>
 
                 <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" placeholder="Password" />
-                    <label for="Input.Password">Password</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <label for="Input.Password" class="form-label">Password</label>
+                    <ValidationMessage For="@(() => Input.Password)" class="text-danger" />
                 </div>
 
-                <div class="form-check mb-3">
-                    <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" />
-                    <label class="form-check-label">Remember me</label>
+                <div class="checkbox mb-3">
+                    <label class="form-label">
+                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                        Remember me
+                    </label>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Log in</button>
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
 
                 @if (!string.IsNullOrWhiteSpace(Message))
                 {
