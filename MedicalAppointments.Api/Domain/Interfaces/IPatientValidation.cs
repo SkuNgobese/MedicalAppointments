@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Api.Domain.Models;
+﻿using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Api.Domain.Interfaces
 {

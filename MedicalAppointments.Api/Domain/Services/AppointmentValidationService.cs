@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Api.Domain.Models;
-using MedicalAppointments.Api.Domain.Enums;
-using MedicalAppointments.Api.Domain.Interfaces;
+﻿using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Enums;
 
 namespace MedicalAppointments.Api.Domain.Services
 {

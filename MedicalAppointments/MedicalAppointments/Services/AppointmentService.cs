@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Interfaces;
-using MedicalAppointments.Models;
+﻿using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Models;
 using System.IO;
 using System.Net.Http.Json;
 
@@ -12,7 +12,7 @@ namespace MedicalAppointments.Services
 
         public AppointmentService(HttpClient http) => _http = http;
 
-        public async Task<List<Appointment>> GetAppointmentsAsync()
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
         {
             if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
                 return [];

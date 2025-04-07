@@ -1,8 +1,8 @@
-﻿using MedicalAppointments.Api.Domain.Models;
-using MedicalAppointments.Api.Infrastructure.Interfaces;
+﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using Moq;
-using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Application.Services;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Interfaces;
 
 namespace MedicalAppointments.Tests
 {
@@ -33,7 +33,7 @@ namespace MedicalAppointments.Tests
             Contact contact = new()
             {
                 Id = 2,
-                PhoneNumber = "0640617805",
+                ContactNumber = "0640617805",
                 Email = "i.skngobese@gmai.com"
             };
 

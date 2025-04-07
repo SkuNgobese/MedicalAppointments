@@ -1,20 +1,20 @@
-﻿using MedicalAppointments.Api.Application.Interfaces.Shared;
-using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Domain.Models;
+﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
+using MedicalAppointments.Shared.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Api.Application.Services.Shared
 {
     public class PatientRegistrationService : IPatientRegistration
     {
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly IUserEmailStore<User> _emailStore;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly IUserService _userService;
 
         public PatientRegistrationService(
-            UserManager<User> userManager,
-            IUserStore<User> userStore,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
             IUserService userService)
         {
             _userManager = userManager;
@@ -33,7 +33,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             if (existingUser != null)
                 return;
 
-            User user = _userService.CreateUser();
+            ApplicationUser user = _userService.CreateUser();
 
             user.UserName = patient.Email;
             user.Title = patient.Title;

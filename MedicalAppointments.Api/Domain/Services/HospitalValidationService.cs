@@ -1,5 +1,5 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Models;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Api.Domain.Services
 {

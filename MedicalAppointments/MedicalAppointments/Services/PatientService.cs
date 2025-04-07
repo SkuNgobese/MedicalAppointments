@@ -1,6 +1,5 @@
-﻿using MedicalAppointments.Interfaces;
-using MedicalAppointments.Models;
-using System.Net.Http.Json;
+﻿using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Services
 {
@@ -11,8 +10,21 @@ namespace MedicalAppointments.Services
 
         public PatientService(HttpClient http) => _http = http;
 
-        public async Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital) => 
-            await _http.GetFromJsonAsync<IEnumerable<Patient>>($"{_http.BaseAddress?.ToString() + _directory}?hospitalId={hospital.Id}");
+        public async Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital)
+        {
+            if (_http.BaseAddress is null)
+                return [];
+
+            try
+            {
+                var patients = await _http.GetFromJsonAsync<IEnumerable<Patient>>($"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}");
+                return patients ?? [];
+            }
+            catch (Exception)
+            {
+                return [];
+            }
+        }
 
         public async Task AddPatientAsync(Patient patient)
         {

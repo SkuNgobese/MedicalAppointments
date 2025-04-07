@@ -1,6 +1,6 @@
 using MedicalAppointments.Components.Account.Pages;
 using MedicalAppointments.Components.Account.Pages.Manage;
-using MedicalAppointments.Data;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

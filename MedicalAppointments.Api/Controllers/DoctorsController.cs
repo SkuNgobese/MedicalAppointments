@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Models;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Application.ViewModels;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
+using MedicalAppointments.Shared.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,18 +21,18 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IAddress _address;
         private readonly IContact _contact;
 
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly IUserEmailStore<User> _emailStore;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
 
         private readonly IUserService _userService;
-        private Task<User?> _currentUser;
+        private Task<ApplicationUser?> _currentUser;
 
         public DoctorsController(
             IDoctor doctor,
             IDoctorValidation doctorValidation,
-            UserManager<User> userManager,
-            IUserStore<User> userStore,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
             IAddress address,
             IContact contact,
             IUserService userService)
@@ -96,7 +96,7 @@ namespace MedicalAppointments.Api.Controllers
             // Create and save Contact
             Contact contact = new()
             {
-                PhoneNumber = model.ContactDetails.PhoneNumber,
+                ContactNumber = model.ContactDetails.ContactNumber,
                 Email = model.ContactDetails.Email,
                 Fax = model.ContactDetails.Fax
             };
@@ -150,7 +150,7 @@ namespace MedicalAppointments.Api.Controllers
             // Create and save Contact
             doctor.Contact = new()
             {
-                PhoneNumber = model.ContactDetails.PhoneNumber,
+                ContactNumber = model.ContactDetails.ContactNumber,
                 Email = model.ContactDetails.Email,
                 Fax = model.ContactDetails.Fax
             };

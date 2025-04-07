@@ -1,4 +1,4 @@
-using MedicalAppointments.Data;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Components.Account

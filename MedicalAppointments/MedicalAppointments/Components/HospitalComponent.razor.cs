@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Interfaces;
-using MedicalAppointments.Models;
+﻿using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace MedicalAppointments.Components

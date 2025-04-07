@@ -15,4 +15,12 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\MedicalAppointments.Shared\MedicalAppointments.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

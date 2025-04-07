@@ -1,5 +1,6 @@
-﻿using MedicalAppointments.Interfaces;
-using MedicalAppointments.Models;
+﻿
+using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace MedicalAppointments.Components
@@ -14,7 +15,7 @@ namespace MedicalAppointments.Components
         protected override async Task OnInitializedAsync()
         {
             if (Appointment != null)
-                appointments = await Appointment.GetAppointmentsAsync();
+                appointments = (List<Appointment>?)await Appointment.GetAllAppointmentsAsync();
             else
                 appointments = [];
         }

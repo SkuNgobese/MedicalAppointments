@@ -1,10 +1,10 @@
-﻿using MedicalAppointments.Api.Domain.Models;
+﻿using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalAppointments.Api.Infrastructure.Persistence.Data;
 
-public class ApplicationDbContext : IdentityDbContext<User>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -16,7 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
         base.OnModelCreating(builder);
 
         // Ensure the User entity is properly mapped
-        builder.Entity<User>().ToTable("AspNetUsers");
+        builder.Entity<ApplicationUser>().ToTable("AspNetUsers");
     }
 
     public DbSet<Hospital> Hospitals { get; set; }

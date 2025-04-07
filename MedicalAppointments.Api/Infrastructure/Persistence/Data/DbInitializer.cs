@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Api.Domain.Models;
+﻿using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
@@ -11,7 +11,7 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
         public static async Task SeedRolesAndSuperAdmin(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string[] roles = { "SuperAdmin", "Admin", "Doctor", "Patient" };
 
@@ -26,7 +26,7 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
 
             if (superAdmin == null)
             {
-                var newSuperAdmin = new User
+                var newSuperAdmin = new ApplicationUser
                 {
                     UserName = superAdminEmail,
                     Email = superAdminEmail,

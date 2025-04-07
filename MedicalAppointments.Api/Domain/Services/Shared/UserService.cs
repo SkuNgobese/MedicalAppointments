@@ -1,5 +1,5 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Domain.Models;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 
@@ -7,35 +7,35 @@ namespace MedicalAppointments.Api.Domain.Services.Shared
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
 
-        public UserService(UserManager<User> userManager, IUserStore<User> userStore)
+        public UserService(UserManager<ApplicationUser> userManager, IUserStore<ApplicationUser> userStore)
         {
             _userManager = userManager;
             _userStore = userStore;
         }
 
-        public User CreateUser()
+        public ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<User>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'. " +
-                    $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
-        public IUserEmailStore<User> GetEmailStore()
+        public IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
                 throw new NotSupportedException("The default UI requires a user store with email support.");
 
-            return (IUserEmailStore<User>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
 
         public string GenerateRandomPassword(int length)

@@ -1,4 +1,3 @@
-using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Application.Services;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Api.Domain.Interfaces;
@@ -7,18 +6,21 @@ using MedicalAppointments.Api.Domain.Services;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Infrastructure.Persistence.Data;
 using MedicalAppointments.Api.Infrastructure.Services;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Application.Services.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using MedicalAppointments.Api.Domain.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Interfaces.Shared;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Add Identity services
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();  // Add default token providers for UserManager/RoleManager
 
@@ -48,6 +50,26 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+    };
 });
 
 // Register repositories
@@ -84,6 +106,8 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -143,6 +167,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

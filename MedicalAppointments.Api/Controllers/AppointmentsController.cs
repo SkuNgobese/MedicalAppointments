@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Models;
-using MedicalAppointments.Api.Application.ViewModels;
-using MedicalAppointments.Api.Domain.Enums;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Interfaces.Shared;
+using MedicalAppointments.Shared.ViewModels;
+using MedicalAppointments.Shared.Enums;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -21,9 +21,9 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IAppointment _appointment;
         private readonly IAppointmentValidation _appointmentValidation;
 
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPatientRegistration _patientRegistration;
-        private readonly Task<User?> _currentUser;
+        private readonly Task<ApplicationUser?> _currentUser;
         private readonly Hospital _hospital;
 
         public AppointmentsController(
@@ -32,7 +32,7 @@ namespace MedicalAppointments.Api.Controllers
             IPatientValidation patientValidation,
             IAppointment appointment,
             IAppointmentValidation appointmentValidation,
-            UserManager<User> userManager,
+            UserManager<ApplicationUser> userManager,
             IPatientRegistration patientRegistration)
         {
             _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
@@ -120,7 +120,7 @@ namespace MedicalAppointments.Api.Controllers
                 LastName = model.PatientViewModel.LastName,
                 IDNumber = model.PatientViewModel.IDNumber,
                 Email = model.PatientViewModel.ContactDetails.Email,
-                PhoneNumber = model.PatientViewModel.ContactDetails.PhoneNumber,
+                PhoneNumber = model.PatientViewModel.ContactDetails.ContactNumber,
                 IsActive = true,
                 CreateDate = DateTime.Now,
 
@@ -134,7 +134,7 @@ namespace MedicalAppointments.Api.Controllers
 
                 Contact = new()
                 {
-                    PhoneNumber = model.PatientViewModel.ContactDetails.PhoneNumber,
+                    ContactNumber = model.PatientViewModel.ContactDetails.ContactNumber,
                     Email = model.PatientViewModel.ContactDetails.Email,
                     Fax = model.PatientViewModel.ContactDetails.Fax
                 },
