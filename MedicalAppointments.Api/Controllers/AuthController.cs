@@ -18,7 +18,9 @@ namespace MedicalAppointments.Api.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AuthController(UserManager<ApplicationUser> userManager,
+                              SignInManager<ApplicationUser> signInManager,
+                              IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -38,10 +40,10 @@ namespace MedicalAppointments.Api.Controllers
             if (!result.Succeeded) 
                 return BadRequest(new AuthResponseDto { Successful = false, Error = "Invalid login." });
 
-            return Ok(new AuthResponseDto { Successful = true, Token = GenerateJwtToken(user, login.RememberMe) });
+            return Ok(new AuthResponseDto { Successful = true, Token = await GenerateJwtToken(user, login.RememberMe) });
         }
 
-        private string GenerateJwtToken(ApplicationUser user, bool rememberMe)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, bool rememberMe)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
@@ -51,14 +53,20 @@ namespace MedicalAppointments.Api.Controllers
                 ? DateTime.UtcNow.AddDays(7)
                 : DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpiresInMinutes"]!));
 
+            var roles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id),
+                new(ClaimTypes.Name, user.UserName!)
+            };
+
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role));
+
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
-                claims:
-                [
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName!)
-                ],
+                claims: claims,
                 expires: expires,
                 signingCredentials: creds
             );

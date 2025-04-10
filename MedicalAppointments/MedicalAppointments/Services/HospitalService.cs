@@ -6,7 +6,7 @@ namespace MedicalAppointments.Services
     public class HospitalService : IHospital
     {
         private readonly HttpClient _http;
-        private const string _directory = "/hospitals";
+        private const string _directory = "api/hospitals";
 
         public HospitalService(HttpClient http) => _http = http;
 

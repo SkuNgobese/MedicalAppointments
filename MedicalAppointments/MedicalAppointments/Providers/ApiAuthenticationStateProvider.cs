@@ -21,20 +21,20 @@ namespace MedicalAppointments.Providers
             var token = await GetTokenAsync();
             if (string.IsNullOrWhiteSpace(token))
                 return _anonymous;
+
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth")));
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth"));
+            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+            NotifyAuthenticationStateChanged(authState);
+            
+            return new AuthenticationState(authenticatedUser);
         }
 
-        public void MarkUserAsAuthenticated(string email)
+        public void MarkUserAsAuthenticated(string token)
         {
-            var authenticatedUser = new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    new[] { 
-                        new Claim(ClaimTypes.Name, email) 
-                    }, 
-                    "apiauth")
-                );
-            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+            var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth");
+            var user = new ClaimsPrincipal(identity);
+            var authState = Task.FromResult(new AuthenticationState(user));
 
             NotifyAuthenticationStateChanged(authState);
         }

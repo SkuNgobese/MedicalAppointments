@@ -32,9 +32,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString, sqlServerOptions =>
     {
         sqlServerOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,       // Number of retry attempts
-            maxRetryDelay: TimeSpan.FromSeconds(10),  // Delay between retries
-            errorNumbersToAdd: null  // Use default SQL transient errors
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
         );
     }));
 
@@ -43,7 +43,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // Add Identity services
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();  // Add default token providers for UserManager/RoleManager
+    .AddDefaultTokenProviders();
 
 // Configure authentication cookies
 builder.Services.ConfigureApplicationCookie(options =>

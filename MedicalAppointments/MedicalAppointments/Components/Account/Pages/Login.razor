@@ -75,12 +75,9 @@
             // Store token after the component has rendered in the browser
             await StoreAuthToken(result.Token, loginModel.RememberMe);
 
-            // Let the provider know immediately
-            ((ApiAuthenticationStateProvider)AuthService.AuthenticationStateProvider)
-                .MarkUserAsAuthenticated(loginModel.Email);
-
+            NavigationManager.NavigateTo("/Hospitals");
             // Redirect to return URL
-            RedirectManager.RedirectTo(ReturnUrl);
+            //RedirectManager.RedirectTo(ReturnUrl);
         }
         else
             Error = result?.Error ?? "Login failed. Please try again.";

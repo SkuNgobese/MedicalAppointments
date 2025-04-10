@@ -35,13 +35,20 @@ namespace MedicalAppointments.Services
         public async Task<AuthResponseDto> LoginAsync(LoginDto loginModel)
         {
             var loginAsJson = JsonSerializer.Serialize(loginModel);
-            var response = await _httpClient.PostAsync("api/Auth", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-            var loginResult = JsonSerializer.Deserialize<AuthResponseDto>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var response = await _httpClient.PostAsync("api/Auth", 
+                new StringContent(loginAsJson, 
+                                  Encoding.UTF8, 
+                                  "application/json"));
+            var loginResult = JsonSerializer.Deserialize<AuthResponseDto>(
+                    await response.Content.ReadAsStringAsync(), 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
 
             if (!response.IsSuccessStatusCode)
                 return loginResult!;
 
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider)
+                                            .MarkUserAsAuthenticated(loginResult!.Token);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult!.Token);
 
