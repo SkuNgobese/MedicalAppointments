@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorage
 @inject ISessionStorageService _sessionStorage
+@inject IdentityRedirectManager RedirectManager
 
 <div class="card">
     <div class="card-body">
@@ -47,13 +48,13 @@
                     </p>
                 </div>
             </EditForm>
+            <script src="~/_framework/blazor.server.js"></script>
         </section>
     </div>
 </div>
 
 @code {
     private string Error = "";
-    private string? tokenToSave;
     private bool rememberMe;
     private bool shouldPersistToken;
 
@@ -63,33 +64,44 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
+    private bool _isFirstRender = true;
+
     private async Task HandleLogin()
     {
         var result = await AuthService.LoginAsync(loginModel);
 
-        if (!string.IsNullOrWhiteSpace(result?.Token))
+        if (result != null && result.Successful && !string.IsNullOrWhiteSpace(result.Token))
         {
-            tokenToSave = result.Token;
-            rememberMe = loginModel.RememberMe;
-            shouldPersistToken = true;
-        }
+            // Store token after the component has rendered in the browser
+            await StoreAuthToken(result.Token, loginModel.RememberMe);
 
-        if (result!.Successful)
-            NavigationManager.NavigateTo("/");
+            // Let the provider know immediately
+            ((ApiAuthenticationStateProvider)AuthService.AuthenticationStateProvider)
+                .MarkUserAsAuthenticated(loginModel.Email);
+
+            // Redirect to return URL
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
         else
-            Error = result.Error;
+            Error = result?.Error ?? "Login failed. Please try again.";
     }
 
-    protected new async Task OnAfterRenderAsync(bool firstRender)
+    private async Task StoreAuthToken(string token, bool rememberMe)
     {
-        if (shouldPersistToken && !string.IsNullOrWhiteSpace(tokenToSave))
-        {
-            if (rememberMe)
-                await _localStorage.SetItemAsync("authToken", tokenToSave);
-            else
-                await _sessionStorage.SetItemAsync("authToken", tokenToSave);
+        if (_isFirstRender)
+            return; // Avoid storage during initial server-side rendering
 
-            shouldPersistToken = false;
-        }
+        if (rememberMe)
+            await _localStorage.SetItemAsync("authToken", token);
+        else
+            await _sessionStorage.SetItemAsync("authToken", token);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            _isFirstRender = false;
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 }

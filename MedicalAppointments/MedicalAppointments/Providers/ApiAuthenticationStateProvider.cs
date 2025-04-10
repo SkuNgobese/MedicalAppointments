@@ -1,65 +1,51 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.SessionStorage;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
 namespace MedicalAppointments.Providers
 {
-    public class ApiAuthenticationStateProvider : AuthenticationStateProvider
+    public class ApiAuthenticationStateProvider(HttpClient httpClient,
+                                                ILocalStorageService localStorage,
+                                                ISessionStorageService sessionStorage) : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
-        private readonly ISessionStorageService _sessionStorage;
-
-        public ApiAuthenticationStateProvider(HttpClient httpClient,
-                                              ILocalStorageService localStorage,
-                                              ISessionStorageService sessionStorage)
-        {
-            _httpClient = httpClient;
-            _localStorage = localStorage;
-            _sessionStorage = sessionStorage;
-
-        }
+        private readonly HttpClient _httpClient = httpClient;
+        private readonly ILocalStorageService _localStorage = localStorage;
+        private readonly ISessionStorageService _sessionStorage = sessionStorage;
+        private readonly AuthenticationState _anonymous = new(new ClaimsPrincipal(new ClaimsIdentity()));
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            try
-            {
-                var savedToken = await GetTokenAsync();
-
-                if (string.IsNullOrWhiteSpace(savedToken))
-                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-
-                return new AuthenticationState(
-                    new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("JavaScript interop", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
+            var token = await GetTokenAsync();
+            if (string.IsNullOrWhiteSpace(token))
+                return _anonymous;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth")));
         }
 
         public void MarkUserAsAuthenticated(string email)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, email)], "apiauth"));
+            var authenticatedUser = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    new[] { 
+                        new Claim(ClaimTypes.Name, email) 
+                    }, 
+                    "apiauth")
+                );
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+
             NotifyAuthenticationStateChanged(authState);
         }
 
         public void MarkUserAsLoggedOut()
         {
-            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+            var authState = Task.FromResult(_anonymous);
             NotifyAuthenticationStateChanged(authState);
         }
 
-        private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+        private static List<Claim> ParseClaimsFromJwt(string jwt)
         {
             var claims = new List<Claim>();
             var payload = jwt.Split('.')[1];
@@ -70,17 +56,15 @@ namespace MedicalAppointments.Providers
 
             if (roles != null)
             {
-                if (roles.ToString()!.Trim().StartsWith("["))
+                if (!roles.ToString()!.Trim().StartsWith('['))
+                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
+                else
                 {
                     var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString()!);
 
                     foreach (var parsedRole in parsedRoles!)
                         claims.Add(new Claim(ClaimTypes.Role, parsedRole));
                 }
-                else
-                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
-
-                keyValuePairs.Remove(ClaimTypes.Role);
             }
 
             claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()!)));
@@ -88,7 +72,7 @@ namespace MedicalAppointments.Providers
             return claims;
         }
 
-        private byte[] ParseBase64WithoutPadding(string base64)
+        private static byte[] ParseBase64WithoutPadding(string base64)
         {
             switch (base64.Length % 4)
             {
@@ -100,8 +84,12 @@ namespace MedicalAppointments.Providers
 
         private async Task<string?> GetTokenAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>("authToken");
-            return token ?? await _sessionStorage.GetItemAsync<string>("authToken");
+            if (OperatingSystem.IsBrowser())
+            {
+                var token = await _localStorage.GetItemAsync<string>("authToken");
+                return token ?? await _sessionStorage.GetItemAsync<string>("authToken");
+            }
+            return null;
         }
     }
 }

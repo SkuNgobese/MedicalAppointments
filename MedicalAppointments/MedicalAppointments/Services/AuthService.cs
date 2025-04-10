@@ -4,11 +4,7 @@ using MedicalAppointments.Interfaces;
 using MedicalAppointments.Providers;
 using MedicalAppointments.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text;
 
@@ -22,6 +18,7 @@ namespace MedicalAppointments.Services
         private const string TokenKey = "authToken";
 
         private readonly AuthenticationStateProvider _authenticationStateProvider;
+        public AuthenticationStateProvider AuthenticationStateProvider => _authenticationStateProvider;
 
         public AuthService(
             HttpClient httpClient, 
