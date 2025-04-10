@@ -4,8 +4,7 @@ namespace MedicalAppointments.Interfaces
 {
     public interface IAuthService
     {
-        Task<bool> LoginAsync(LoginDto loginDto);
+        Task<AuthResponseDto> LoginAsync(LoginDto loginModel);
         Task LogoutAsync();
-        Task<string?> GetTokenAsync();
     }
 }

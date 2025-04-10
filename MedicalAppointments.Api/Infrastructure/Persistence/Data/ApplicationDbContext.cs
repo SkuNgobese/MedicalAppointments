@@ -11,14 +11,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        base.OnModelCreating(builder);
-
-        // Ensure the User entity is properly mapped
-        builder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-    }
-
     public DbSet<Hospital> Hospitals { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Patient> Patients { get; set; }

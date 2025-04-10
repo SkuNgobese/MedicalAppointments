@@ -25,17 +25,20 @@ namespace MedicalAppointments.Api.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto model)
+        [HttpPost]
+        public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized();
+            var user = await _userManager.FindByEmailAsync(login.Email);
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            if (user == null)
+                return BadRequest(new AuthResponseDto { Successful = false, Error = "User not found." });
 
-            var token = GenerateJwtToken(user, model.RememberMe);
-            return Ok(new { token });
+            var result = await _signInManager.PasswordSignInAsync(login.Email, login.Password, false, false);
+
+            if (!result.Succeeded) 
+                return BadRequest(new AuthResponseDto { Successful = false, Error = "Invalid login." });
+
+            return Ok(new AuthResponseDto { Successful = true, Token = GenerateJwtToken(user, login.RememberMe) });
         }
 
         private string GenerateJwtToken(ApplicationUser user, bool rememberMe)

@@ -3,8 +3,10 @@ using Blazored.SessionStorage;
 using MedicalAppointments.Client.Pages;
 using MedicalAppointments.Components;
 using MedicalAppointments.Interfaces;
+using MedicalAppointments.Providers;
 using MedicalAppointments.Services;
 using MedicalAppointments.Shared.Interfaces;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,7 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();

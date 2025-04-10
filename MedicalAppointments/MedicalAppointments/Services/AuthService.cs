@@ -1,59 +1,64 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using MedicalAppointments.Interfaces;
+using MedicalAppointments.Providers;
 using MedicalAppointments.Shared.DTOs.Auth;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text;
 
 namespace MedicalAppointments.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
         private readonly ISessionStorageService _sessionStorage;
         private const string TokenKey = "authToken";
 
-        public AuthService(HttpClient http, ILocalStorageService localStorage, ISessionStorageService sessionStorage)
+        private readonly AuthenticationStateProvider _authenticationStateProvider;
+
+        public AuthService(
+            HttpClient httpClient, 
+            ILocalStorageService localStorage, 
+            ISessionStorageService sessionStorage,
+            AuthenticationStateProvider authenticationStateProvider)
         {
-            _http = http;
+            _httpClient = httpClient;
             _localStorage = localStorage;
             _sessionStorage = sessionStorage;
+            _authenticationStateProvider = authenticationStateProvider;
         }
 
-        public async Task<bool> LoginAsync(LoginDto loginDto)
+        public async Task<AuthResponseDto> LoginAsync(LoginDto loginModel)
         {
-            var response = await _http.PostAsJsonAsync("auth/login", loginDto);
+            var loginAsJson = JsonSerializer.Serialize(loginModel);
+            var response = await _httpClient.PostAsync("api/Auth", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
+            var loginResult = JsonSerializer.Deserialize<AuthResponseDto>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
             if (!response.IsSuccessStatusCode)
-                return false;
+                return loginResult!;
 
-            var loginResponse = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
-            if (loginResponse == null || string.IsNullOrWhiteSpace(loginResponse.Token))
-                return false;
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
 
-            if (loginDto.RememberMe)
-                await _localStorage.SetItemAsync(TokenKey, loginResponse.Token);
-            else
-                await _sessionStorage.SetItemAsync(TokenKey, loginResponse.Token);
-           
-            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.Token);
-            return true;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult!.Token);
+
+            return loginResult!;
         }
 
         public async Task LogoutAsync()
         {
             await _localStorage.RemoveItemAsync(TokenKey);
             await _sessionStorage.RemoveItemAsync(TokenKey);
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
 
-        public async Task<string?> GetTokenAsync()
-        {
-            var token = await _localStorage.GetItemAsync<string>(TokenKey);
-            return token ?? await _sessionStorage.GetItemAsync<string>(TokenKey);
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
+
+            _httpClient.DefaultRequestHeaders.Authorization = null;
         }
     }
 }
