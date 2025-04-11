@@ -1,0 +1,20 @@
+﻿@page "/hospitals"
+
+<h2 class="text-2xl font-bold mb-4">Hospitals</h2>
+
+@if (hospitals != null && hospitals.Any())
+{
+    <ul class="space-y-2">
+        @foreach (var hospital in hospitals)
+        {
+            <li class="p-4 border rounded shadow-sm">
+                <strong>@(hospital?.Name ?? "Unknown Hospital")</strong><br />
+                Location: @(hospital?.Address?.Suburb ?? "Unknown Suburb")
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No hospitals found.</p>
+}
