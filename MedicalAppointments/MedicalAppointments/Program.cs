@@ -3,29 +3,41 @@ using Blazored.SessionStorage;
 using MedicalAppointments.Client.Pages;
 using MedicalAppointments.Components;
 using MedicalAppointments.Components.Account;
+using MedicalAppointments.Handlers;
+using MedicalAppointments.Helpers;
 using MedicalAppointments.Interfaces;
 using MedicalAppointments.Providers;
 using MedicalAppointments.Services;
 using MedicalAppointments.Shared.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped(sp => 
+////builder.Services.AddScoped(sp =>
+////    new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!) });
+
+builder.Services.AddHttpClient("AuthorizedAPI", client =>
 {
-    var client = new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!) };
-    return client;
-});
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!);
+})
+.AddHttpMessageHandler<AuthTokenHandler>();
+
+builder.Services.AddScoped<AuthTokenHandler>();
 
 // Add services to the container
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<ApiAuthenticationStateProvider>());
+
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddAuthentication(options =>
 {
@@ -48,6 +60,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthHelper>();
 
 builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();

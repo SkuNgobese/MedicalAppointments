@@ -40,7 +40,9 @@ namespace MedicalAppointments.Api.Controllers
             if (!result.Succeeded) 
                 return BadRequest(new AuthResponseDto { Successful = false, Error = "Invalid login." });
 
-            return Ok(new AuthResponseDto { Successful = true, Token = await GenerateJwtToken(user, login.RememberMe) });
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new AuthResponseDto { Successful = true, Token = await GenerateJwtToken(user, login.RememberMe), Roles = roles });
         }
 
         private async Task<string> GenerateJwtToken(ApplicationUser user, bool rememberMe)

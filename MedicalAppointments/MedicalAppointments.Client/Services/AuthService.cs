@@ -1,14 +1,14 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.SessionStorage;
-using MedicalAppointments.Interfaces;
-using MedicalAppointments.Providers;
 using MedicalAppointments.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
+using MedicalAppointments.Client.Interfaces;
+using MedicalAppointments.Client.Providers;
 
-namespace MedicalAppointments.Services
+namespace MedicalAppointments.Client.Services
 {
     public class AuthService : IAuthService
     {

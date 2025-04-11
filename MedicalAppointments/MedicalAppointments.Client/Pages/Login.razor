@@ -1,20 +1,18 @@
 ﻿@page "/Login"
 @using Blazored.LocalStorage
 @using Blazored.SessionStorage
-@using MedicalAppointments.Interfaces
-@using MedicalAppointments.Providers
+@using MedicalAppointments.Client.Interfaces
+@using MedicalAppointments.Client.Providers
 @using MedicalAppointments.Shared.DTOs.Auth
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorage
 @inject ISessionStorageService _sessionStorage
-@inject IdentityRedirectManager RedirectManager
 @rendermode InteractiveWebAssembly
 
 <div class="card">
     <div class="card-body">
         <section>
-            <StatusMessage Message="@Error" />
             <h5 class="card-title">Please enter your details</h5>
             <EditForm Model="@loginModel" method="post" OnValidSubmit="HandleLogin" FormName="login">
                 <DataAnnotationsValidator />

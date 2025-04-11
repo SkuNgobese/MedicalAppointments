@@ -1,7 +1,8 @@
 ﻿using MedicalAppointments.Shared.Interfaces;
 using MedicalAppointments.Shared.Models;
+using System.Net.Http.Json;
 
-namespace MedicalAppointments.Services
+namespace MedicalAppointments.Client.Services
 {
     public class HospitalService : IHospital
     {

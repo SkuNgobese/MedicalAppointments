@@ -1,12 +1,12 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.SessionStorage;
-using MedicalAppointments.Helpers;
+using MedicalAppointments.Client.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace MedicalAppointments.Providers
+namespace MedicalAppointments.Client.Providers
 {
     public class ApiAuthenticationStateProvider(IHttpClientFactory httpClientFactory,
                                                 AuthHelper authHelper) : AuthenticationStateProvider
