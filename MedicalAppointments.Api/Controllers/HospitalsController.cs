@@ -11,7 +11,8 @@ namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin")]
+    //[Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public class HospitalsController : ControllerBase
     {
         private readonly IHospital _hospital;

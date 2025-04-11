@@ -1,20 +1,48 @@
-﻿@page "/hospitals"
+﻿@using MedicalAppointments.Shared.Interfaces
+@using MedicalAppointments.Shared.Models
+@using MedicalAppointments.Shared.ViewModels
+@inject IHospital hospitalService
 
-<h2 class="text-2xl font-bold mb-4">Hospitals</h2>
+@page "/Hospitals"
+
+<EditForm Model="hospitalVM" OnValidSubmit="HandleValidSubmit" FormName="hospitalForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Hospital Name</label>
+        <InputText class="form-control" @bind-Value="hospitalVM.HospitalName" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Suburb</label>
+        <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Suburb" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phone Number</label>
+        <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.ContactNumber" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">@(isEditing ? "Update" : "Add") Hospital</button>
+</EditForm>
+
+<hr />
 
 @if (hospitals != null && hospitals.Any())
 {
-    <ul class="space-y-2">
+    <ul class="list-group">
         @foreach (var hospital in hospitals)
         {
-            <li class="p-4 border rounded shadow-sm">
-                <strong>@(hospital?.Name ?? "Unknown Hospital")</strong><br />
-                Location: @(hospital?.Address?.Suburb ?? "Unknown Suburb")
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>@(hospital?.Name)</strong> — @(hospital?.Address?.Suburb)
+                </span>
+                <span>
+                    <button class="btn btn-sm btn-warning me-2" @onclick="() => EditHospital(hospital!)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteHospital(hospital!)">Delete</button>
+                </span>
             </li>
         }
     </ul>
-}
-else
-{
-    <p>No hospitals found.</p>
 }

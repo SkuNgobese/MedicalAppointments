@@ -71,7 +71,7 @@
             // Store token after the component has rendered in the browser
             await StoreAuthToken(result.Token, loginModel.RememberMe);
 
-            NavigationManager.NavigateTo("/Hospitals", forceLoad: true);
+            NavigationManager.NavigateTo("/");
             // Redirect to return URL
             //RedirectManager.RedirectTo(ReturnUrl);
         }

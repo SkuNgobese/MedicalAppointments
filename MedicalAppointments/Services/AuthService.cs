@@ -12,7 +12,7 @@ namespace MedicalAppointments.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
         private readonly ILocalStorageService _localStorage;
         private readonly ISessionStorageService _sessionStorage;
         private const string TokenKey = "authToken";
@@ -26,7 +26,7 @@ namespace MedicalAppointments.Services
             ISessionStorageService sessionStorage,
             AuthenticationStateProvider authenticationStateProvider)
         {
-            _httpClient = httpClientFactory.CreateClient("AuthorizedAPI");
+            _http = httpClientFactory.CreateClient("AuthorizedAPI");
             _localStorage = localStorage;
             _sessionStorage = sessionStorage;
             _authenticationStateProvider = authenticationStateProvider;
@@ -35,7 +35,7 @@ namespace MedicalAppointments.Services
         public async Task<AuthResponseDto> LoginAsync(LoginDto loginModel)
         {
             var loginAsJson = JsonSerializer.Serialize(loginModel);
-            var response = await _httpClient.PostAsync("api/Auth", 
+            var response = await _http.PostAsync("api/Auth", 
                 new StringContent(loginAsJson, 
                                   Encoding.UTF8, 
                                   "application/json"));
@@ -50,7 +50,7 @@ namespace MedicalAppointments.Services
             ((ApiAuthenticationStateProvider)_authenticationStateProvider)
                                             .MarkUserAsAuthenticated(loginResult!.Token);
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult!.Token);
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult!.Token);
 
             return loginResult!;
         }
@@ -62,7 +62,7 @@ namespace MedicalAppointments.Services
 
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
 
-            _httpClient.DefaultRequestHeaders.Authorization = null;
+            _http.DefaultRequestHeaders.Authorization = null;
         }
     }
 }

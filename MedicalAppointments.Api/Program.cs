@@ -60,7 +60,7 @@ builder.Services.AddAuthentication(options =>
 {
     var jwtSettings = builder.Configuration.GetSection("Jwt");
     var key = builder.Configuration["Jwt:Key"];
-
+    
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -98,21 +98,33 @@ builder.Services.AddScoped<IAppointmentValidation, AppointmentValidationService>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPatientRegistration, PatientRegistrationService>();
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Open", builder =>
-    {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+    options.AddPolicy("AllowBlazorClient",
+        policy =>
+        {
+            policy.WithOrigins(allowedOrigins!)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
-builder.Services.AddAuthorization();
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazorClient",
+//        policy =>
+//        {
+//            policy
+//                .SetIsOriginAllowed(_ => true) 
+//                .AllowAnyHeader()
+//                .AllowAnyMethod()
+//                .AllowCredentials(); 
+//        });
+//});
 
-// Add services to the container.
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
@@ -169,11 +181,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("AllowBlazorClient");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors("Open");
 
 app.MapControllers();
 

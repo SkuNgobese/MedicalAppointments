@@ -7,7 +7,7 @@ namespace MedicalAppointments.Services
     public class HospitalService : IHospital
     {
         private readonly HttpClient _http;
-        private const string _directory = "api/hospitals";
+        private const string _directory = "api/Hospitals";
 
         public HospitalService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
@@ -18,7 +18,7 @@ namespace MedicalAppointments.Services
 
             try
             {
-                var response = await _http.PostAsJsonAsync($"{_http.BaseAddress}{_directory}", hospital);
+                var response = await _http.PostAsJsonAsync($"{_directory}", hospital);
                 response.EnsureSuccessStatusCode();
 
                 var result = await response.Content.ReadFromJsonAsync<Hospital>();
@@ -37,12 +37,13 @@ namespace MedicalAppointments.Services
 
             try
             {
-                var hospitals = await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_http.BaseAddress}{_directory}");
+                var hospitals = await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_directory}");
                 return hospitals ?? [];
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return [];
+                throw new Exception(ex.Message);
+                //return [];
             }
         }
 
