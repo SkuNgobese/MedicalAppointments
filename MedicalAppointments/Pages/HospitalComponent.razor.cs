@@ -8,7 +8,7 @@ namespace MedicalAppointments.Pages
     public partial class HospitalComponent
     {
         [Inject]
-        public IHospital? Hospital { get; set; }
+        private IHospital? _hospital { get; set; }
 
         protected IEnumerable<Hospital>? hospitals;
 
@@ -38,13 +38,11 @@ namespace MedicalAppointments.Pages
                 Email = string.Empty
             }
         };
-
-        public HospitalComponent(List<Hospital> allHospitals) => this.hospitals = allHospitals;
-                
+    
         private async Task LoadHospitals()
         {
-            if (Hospital != null)
-                hospitals = await Hospital.GetAllHospitalsAsync();
+            if (_hospital != null)
+                hospitals = await _hospital.GetAllHospitalsAsync();
             else
                 hospitals = [];
         }
@@ -73,10 +71,10 @@ namespace MedicalAppointments.Pages
             if (isEditing && editingHospitalId.HasValue)
             {
                 hospital.Id = editingHospitalId.Value;
-                await hospitalService.UpdateHospitalAsync(hospital);
+                await _hospital!.UpdateHospitalAsync(hospital);
             }
             else
-                await hospitalService.AddHospitalAsync(hospital);
+                await _hospital!.AddHospitalAsync(hospital);
 
             await LoadHospitals();
             ResetForm();
@@ -109,7 +107,7 @@ namespace MedicalAppointments.Pages
 
         private async Task DeleteHospital(Hospital hospital)
         {
-            await hospitalService.RemoveHospitalAsync(hospital);
+            await _hospital!.RemoveHospitalAsync(hospital);
             await LoadHospitals();
         }
 

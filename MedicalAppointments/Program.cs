@@ -7,6 +7,7 @@ using MedicalAppointments.Interfaces;
 using MedicalAppointments.Providers;
 using MedicalAppointments.Services;
 using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

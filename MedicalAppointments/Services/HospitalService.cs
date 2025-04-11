@@ -48,17 +48,17 @@ namespace MedicalAppointments.Services
         }
 
         public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
-            await _http.GetFromJsonAsync<Hospital>($"{_http.BaseAddress?.ToString() + _directory}/{id}");
+            await _http.GetFromJsonAsync<Hospital>($"{_directory}/{id}");
 
         public async Task RemoveHospitalAsync(Hospital hospital)
         {
-            var response = await _http.DeleteAsync($"{_http.BaseAddress?.ToString() + _directory}/{hospital.Id}");
+            var response = await _http.DeleteAsync($"{_directory}/{hospital.Id}");
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateHospitalAsync(Hospital hospital)
         {
-            var response = await _http.PutAsJsonAsync($"{_http.BaseAddress?.ToString() + _directory}/{hospital.Id}", hospital);
+            var response = await _http.PutAsJsonAsync($"{_directory}/{hospital.Id}", hospital);
             response.EnsureSuccessStatusCode();
         }
     }
