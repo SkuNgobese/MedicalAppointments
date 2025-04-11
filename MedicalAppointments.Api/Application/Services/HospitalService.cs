@@ -14,9 +14,6 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
             await _repository.AddAsync(hospital);
 
-        //public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync() =>
-        //    await _repository.GetAllAsync();
-
         public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
         {
             var hospitals = await _repository.GetAllAsync(h => h.Address!, h => h.Contact!);

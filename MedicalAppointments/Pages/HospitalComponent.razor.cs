@@ -15,6 +15,9 @@ namespace MedicalAppointments.Pages
         private bool isEditing = false;
         private int? editingHospitalId = null;
 
+        private bool showDeleteModal = false;
+        private Hospital? hospitalToDelete;
+
         protected override async Task OnInitializedAsync()
         {
             await LoadHospitals();
@@ -105,10 +108,28 @@ namespace MedicalAppointments.Pages
             isEditing = true;
         }
 
-        private async Task DeleteHospital(Hospital hospital)
+        private void ConfirmDelete(Hospital hospital)
         {
-            await _hospital!.RemoveHospitalAsync(hospital);
-            await LoadHospitals();
+            hospitalToDelete = hospital;
+            showDeleteModal = true;
+        }
+
+        private async Task DeleteConfirmed()
+        {
+            if (hospitalToDelete is not null)
+            {
+                await _hospital!.RemoveHospitalAsync(hospitalToDelete);
+                await LoadHospitals();
+                hospitalToDelete = null;
+            }
+
+            showDeleteModal = false;
+        }
+
+        private void CancelDelete()
+        {
+            hospitalToDelete = null;
+            showDeleteModal = false;
         }
 
         private void ResetForm()

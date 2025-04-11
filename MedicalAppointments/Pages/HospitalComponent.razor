@@ -9,21 +9,70 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
+    <!-- Hospital Info -->
     <div class="mb-3">
         <label class="form-label">Hospital Name</label>
         <InputText class="form-control" @bind-Value="hospitalVM.HospitalName" />
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Suburb</label>
-        <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Suburb" />
+    <!-- Grouped Address & Contact Info -->
+    <div class="row">
+        <!-- Address (Left Column) -->
+        <div class="col-md-6">
+            <fieldset class="border p-3 rounded mb-3">
+                <legend class="float-none w-auto px-2">Address</legend>
+
+                <div class="mb-3">
+                    <label class="form-label">Street</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Street" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Suburb</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Suburb" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.City" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Postal Code</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.PostalCode" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Country</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Country" />
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Contact (Right Column) -->
+        <div class="col-md-6">
+            <fieldset class="border p-3 rounded mb-3">
+                <legend class="float-none w-auto px-2">Contact</legend>
+
+                <div class="mb-3">
+                    <label class="form-label">Contact Number</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.ContactNumber" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.Email" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fax</label>
+                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.Fax" />
+                </div>
+            </fieldset>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Phone Number</label>
-        <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.ContactNumber" />
-    </div>
-
+    <!-- Submit -->
     <button type="submit" class="btn btn-primary">@(isEditing ? "Update" : "Add") Hospital</button>
 </EditForm>
 
@@ -40,9 +89,32 @@
                 </span>
                 <span>
                     <button class="btn btn-sm btn-warning me-2" @onclick="() => EditHospital(hospital!)">Edit</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteHospital(hospital!)">Delete</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(hospital!)">Delete</button>
                 </span>
             </li>
         }
     </ul>
+}
+
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@hospitalToDelete?.Name</strong>?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteConfirmed">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
