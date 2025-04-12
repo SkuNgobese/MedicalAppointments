@@ -57,10 +57,16 @@ namespace MedicalAppointments.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetDoctors()
         {
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync();
+            IEnumerable<Doctor> _doctors = null!;
 
-            var _doctors = await _doctor.GetAllDoctorsAsync(hospital);
+            if (sysAdmin != null)
+            {
+                var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+                _doctors = await _doctor.GetAllDoctorsAsync(hospital);
+            }
+            else
+                _doctors = await _doctor.GetAllDoctorsAsync();
 
             if (_doctors == null)
                 return NotFound();
@@ -187,6 +193,8 @@ namespace MedicalAppointments.Api.Controllers
 
             if (existingUser != null)
                 return existingUser as Doctor;
+
+            var user = _userService.CreateUser<Doctor>();
 
             await _userStore.SetUserNameAsync(doctor, doctor.Contact.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(doctor, doctor.Contact.Email, CancellationToken.None);

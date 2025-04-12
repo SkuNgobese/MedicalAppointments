@@ -37,6 +37,8 @@ namespace MedicalAppointments.Pages
             }
         };
 
+        private List<string> titles = new() { "Dr", "Mr", "Mrs", "Miss", "Ms", "Prof" };
+
         private bool isEditing = false;
         private string? editingDoctorId = null;
         private int? editingAddressId = null;
@@ -73,10 +75,6 @@ namespace MedicalAppointments.Pages
                     ContactNumber = doctorVM.ContactDetails.ContactNumber,
                     Fax = doctorVM.ContactDetails.Fax,
                     Email = doctorVM.ContactDetails.Email
-                },
-                Hospital = new Hospital
-                {
-                    Name = string.Empty,
                 }
             };
 

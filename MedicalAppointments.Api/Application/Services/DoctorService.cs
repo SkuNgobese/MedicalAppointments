@@ -44,7 +44,11 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital)
         {
-            var doctors = await _repository.GetAllAsync(d => d.Hospital!.Id == hospital.Id);
+            var doctors = await _repository.GetAllAsync(
+                                d => d.Address!,
+                                d => d.Contact!,
+                                d => d.Hospital!
+                            );
 
             if (!doctors.Any())
                 return [];

@@ -1,19 +1,43 @@
 ﻿@page "/Doctors"
 
-<h2 class="text-2xl font-bold mb-4">Doctors</h2>
-
 <EditForm Model="doctorVM" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <h4>@(isEditing ? "Edit Doctor" : "Add Doctor")</h4>
 
-    <div class="grid grid-cols-2 gap-4 mb-4">
-        <InputText class="form-control" @bind-Value="doctorVM.Title" placeholder="Title" />
-        <InputText class="form-control" @bind-Value="doctorVM.FirstName" placeholder="First Name" />
-        <InputText class="form-control" @bind-Value="doctorVM.LastName" placeholder="Last Name" />
-        <InputText class="form-control" @bind-Value="doctorVM.IDNumber" placeholder="ID Number" />
-        <InputText class="form-control" @bind-Value="doctorVM.Specialization" placeholder="Specialization" />
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <InputSelect class="form-control" @bind-Value="doctorVM.Title">
+            @foreach (var title in titles)
+            {
+                <option value="@title">@title</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">First Name</label>
+        <InputText class="form-control" @bind-Value="doctorVM.FirstName" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Last Name</label>
+        <InputText class="form-control" @bind-Value="doctorVM.LastName" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">ID Number</label>
+        <InputText class="form-control" @bind-Value="doctorVM.IDNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Specialization</label>
+        <InputText class="form-control" @bind-Value="doctorVM.Specialization" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Hire Date</label>
         <InputDate class="form-control" @bind-Value="doctorVM.HireDate" />
     </div>
 
@@ -72,7 +96,8 @@
     </div>
     <button class="btn btn-primary" type="submit">@((isEditing ? "Update" : "Add"))</button>
 </EditForm>
-
+<br/>
+<hr/>
 @if (doctors is not null && doctors.Any())
 {
     <ul class="space-y-2">
