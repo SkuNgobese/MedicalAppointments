@@ -6,8 +6,8 @@ using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.ViewModels;
 using MedicalAppointments.Shared.Interfaces;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.EntityFrameworkCore;
+using MedicalAppointments.Api.Application;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -16,6 +16,7 @@ namespace MedicalAppointments.Api.Controllers
     [Authorize(Roles = "SuperAdmin,Admin")]
     public class DoctorsController : ControllerBase
     {
+        private readonly IHospital _hospital;
         private readonly IDoctor _doctor;
         private readonly IDoctorValidation _doctorValidation;
         private readonly IAddress _address;
@@ -26,17 +27,21 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
 
         private readonly IUserService _userService;
-        private Task<ApplicationUser?> _currentUser;
+
+        private readonly Helpers _helpers;
 
         public DoctorsController(
+            IHospital hospital,
             IDoctor doctor,
             IDoctorValidation doctorValidation,
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             IAddress address,
             IContact contact,
-            IUserService userService)
+            IUserService userService,
+            Helpers helpers)
         {
+            _hospital = hospital;
             _doctor = doctor;
             _doctorValidation = doctorValidation;
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -45,16 +50,15 @@ namespace MedicalAppointments.Api.Controllers
             _contact = contact;
             _userService = userService;
             _emailStore = _userService!.GetEmailStore();
-
-            _currentUser = _userManager.GetUserAsync(User);
+            _helpers = helpers;
         }
 
         // GET: api/<DoctorsController>
         [HttpGet]
         public async Task<IActionResult> GetDoctors()
         {
-            var currentUser = await _currentUser ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = currentUser.Hospital ?? throw new InvalidOperationException("Hospital not found");
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
 
             var _doctors = await _doctor.GetAllDoctorsAsync(hospital);
 
@@ -78,8 +82,6 @@ namespace MedicalAppointments.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddDoctor([FromBody] DoctorViewModel model)
         {
-            var currentUser = await _currentUser ?? throw new InvalidOperationException("Unauthorized.");
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -102,7 +104,8 @@ namespace MedicalAppointments.Api.Controllers
             };
             contact = await _contact.AddContact(contact);
 
-            var hospital = currentUser.Hospital ?? throw new InvalidOperationException("Hospital not found");
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
 
             Doctor doctor = new()
             {

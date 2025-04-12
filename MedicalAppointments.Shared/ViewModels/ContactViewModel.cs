@@ -5,11 +5,11 @@ namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class ContactViewModel
     {
-        [DisplayName("Phone Number")]
+        [Required, DisplayName("Phone Number")]
         [Phone]
         public required string ContactNumber { get; set; }
 
-        [DisplayName("Email")]
+        [Required, DisplayName("Email")]
         [EmailAddress]
         public string? Email { get; set; }
 

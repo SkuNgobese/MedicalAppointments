@@ -1,7 +1,6 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Shared.Interfaces;
 using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -20,9 +19,11 @@ namespace MedicalAppointments.Api.Application.Services
 
             return hospitals.Select(h => new Hospital
             {
+                Id = h.Id,
                 Name = h.Name,
                 Address = new Address
                 {
+                    Id = h.Address?.Id ?? 0,
                     Street = h.Address?.Street ?? string.Empty,
                     Suburb = h.Address?.Suburb ?? string.Empty,
                     City = h.Address?.City ?? string.Empty,
@@ -31,6 +32,7 @@ namespace MedicalAppointments.Api.Application.Services
                 },
                 Contact = new Contact
                 {
+                    Id = h.Contact?.Id ?? 0,
                     Email = h.Contact?.Email ?? string.Empty,
                     ContactNumber = h.Contact?.ContactNumber ?? string.Empty,
                     Fax = h.Contact?.Fax ?? string.Empty

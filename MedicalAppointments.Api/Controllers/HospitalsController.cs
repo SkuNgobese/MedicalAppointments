@@ -4,15 +4,13 @@ using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.ViewModels;
 using MedicalAppointments.Shared.Interfaces;
 
 namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "SuperAdmin")]
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public class HospitalsController : ControllerBase
     {
         private readonly IHospital _hospital;
@@ -69,37 +67,10 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddHospital([FromBody] HospitalViewModel model)
+        public async Task<IActionResult> AddHospital([FromBody] Hospital hospital)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Create and save Address
-            Address address = new()
-            {
-                Street = model.AddressDetails.Street,
-                City = model.AddressDetails.City,
-                Suburb = model.AddressDetails.Suburb,
-                PostalCode = model.AddressDetails.PostalCode
-            };
-            address = await _address.AddAddress(address);
-
-            // Create and save Contact
-            Contact contact = new()
-            {
-                ContactNumber = model.ContactDetails.ContactNumber,
-                Email = model.ContactDetails.Email,
-                Fax = model.ContactDetails.Fax
-            };
-            contact = await _contact.AddContact(contact);
-
-            // Create Hospital
-            Hospital hospital = new()
-            {
-                Name = model.HospitalName,
-                Address = address,
-                Contact = contact
-            };
 
             // Validate before adding
             var hospitals = await _hospital.GetAllHospitalsAsync();
@@ -115,9 +86,9 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateHospital(int id, [FromBody] HospitalViewModel model)
+        public async Task<IActionResult> UpdateHospital(int id, [FromBody] Hospital hospital)
         {
-            if (model == null)
+            if (hospital == null)
                 return BadRequest("Invalid hospital data.");
             
             var existingHospital = await _hospital.GetHospitalByIdAsync(id);
@@ -127,29 +98,36 @@ namespace MedicalAppointments.Api.Controllers
             // Create and save Address
             existingHospital.Address = new()
             {
-                Street = model.AddressDetails.Street,
-                City = model.AddressDetails.City,
-                Suburb = model.AddressDetails.Suburb,
-                PostalCode = model.AddressDetails.PostalCode
+                Id = hospital.Address!.Id,
+                Street = hospital.Address!.Street,
+                City = hospital.Address!.City,
+                Suburb = hospital.Address!.Suburb,
+                PostalCode = hospital.Address!.PostalCode,
+                Country = hospital.Address.Country
             };
             await _address.UpdateAddress(existingHospital.Address);
 
             // Create and save Contact
             existingHospital.Contact = new()
             {
-                ContactNumber = model.ContactDetails.ContactNumber,
-                Email = model.ContactDetails.Email,
-                Fax = model.ContactDetails.Fax
+                Id = hospital.Contact!.Id,
+                ContactNumber = hospital.Contact!.ContactNumber,
+                Email = hospital.Contact!.Email,
+                Fax = hospital.Contact!.Fax
             };
             await _contact.UpdateContact(existingHospital.Contact);
 
-            // Update existing hospital properties
-            existingHospital.Name = model.HospitalName;
-            var hospitals = await _hospital.GetAllHospitalsAsync();
+            if (!hospital.Name.Equals(existingHospital.Name))
+            {
+                var hospitals = await _hospital.GetAllHospitalsAsync();
 
-            if (_hospitalValidation.CanUpdateHospital(existingHospital, [.. hospitals]))
-                await _hospital.UpdateHospitalAsync(existingHospital);
-
+                if (_hospitalValidation.CanUpdateHospital(hospital, [.. hospitals]))
+                {
+                    existingHospital.Name = hospital.Name;
+                    await _hospital.UpdateHospitalAsync(existingHospital);
+                }
+            }
+            
             return Ok(existingHospital);
         }
 
@@ -177,12 +155,13 @@ namespace MedicalAppointments.Api.Controllers
             if (existingUser != null)
                 return;
 
-            ApplicationUser user = _userService.CreateUser();
+            var user = _userService.CreateUser<SysAdmin>();
 
             user.UserName = hospital.Contact.Email;
             user.Title = "Admin";
             user.FirstName = hospital.Name;
             user.LastName = "Admin";
+            user.Hospital = hospital;
 
             await _userStore.SetUserNameAsync(user, hospital.Contact.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, hospital.Contact.Email, CancellationToken.None);

@@ -1,19 +1,20 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class UserViewModel
     {
-        [DisplayName("Title")]
+        [Required, DisplayName("Title")]
         public required string Title { get; set; }
 
-        [DisplayName("First Name")]
+        [Required, DisplayName("First Name")]
         public required string FirstName { get; set; }
 
-        [DisplayName("Last Name")]
+        [Required, DisplayName("Last Name")]
         public required string LastName { get; set; }
 
-        [DisplayName("ID Number")]
+        [Required, DisplayName("ID Number")]
         public required string IDNumber { get; set; }
 
         public required AddressViewModel AddressDetails { get; set; }

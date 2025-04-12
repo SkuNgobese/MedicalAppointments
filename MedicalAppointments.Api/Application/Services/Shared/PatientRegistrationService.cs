@@ -33,7 +33,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             if (existingUser != null)
                 return;
 
-            ApplicationUser user = _userService.CreateUser();
+            Patient user = _userService.CreateUser<Patient>();
 
             user.UserName = patient.Email;
             user.Title = patient.Title;
@@ -41,7 +41,6 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             user.LastName = patient.LastName;
             user.Address = patient.Address;
             user.Contact = patient.Contact;
-            user.Hospital = patient.Hospital;
 
             await _userStore.SetUserNameAsync(user, patient.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, patient.Email, CancellationToken.None);

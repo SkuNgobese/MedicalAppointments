@@ -7,22 +7,21 @@ namespace MedicalAppointments.Services
     public class HospitalService : IHospital
     {
         private readonly HttpClient _http;
-        private const string _directory = "api/Hospitals";
+        private const string _endPoint = "api/Hospitals";
 
         public HospitalService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital)
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || hospital is null)
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || hospital is null)
                 throw new ArgumentNullException(nameof(hospital));
 
             try
             {
-                var response = await _http.PostAsJsonAsync($"{_directory}", hospital);
+                var response = await _http.PostAsJsonAsync($"{_endPoint}", hospital);
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<Hospital>();
-                return result is null ? throw new InvalidOperationException("Failed to deserialize the response.") : result;
+                return await response.Content.ReadFromJsonAsync<Hospital>() ?? throw new InvalidOperationException("Failed to deserialize the response.");
             }
             catch (Exception ex)
             {
@@ -32,33 +31,31 @@ namespace MedicalAppointments.Services
 
         public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
                 return [];
 
             try
             {
-                var hospitals = await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_directory}");
-                return hospitals ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_endPoint}") ?? [];
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-                //return [];
             }
         }
 
         public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
-            await _http.GetFromJsonAsync<Hospital>($"{_directory}/{id}");
+            await _http.GetFromJsonAsync<Hospital>($"{_endPoint}/{id}");
 
         public async Task RemoveHospitalAsync(Hospital hospital)
         {
-            var response = await _http.DeleteAsync($"{_directory}/{hospital.Id}");
+            var response = await _http.DeleteAsync($"{_endPoint}/{hospital.Id}");
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateHospitalAsync(Hospital hospital)
         {
-            var response = await _http.PutAsJsonAsync($"{_directory}/{hospital.Id}", hospital);
+            var response = await _http.PutAsJsonAsync($"{_endPoint}/{hospital.Id}", hospital);
             response.EnsureSuccessStatusCode();
         }
     }

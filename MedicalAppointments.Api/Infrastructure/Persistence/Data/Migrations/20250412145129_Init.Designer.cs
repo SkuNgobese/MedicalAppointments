@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MedicalAppointments.Api.Infrastructure.Persistence.Data.Migrations
+namespace MedicalAppointments.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250407072610_AppUser")]
-    partial class AppUser
+    [Migration("20250412145129_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -503,6 +503,24 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data.Migrations
                     b.HasDiscriminator().HasValue("Patient");
                 });
 
+            modelBuilder.Entity("MedicalAppointments.Shared.Models.SysAdmin", b =>
+                {
+                    b.HasBaseType("MedicalAppointments.Shared.Models.ApplicationUser");
+
+                    b.Property<int?>("HospitalId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("HospitalId");
+
+                    b.ToTable("AspNetUsers", t =>
+                        {
+                            t.Property("HospitalId")
+                                .HasColumnName("SysAdmin_HospitalId");
+                        });
+
+                    b.HasDiscriminator().HasValue("SysAdmin");
+                });
+
             modelBuilder.Entity("MedicalAppointments.Shared.Models.ApplicationUser", b =>
                 {
                     b.HasOne("MedicalAppointments.Shared.Models.Address", "Address")
@@ -638,6 +656,15 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data.Migrations
                     b.Navigation("Hospital");
 
                     b.Navigation("PrimaryDoctor");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Shared.Models.SysAdmin", b =>
+                {
+                    b.HasOne("MedicalAppointments.Shared.Models.Hospital", "Hospital")
+                        .WithMany()
+                        .HasForeignKey("HospitalId");
+
+                    b.Navigation("Hospital");
                 });
 
             modelBuilder.Entity("MedicalAppointments.Shared.Models.Hospital", b =>

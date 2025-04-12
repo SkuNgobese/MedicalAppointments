@@ -18,12 +18,11 @@ namespace MedicalAppointments.Services
 
             try
             {
-                var patients = await _http.GetFromJsonAsync<IEnumerable<Patient>>($"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}");
-                return patients ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<Patient>>($"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}") ?? [];
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return [];
+                throw new Exception(ex.Message);
             }
         }
 

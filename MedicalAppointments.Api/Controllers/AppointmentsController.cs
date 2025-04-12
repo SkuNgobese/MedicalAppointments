@@ -7,6 +7,7 @@ using MedicalAppointments.Shared.Interfaces;
 using MedicalAppointments.Shared.Interfaces.Shared;
 using MedicalAppointments.Shared.ViewModels;
 using MedicalAppointments.Shared.Enums;
+using MedicalAppointments.Api.Application;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -15,43 +16,45 @@ namespace MedicalAppointments.Api.Controllers
     [Authorize(Roles = "SuperAdmin,Admin,Doctor")]
     public class AppointmentsController : ControllerBase
     {
+        private readonly IHospital _hospital;
         private readonly IDoctor _doctor;
         private readonly IPatient _patient;
         private readonly IPatientValidation _patientValidation;
         private readonly IAppointment _appointment;
         private readonly IAppointmentValidation _appointmentValidation;
 
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPatientRegistration _patientRegistration;
-        private readonly Task<ApplicationUser?> _currentUser;
-        private readonly Hospital _hospital;
+
+        private readonly Helpers _helpers;
 
         public AppointmentsController(
+            IHospital hospital,
             IDoctor doctor,
             IPatient patient,
             IPatientValidation patientValidation,
             IAppointment appointment,
             IAppointmentValidation appointmentValidation,
-            UserManager<ApplicationUser> userManager,
-            IPatientRegistration patientRegistration)
+            IPatientRegistration patientRegistration,
+            Helpers helpers)
         {
-            _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
-            _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
+            _hospital = hospital ?? throw new ArgumentNullException(nameof(hospital));
             _doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
             _patient = patient ?? throw new ArgumentNullException(nameof(patient));
             _patientValidation = patientValidation ?? throw new ArgumentNullException(nameof(patientValidation));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _patientRegistration = patientRegistration;
-
-            _currentUser = _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("Unauthorized.");
-            _hospital = _currentUser.Result?.Hospital ?? throw new InvalidOperationException("Hospital not found");
+            _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
+            _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
+            _helpers = helpers ?? throw new ArgumentNullException(nameof(helpers));
         }
 
         // GET: api/<AppointmentController>
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
-            var appointments = await _appointment.GetAllAppointmentsAsync(_hospital);
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+
+            var appointments = await _appointment.GetAllAppointmentsAsync(hospital);
 
             if (appointments == null)
                 return NotFound();
@@ -92,18 +95,21 @@ namespace MedicalAppointments.Api.Controllers
 
         private async Task<Appointment> CreateAppointment(AppointmentViewModel model)
         {
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+
             Patient patient;
 
             if (!string.IsNullOrEmpty(model.PatientId))
                 patient = await _patient.GetPatientByIdAsync(model.PatientId) ?? throw new InvalidOperationException("Patient not found.");
             else
-                patient = await CreateNewPatient(model);
+                patient = await CreateNewPatient(model, hospital);
 
             Appointment appointment = new()
             {
                 Date = model.Date,
                 Description = model.Description,
-                Hospital = _hospital,
+                Hospital = hospital,
                 Doctor = await _doctor.GetDoctorByIdAsync(model.DoctorId) ?? throw new InvalidOperationException("Doctor not found."),
                 Patient = patient ?? throw new InvalidOperationException("Patient cannot be null.")
             };
@@ -111,8 +117,10 @@ namespace MedicalAppointments.Api.Controllers
             return appointment;
         }
 
-        private async Task<Patient> CreateNewPatient(AppointmentViewModel model)
+        private async Task<Patient> CreateNewPatient(AppointmentViewModel model, Hospital hospital)
         {
+
+
             Patient patient = new()
             {
                 Title = model.PatientViewModel.Title,
@@ -139,10 +147,10 @@ namespace MedicalAppointments.Api.Controllers
                     Fax = model.PatientViewModel.ContactDetails.Fax
                 },
 
-                Hospital = _hospital
+                Hospital = hospital
             };
 
-            var patients = await _patient.GetAllPatientsAsync(_hospital);
+            var patients = await _patient.GetAllPatientsAsync(hospital);
 
             if (_patientValidation.CanAddPatient(patient, [.. patients]))
                 await _patient.AddPatientAsync(patient);
@@ -153,11 +161,14 @@ namespace MedicalAppointments.Api.Controllers
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
         public async Task<IActionResult> ReAssignAppointment(int appointmentId, string doctorId)
         {
+            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+
             var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)
                 return NotFound("Appointment not found.");
 
-            var newDoctor = await _doctor.GetDoctorByIdAsync(doctorId, _hospital);
+            var newDoctor = await _doctor.GetDoctorByIdAsync(doctorId, hospital);
             if (newDoctor == null)
                 return NotFound("Doctor not found.");
 

@@ -16,6 +16,7 @@ namespace MedicalAppointments.Shared.Models
         [JsonPropertyName("isactive")]
         public bool IsActive { get; set; }
 
+        public Hospital? Hospital { get; set; }
         public Doctor? PrimaryDoctor { get; set; }
         public ICollection<Appointment> Appointments { get; set; } = [];
         public ICollection<DiagnosticFile> DiagnosticFiles { get; set; } = [];

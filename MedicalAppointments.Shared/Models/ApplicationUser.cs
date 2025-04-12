@@ -17,8 +17,7 @@ namespace MedicalAppointments.Shared.Models
 
         public Contact? Contact { get; set; }
         public Address? Address { get; set; }
-        public Hospital? Hospital { get; set; }
-
+        
         [NotMapped]
         [JsonPropertyName("fullname")]
         public string FullName => $"{Title}. {FirstName?[..1]} {LastName}";

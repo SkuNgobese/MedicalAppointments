@@ -21,7 +21,7 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
 
             // Create the SuperAdmin user if not exists
-            var superAdminEmail = "i.skngobese@gmail.com";
+            var superAdminEmail = configuration["SuperAdmin:Email"]!;
             var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
 
             if (superAdmin == null)

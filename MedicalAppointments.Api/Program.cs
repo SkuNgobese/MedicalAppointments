@@ -21,6 +21,7 @@ using MedicalAppointments.Shared.Interfaces;
 using MedicalAppointments.Shared.Interfaces.Shared;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MedicalAppointments.Api.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +82,7 @@ builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
 builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
 
 // Register services
+builder.Services.AddScoped<ISysAdmin, SysAdminService>();
 builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IPatient, PatientService>();
@@ -93,6 +95,8 @@ builder.Services.AddScoped<IHospitalValidation, HospitalValidationService>();
 builder.Services.AddScoped<IDoctorValidation, DoctorValidationService>();
 builder.Services.AddScoped<IPatientValidation, PatientValidationService>();
 builder.Services.AddScoped<IAppointmentValidation, AppointmentValidationService>();
+
+builder.Services.AddScoped<Helpers>();
 
 // Register user-related services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -110,19 +114,6 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod();
         });
 });
-
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowBlazorClient",
-//        policy =>
-//        {
-//            policy
-//                .SetIsOriginAllowed(_ => true) 
-//                .AllowAnyHeader()
-//                .AllowAnyMethod()
-//                .AllowCredentials(); 
-//        });
-//});
 
 builder.Services.AddAuthorization();
 
@@ -143,7 +134,6 @@ builder.Services.AddOutputCache(options =>
     options.AddBasePolicy(policy => policy.Expire(TimeSpan.FromMinutes(10)));
 });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -182,6 +172,16 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseCors("AllowBlazorClient");
+
+
+// Seed roles and super admin
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var config = services.GetRequiredService<IConfiguration>();
+
+    await DbInitializer.SeedRolesAndSuperAdmin(services, config);
+}
 
 app.UseAuthentication();
 

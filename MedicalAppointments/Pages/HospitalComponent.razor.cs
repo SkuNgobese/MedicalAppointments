@@ -14,6 +14,8 @@ namespace MedicalAppointments.Pages
 
         private bool isEditing = false;
         private int? editingHospitalId = null;
+        private int? editingAddressId = null;
+        private int? editingContactId = null;
 
         private bool showDeleteModal = false;
         private Hospital? hospitalToDelete;
@@ -74,6 +76,13 @@ namespace MedicalAppointments.Pages
             if (isEditing && editingHospitalId.HasValue)
             {
                 hospital.Id = editingHospitalId.Value;
+
+                if (editingAddressId.HasValue)
+                    hospital.Address.Id = editingAddressId.Value;
+
+                if (editingContactId.HasValue)
+                    hospital.Contact.Id = editingContactId.Value;
+
                 await _hospital!.UpdateHospitalAsync(hospital);
             }
             else
@@ -105,6 +114,9 @@ namespace MedicalAppointments.Pages
             };
 
             editingHospitalId = hospital.Id;
+            editingAddressId = hospital.Address!.Id;
+            editingContactId = hospital.Contact?.Id;
+
             isEditing = true;
         }
 
@@ -152,7 +164,11 @@ namespace MedicalAppointments.Pages
                     Email = string.Empty
                 }
             };
+
             editingHospitalId = null;
+            editingAddressId = null;
+            editingContactId = null;
+
             isEditing = false;
         }
     }

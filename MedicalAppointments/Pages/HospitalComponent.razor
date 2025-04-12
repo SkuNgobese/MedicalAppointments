@@ -9,15 +9,12 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <!-- Hospital Info -->
     <div class="mb-3">
         <label class="form-label">Hospital Name</label>
         <InputText class="form-control" @bind-Value="hospitalVM.HospitalName" />
     </div>
 
-    <!-- Grouped Address & Contact Info -->
     <div class="row">
-        <!-- Address (Left Column) -->
         <div class="col-md-6">
             <fieldset class="border p-3 rounded mb-3">
                 <legend class="float-none w-auto px-2">Address</legend>
@@ -49,7 +46,6 @@
             </fieldset>
         </div>
 
-        <!-- Contact (Right Column) -->
         <div class="col-md-6">
             <fieldset class="border p-3 rounded mb-3">
                 <legend class="float-none w-auto px-2">Contact</legend>
@@ -94,6 +90,10 @@
             </li>
         }
     </ul>
+}
+else
+{
+    <p>No hospitals found.</p>
 }
 
 @if (showDeleteModal)

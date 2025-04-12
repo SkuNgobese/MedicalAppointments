@@ -7,75 +7,74 @@ namespace MedicalAppointments.Services
     public class DoctorService : IDoctor
     {
         private readonly HttpClient _http;
-        private const string _directory = "/doctors";
+        private const string _endPoint = "api/Doctors";
 
         public DoctorService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
                 return [];
 
             try
             {
-                var doctors = await _http.GetFromJsonAsync<IEnumerable<Doctor>>($"{_http.BaseAddress}{_directory}");
-                return doctors ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<Doctor>>($"{_endPoint}") ?? [];
             }
-            catch
+            catch (Exception ex)
             {
-                return [];
+                throw new Exception(ex.Message);
             }
         }
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital)
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || hospital?.Id == null)
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || hospital?.Id == null)
                 return [];
 
             try
             {
-                var doctors = await _http.GetFromJsonAsync<IEnumerable<Doctor>>(
-                    $"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}");
-                return doctors ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<Doctor>>(
+                    $"{_endPoint}?hospitalId={hospital.Id}") ?? [];
             }
-            catch
+            catch (Exception ex)
             {
-                return [];
+                throw new Exception(ex.Message);
             }
         }
 
         public async Task<Doctor> EnrollDoctorAsync(Doctor doctor)
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || doctor is null)
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || doctor is null)
                 return null!;
 
             try
             {
-                var response = await _http.PostAsJsonAsync($"{_http.BaseAddress}{_directory}", doctor);
+                var response = await _http.PostAsJsonAsync($"{_endPoint}", doctor);
                 response.EnsureSuccessStatusCode();
+
                 return await response.Content.ReadFromJsonAsync<Doctor>() ?? null!;
             }
-            catch
+            catch (Exception ex)
             {
-                return null!;
+                throw new Exception(ex.Message);
             }
         }
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) => 
-            await _http.GetFromJsonAsync<Doctor>($"{_http.BaseAddress?.ToString() + _directory}/{id}");
+            await _http.GetFromJsonAsync<Doctor>($"{_http.BaseAddress?.ToString() + _endPoint}/{id}");
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital) => 
-            await _http.GetFromJsonAsync<Doctor>($"{_http.BaseAddress?.ToString() + _directory}/{id}?hospitalId={hospital.Id}");
+            await _http.GetFromJsonAsync<Doctor>($"{_endPoint}/{id}?hospitalId={hospital.Id}");
 
         public async Task UpdateDoctorAsync(Doctor doctor)
         {
-            var response = await _http.PutAsJsonAsync($"{_http.BaseAddress?.ToString() + _directory}/{doctor.Id}", doctor);
+            var response = await _http.PutAsJsonAsync($"{_endPoint}/{doctor.Id}", doctor);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task RemoveDoctorAsync(Doctor doctor)
         {
-            var response = await _http.DeleteAsync($"{_http.BaseAddress?.ToString() + _directory}/{doctor.Id}");
+            var response = await _http.DeleteAsync($"{_endPoint}/{doctor.Id}");
             response.EnsureSuccessStatusCode();
         }
     }

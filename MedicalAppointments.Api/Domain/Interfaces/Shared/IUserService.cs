@@ -5,7 +5,7 @@ namespace MedicalAppointments.Api.Domain.Interfaces.Shared
 {
     public interface IUserService
     {
-        ApplicationUser CreateUser();
+        T CreateUser<T>() where T : ApplicationUser, new();
         IUserEmailStore<ApplicationUser> GetEmailStore();
         string GenerateRandomPassword(int length);
     }
