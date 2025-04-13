@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointments.Shared.ViewModels
+﻿namespace MedicalAppointments.Api.ViewModels
 {
     public partial class AppointmentViewModel
     {

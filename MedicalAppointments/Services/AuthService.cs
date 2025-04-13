@@ -2,7 +2,7 @@
 using Blazored.SessionStorage;
 using MedicalAppointments.Interfaces;
 using MedicalAppointments.Providers;
-using MedicalAppointments.Shared.DTOs.Auth;
+using MedicalAppointments.Api.DTOs.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Text.Json;

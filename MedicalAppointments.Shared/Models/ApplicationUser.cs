@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace MedicalAppointments.Shared.Models
+namespace MedicalAppointments.Api.Models
 {
     public class ApplicationUser : IdentityUser
     {

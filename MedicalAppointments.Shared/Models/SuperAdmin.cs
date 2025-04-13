@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace MedicalAppointments.Api.Models
 {
-    public class SysAdmin : ApplicationUser
+    public class SuperAdmin : ApplicationUser
     {
-        public Hospital? Hospital { get; set; }
     }
 }

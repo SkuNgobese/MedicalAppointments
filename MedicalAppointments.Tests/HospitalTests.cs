@@ -1,8 +1,9 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using Moq;
 using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
+using System.Linq.Expressions;
 
 namespace MedicalAppointments.Tests
 {
@@ -13,13 +14,27 @@ namespace MedicalAppointments.Tests
         private List<Hospital> _hospitals;
 
         private Mock<IRepository<Hospital>> _hospitalRepositoryMock;
+        private Mock<IDoctor> _doctorServiceMock;
+        private Mock<IPatient> _patientServiceMock;
+        private Mock<IAppointment> _appointmentServiceMock;
+        private Mock<ISysAdmin> _sysAdminMock;
         private IHospital _hospitalService;
 
         [SetUp]
         public void Setup()
         {
             _hospitalRepositoryMock = new Mock<IRepository<Hospital>>();
-            _hospitalService = new HospitalService(_hospitalRepositoryMock.Object);
+            _doctorServiceMock = new Mock<IDoctor>();
+            _patientServiceMock = new Mock<IPatient>();
+            _appointmentServiceMock = new Mock<IAppointment>();
+            _sysAdminMock = new Mock<ISysAdmin>();
+
+            _hospitalService = new HospitalService(
+                _hospitalRepositoryMock.Object,
+                _doctorServiceMock.Object,
+                _patientServiceMock.Object,
+                _appointmentServiceMock.Object,
+                _sysAdminMock.Object);
 
             Address address = new()
             {
@@ -56,7 +71,9 @@ namespace MedicalAppointments.Tests
         public async Task GetAllHospitalsAsync_ShouldReturnHospitals()
         {
             // Arrange
-            _hospitalRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_hospitals);
+            _hospitalRepositoryMock
+                .Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Hospital, object>>[]>()))
+                .ReturnsAsync(_hospitals);
 
             // Act
             var result = await _hospitalService.GetAllHospitalsAsync();

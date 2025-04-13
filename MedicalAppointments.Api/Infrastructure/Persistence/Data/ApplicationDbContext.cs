@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Api.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Api.Models;
+using MedicalAppointments.Interfaces;
 using System.Net.Http.Json;
 
 namespace MedicalAppointments.Services

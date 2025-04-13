@@ -1,6 +1,6 @@
-﻿using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Api.Models;
 
-namespace MedicalAppointments.Shared.Interfaces
+namespace MedicalAppointments.Api.Interfaces
 {
     public interface IPatient
     {
@@ -13,5 +13,9 @@ namespace MedicalAppointments.Shared.Interfaces
         Task UpdatePatientAsync(Patient patient);
 
         Task RemovePatientAsync(Patient patient);
+        Task RemovePatientsAsync(Hospital hospital);
+
+        Task<bool> ExistsAsync(string email);
+        Task<Patient?> GetPatientAsync(string email);
     }
 }

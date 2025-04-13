@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
 
 namespace MedicalAppointments.Api.Controllers
 {

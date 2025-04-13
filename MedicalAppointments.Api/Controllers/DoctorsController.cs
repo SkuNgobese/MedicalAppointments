@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.ViewModels;
-using MedicalAppointments.Shared.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using MedicalAppointments.Api.Application;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.ViewModels;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Application.Helpers;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -28,7 +27,7 @@ namespace MedicalAppointments.Api.Controllers
 
         private readonly IUserService _userService;
 
-        private readonly Helpers _helpers;
+        private readonly CurrentUserHelper _helpers;
 
         public DoctorsController(
             IHospital hospital,
@@ -39,7 +38,7 @@ namespace MedicalAppointments.Api.Controllers
             IAddress address,
             IContact contact,
             IUserService userService,
-            Helpers helpers)
+            CurrentUserHelper helpers)
         {
             _hospital = hospital;
             _doctor = doctor;
@@ -57,21 +56,28 @@ namespace MedicalAppointments.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetDoctors()
         {
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync();
-            IEnumerable<Doctor> _doctors = null!;
+            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helpers.GetUserRoleAsync();
 
-            if (sysAdmin != null)
+            IEnumerable<Doctor> doctors;
+
+            switch (role)
             {
-                var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
-                _doctors = await _doctor.GetAllDoctorsAsync(hospital);
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    doctors = await _doctor.GetAllDoctorsAsync(admin!.Hospital!);
+                    break;
+                case "SuperAdmin":
+                    doctors = await _doctor.GetAllDoctorsAsync();
+                    break;
+                default:
+                    return Unauthorized("Unauthorized.");
             }
-            else
-                _doctors = await _doctor.GetAllDoctorsAsync();
 
-            if (_doctors == null)
+            if (doctors == null)
                 return NotFound();
 
-            return Ok(_doctors);
+            return Ok(doctors);
         }
 
         // GET: api/<DoctorsController>/{id}
@@ -86,51 +92,25 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDoctor([FromBody] DoctorViewModel model)
+        public async Task<IActionResult> AddDoctor([FromBody] Doctor doctor)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Create and save Address
-            Address address = new()
-            {
-                Street = model.AddressDetails.Street,
-                City = model.AddressDetails.City,
-                Suburb = model.AddressDetails.Suburb,
-                PostalCode = model.AddressDetails.PostalCode
-            };
-            address = await _address.AddAddress(address);
-
-            // Create and save Contact
-            Contact contact = new()
-            {
-                ContactNumber = model.ContactDetails.ContactNumber,
-                Email = model.ContactDetails.Email,
-                Fax = model.ContactDetails.Fax
-            };
-            contact = await _contact.AddContact(contact);
-
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var sysAdmin = await _helpers.GetCurrentUserAsync() as SysAdmin ?? throw new InvalidOperationException("Unauthorized.");
             var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
-
-            Doctor doctor = new()
-            {
-                Title = model.Title,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                IDNumber = model.IDNumber,
-                Specialization = model.Specialization,
-                HireDate = DateTime.Now,
-                IsActive = true,
-                Hospital = hospital,
-                Address = address,
-                Contact = contact
-            };
 
             // Validate before adding
             var doctors = await _doctor.GetAllDoctorsAsync(hospital);
             if (_doctorValidation.CanAdd(doctor, [.. doctors]))
-                await AddDoctorAndRegisterAsUserAsync(doctor);
+            {
+                doctor.Hospital = hospital;
+                doctor.IsActive = true;
+
+                doctor = await _doctor.EnrollDoctorAsync(doctor);
+
+                await RegisterDoctorAsUserAsync(doctor);
+            }
 
             return CreatedAtAction(nameof(GetDoctor), new { id = doctor.Id }, doctor);
         }
@@ -184,7 +164,7 @@ namespace MedicalAppointments.Api.Controllers
             return NoContent();
         }
 
-        private async Task<Doctor?> AddDoctorAndRegisterAsUserAsync(Doctor doctor)
+        private async Task RegisterDoctorAsUserAsync(Doctor doctor)
         {
             if (doctor.Contact?.Email == null)
                 throw new NullReferenceException("Doctor's email is required.");
@@ -192,23 +172,20 @@ namespace MedicalAppointments.Api.Controllers
             var existingUser = await _userManager.FindByEmailAsync(doctor.Contact.Email);
 
             if (existingUser != null)
-                return existingUser as Doctor;
+                return;
 
             var user = _userService.CreateUser<Doctor>();
+            user.UserName = doctor.Contact.Email;
+            user.Hospital = doctor.Hospital;
 
-            await _userStore.SetUserNameAsync(doctor, doctor.Contact.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(doctor, doctor.Contact.Email, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, doctor.Contact.Email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, doctor.Contact.Email, CancellationToken.None);
 
             string generatedPassword = _userService.GenerateRandomPassword(12);
-            var createUserResult = await _userManager.CreateAsync(doctor, generatedPassword);
+            var createUserResult = await _userManager.CreateAsync(user, generatedPassword);
 
             if (createUserResult.Succeeded)
-            {
                 await _userManager.AddToRoleAsync(doctor, "Doctor");
-                return doctor;
-            }
-
-            throw new InvalidOperationException("Doctor could not be added.");
         }
     }
 }

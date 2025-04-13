@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -29,5 +29,22 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task RemovePatientAsync(Patient patient) =>
             await _repository.DeleteAsync(patient);
+
+        public async Task RemovePatientsAsync(Hospital hospital)
+        {
+            var patients = await _repository.GetAllAsync(d => d.Hospital == hospital);
+
+            if (patients == null)
+                return;
+
+            foreach (var patient in patients)
+                await _repository.DeleteAsync(patient);
+        }
+
+        public async Task<bool> ExistsAsync(string email) =>
+            await _repository.Exists(d => d.Email == email);
+
+        public async Task<Patient?> GetPatientAsync(string email) =>
+            await _repository.GetByConditionAsync(p => p.Email == email);
     }
 }

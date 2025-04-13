@@ -4,11 +4,24 @@
 
 @if (appointments is not null && appointments.Any())
 {
-    <ul class="space-y-2">
+    <ul class="space-y-4">
         @foreach (var appointment in appointments)
         {
-            <li class="p-4 border rounded shadow-sm">
-                <strong>@appointment.Patient.FullName</strong> has an appointment with @appointment.Doctor.FullName on @appointment.Date
+            <li class="p-4 border rounded shadow-sm bg-white">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold">@appointment.Patient.FullName</p>
+                        <p>
+                            With <strong>@appointment.Doctor.FullName</strong> on
+                            <strong>@appointment.Date.ToString("f")</strong>
+                        </p>
+                    </div>
+                    <div class="space-x-2">
+                        <button class="btn btn-danger" @onclick="() => CancelAppointment(appointment.Id)">Cancel</button>
+                        <button class="btn btn-warning" @onclick="() => ShowRescheduleModal(appointment)">Reschedule</button>
+                        <button class="btn btn-secondary" @onclick="() => ShowReassignModal(appointment)">Reassign</button>
+                    </div>
+                </div>
             </li>
         }
     </ul>
@@ -16,4 +29,36 @@
 else
 {
     <p>No appointments found.</p>
+}
+
+@* Reschedule Modal *@
+@if (rescheduleModalVisible)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-2">Reschedule Appointment</h3>
+            <input type="datetime-local" @bind="rescheduleDate" class="form-control mb-2" />
+            <button class="btn btn-primary" @onclick="ConfirmReschedule">Save</button>
+            <button class="btn btn-outline" @onclick="CloseRescheduleModal">Cancel</button>
+        </div>
+    </div>
+}
+
+@* Reassign Modal *@
+@if (reassignModalVisible)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-2">Reassign Appointment</h3>
+            <select class="form-control mb-2" @bind="selectedDoctorId">
+                <option disabled value="">-- Select Doctor --</option>
+                @foreach (var doc in allDoctors)
+                {
+                    <option value="@doc.Id">@doc.FullName</option>
+                }
+            </select>
+            <button class="btn btn-primary" @onclick="ConfirmReassign">Save</button>
+            <button class="btn btn-outline" @onclick="CloseReassignModal">Cancel</button>
+        </div>
+    </div>
 }

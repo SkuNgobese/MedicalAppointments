@@ -1,8 +1,9 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using Moq;
 using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
+using System.Linq.Expressions;
 
 namespace MedicalAppointments.Tests
 {
@@ -42,7 +43,9 @@ namespace MedicalAppointments.Tests
         public async Task GetAllDoctorsAsync_ShouldReturnDoctors()
         {
             // Arrange
-            _doctorRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_doctors);
+            _doctorRepositoryMock
+                .Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Doctor, object>>[]>()))
+                .ReturnsAsync(_doctors);
 
             // Act
             var result = await _doctorService.GetAllDoctorsAsync();

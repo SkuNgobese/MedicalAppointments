@@ -1,0 +1,17 @@
+﻿using MedicalAppointments.Api.Models;
+
+namespace MedicalAppointments.Api.Interfaces
+{
+    public interface IAppointment
+    {
+        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
+        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital);
+        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor);
+        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient);
+        Task<Appointment?> GetAppointmentByIdAsync(int id);
+        Task BookAppointmentAsync(Appointment appointment);
+        Task ReAssignAppointmentAsync(Appointment appointment);
+        Task CancelAppointmentAsync(Appointment appointment);
+        Task RemoveAppointmentsAsync(Hospital hospital);
+    }
+}

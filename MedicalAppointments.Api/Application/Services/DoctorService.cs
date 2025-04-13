@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -12,7 +12,14 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
         {
-            var doctors =  await _repository.GetAllAsync();
+            var doctors = await _repository.GetAllAsync(
+                                d => d.Address!,
+                                d => d.Contact!,
+                                d => d.Hospital!
+                            );
+
+            if (!doctors.Any())
+                return [];
 
             return doctors.Select(d => new Doctor
             {
@@ -100,5 +107,22 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task RemoveDoctorAsync(Doctor doctor) =>
             await _repository.DeleteAsync(doctor);
+
+        public async Task RemoveDoctorsAsync(Hospital hospital)
+        {
+            var doctors = await _repository.GetAllAsync(d => d.Hospital == hospital);
+
+            if (doctors == null)
+                return;
+
+            foreach (var doctor in doctors)
+                await _repository.DeleteAsync(doctor);
+        }
+
+        public async Task<Doctor?> GetDoctorAsync(string email) => 
+            await _repository.GetByConditionAsync(d => d.Email == email);
+
+        public async Task<bool> ExistsAsync(string email) => 
+            await _repository.Exists(d => d.Email == email);
     }
 }

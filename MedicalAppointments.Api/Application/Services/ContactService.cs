@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
 {

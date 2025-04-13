@@ -17,5 +17,6 @@ namespace MedicalAppointments.Api.Infrastructure.Interfaces
         Task UpdateAsync(T entity);
         Task UpdateAsync(T entity, params Expression<Func<T, object>>[] relatedEntities);
         Task DeleteAsync(T entity);
+        Task<bool> Exists(Expression<Func<T, bool>> predicate);
     }
 }

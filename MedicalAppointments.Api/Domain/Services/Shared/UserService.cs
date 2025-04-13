@@ -1,5 +1,5 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 
@@ -31,20 +31,53 @@ namespace MedicalAppointments.Api.Domain.Services.Shared
 
         public string GenerateRandomPassword(int length)
         {
-            const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-            char[] password = new char[length];
+            if (length < 4)
+                throw new ArgumentException("Password length must be at least 4 to include all required character types.");
 
-            using (var rng = RandomNumberGenerator.Create())
+            const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lower = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+            const string special = "!@#$%^&*";
+            const string allChars = upper + lower + digits + special;
+
+            var password = new List<char>
             {
-                byte[] randomBytes = new byte[length];
+                // Ensure at least one character from each category
+                upper[RandomNumber(upper.Length)],
+                lower[RandomNumber(lower.Length)],
+                digits[RandomNumber(digits.Length)],
+                special[RandomNumber(special.Length)]
+            };
 
-                rng.GetBytes(randomBytes);
+            // Fill the rest with random characters from all sets
+            for (int i = password.Count; i < length; i++)
+                password.Add(allChars[RandomNumber(allChars.Length)]);
 
-                for (int i = 0; i < length; i++)
-                    password[i] = validChars[randomBytes[i] % validChars.Length];
+            // Shuffle the password to randomize character positions
+            return Shuffle(password);
+        }
+
+        private static int RandomNumber(int max)
+        {
+            using var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[4];
+            rng.GetBytes(bytes);
+
+            return (int)(BitConverter.ToUInt32(bytes, 0) % (uint)max);
+        }
+
+        private static string Shuffle(List<char> list)
+        {
+            var rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                (list[n], list[k]) = (list[k], list[n]);
             }
 
-            return new string(password);
+            return new string([.. list]);
         }
     }
 }

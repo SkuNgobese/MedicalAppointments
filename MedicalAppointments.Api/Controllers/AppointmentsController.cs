@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Interfaces.Shared;
-using MedicalAppointments.Shared.ViewModels;
-using MedicalAppointments.Shared.Enums;
-using MedicalAppointments.Api.Application;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Interfaces.Shared;
+using MedicalAppointments.Api.Enums;
+using MedicalAppointments.Api.Application.Helpers;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -25,7 +23,7 @@ namespace MedicalAppointments.Api.Controllers
 
         private readonly IPatientRegistration _patientRegistration;
 
-        private readonly Helpers _helpers;
+        private readonly CurrentUserHelper _helpers;
 
         public AppointmentsController(
             IHospital hospital,
@@ -35,7 +33,7 @@ namespace MedicalAppointments.Api.Controllers
             IAppointment appointment,
             IAppointmentValidation appointmentValidation,
             IPatientRegistration patientRegistration,
-            Helpers helpers)
+            CurrentUserHelper helpers)
         {
             _hospital = hospital ?? throw new ArgumentNullException(nameof(hospital));
             _doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
@@ -51,10 +49,31 @@ namespace MedicalAppointments.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helpers.GetUserRoleAsync();
 
-            var appointments = await _appointment.GetAllAppointmentsAsync(hospital);
+            IEnumerable<Appointment> appointments;
+
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    appointments = await _appointment.GetAllAppointmentsAsync(doctor!);
+                    break;
+                case "Patient":
+                    var patient = user as Patient;
+                    appointments = await _appointment.GetAllAppointmentsAsync(patient!);
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    appointments = await _appointment.GetAllAppointmentsAsync(admin!.Hospital!);
+                    break;
+                case "SuperAdmin":
+                    appointments = await _appointment.GetAllAppointmentsAsync();
+                    break;
+                default:
+                    return Unauthorized("Unauthorized.");
+            }
 
             if (appointments == null)
                 return NotFound();
@@ -76,12 +95,30 @@ namespace MedicalAppointments.Api.Controllers
 
         // POST api/<AppointmentController>
         [HttpPost]
-        public async Task<IActionResult> BookNew([FromBody] AppointmentViewModel model)
+        public async Task<IActionResult> BookNew([FromBody] Appointment model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Appointment appointment = await CreateAppointment(model);
+            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helpers.GetUserRoleAsync();
+
+            Hospital hospital;
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    hospital = doctor!.Hospital!;
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    hospital = admin!.Hospital!;
+                    break;
+                default:
+                    return Unauthorized("Unauthorized.");
+            }
+
+            Appointment appointment = await CreateAppointment(model, hospital);
 
             if (_appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient))
             {
@@ -93,58 +130,53 @@ namespace MedicalAppointments.Api.Controllers
             return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
         }
 
-        private async Task<Appointment> CreateAppointment(AppointmentViewModel model)
+        private async Task<Appointment> CreateAppointment(Appointment model, Hospital hospital)
         {
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
-
             Patient patient;
 
-            if (!string.IsNullOrEmpty(model.PatientId))
-                patient = await _patient.GetPatientByIdAsync(model.PatientId) ?? throw new InvalidOperationException("Patient not found.");
+            if (!string.IsNullOrEmpty(model.Patient.Id))
+                patient = await _patient.GetPatientByIdAsync(model.Patient.Id) ?? throw new InvalidOperationException("Patient not found.");
             else
-                patient = await CreateNewPatient(model, hospital);
+                patient = await AddPatient(model, hospital);
 
             Appointment appointment = new()
             {
                 Date = model.Date,
                 Description = model.Description,
                 Hospital = hospital,
-                Doctor = await _doctor.GetDoctorByIdAsync(model.DoctorId) ?? throw new InvalidOperationException("Doctor not found."),
+                Doctor = await _doctor.GetDoctorByIdAsync(model.Doctor.Id) ?? throw new InvalidOperationException("Doctor not found."),
                 Patient = patient ?? throw new InvalidOperationException("Patient cannot be null.")
             };
 
             return appointment;
         }
 
-        private async Task<Patient> CreateNewPatient(AppointmentViewModel model, Hospital hospital)
+        private async Task<Patient> AddPatient(Appointment model, Hospital hospital)
         {
-
-
             Patient patient = new()
             {
-                Title = model.PatientViewModel.Title,
-                FirstName = model.PatientViewModel.FirstName,
-                LastName = model.PatientViewModel.LastName,
-                IDNumber = model.PatientViewModel.IDNumber,
-                Email = model.PatientViewModel.ContactDetails.Email,
-                PhoneNumber = model.PatientViewModel.ContactDetails.ContactNumber,
+                Title = model.Patient.Title,
+                FirstName = model.Patient.FirstName,
+                LastName = model.Patient.LastName,
+                IDNumber = model.Patient.IDNumber,
+                Email = model.Patient.Contact!.Email,
+                PhoneNumber = model.Patient.Contact!.ContactNumber,
                 IsActive = true,
                 CreateDate = DateTime.Now,
 
                 Address = new()
                 {
-                    Street = model.PatientViewModel.AddressDetails.Street,
-                    City = model.PatientViewModel.AddressDetails.City,
-                    Suburb = model.PatientViewModel.AddressDetails.Suburb,
-                    PostalCode = model.PatientViewModel.AddressDetails.PostalCode
+                    Street = model.Patient.Address!.Street,
+                    City = model.Patient.Address.City,
+                    Suburb = model.Patient.Address.Suburb,
+                    PostalCode = model.Patient.Address.PostalCode
                 },
 
                 Contact = new()
                 {
-                    ContactNumber = model.PatientViewModel.ContactDetails.ContactNumber,
-                    Email = model.PatientViewModel.ContactDetails.Email,
-                    Fax = model.PatientViewModel.ContactDetails.Fax
+                    ContactNumber = model.Patient.Contact!.ContactNumber,
+                    Email = model.Patient.Contact!.Email,
+                    Fax = model.Patient.Contact!.Fax
                 },
 
                 Hospital = hospital
@@ -161,8 +193,23 @@ namespace MedicalAppointments.Api.Controllers
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
         public async Task<IActionResult> ReAssignAppointment(int appointmentId, string doctorId)
         {
-            var sysAdmin = await _helpers.GetCurrentSysAdminAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helpers.GetUserRoleAsync();
+
+            Hospital hospital;
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    hospital = doctor!.Hospital!;
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    hospital = admin!.Hospital!;
+                    break;
+                default:
+                    return Unauthorized("Unauthorized.");
+            }
 
             var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)

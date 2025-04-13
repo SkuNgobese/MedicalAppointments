@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointments.Shared.Enums
+﻿namespace MedicalAppointments.Api.Enums
 {
     public enum AppointmentStatus
     {

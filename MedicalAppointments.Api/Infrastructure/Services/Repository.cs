@@ -136,5 +136,8 @@ namespace MedicalAppointments.Api.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> Exists(Expression<Func<T, bool>> predicate) => 
+            await _dbSet.AnyAsync(predicate);
     }
 }

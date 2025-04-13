@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -14,7 +14,13 @@ namespace MedicalAppointments.Api.Application.Services
             await _repository.GetAllAsync();
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
-            await _repository.GetAllAsync(a => a.Hospital.Id == hospital.Id);
+            await _repository.GetAllAsync(a => a.Hospital == hospital);
+
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor) =>
+            await _repository.GetAllAsync(a => a.Doctor == doctor);
+
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient) =>
+            await _repository.GetAllAsync(a => a.Patient == patient);
 
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
             await _repository.GetByIdAsync(id);
@@ -27,5 +33,16 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task CancelAppointmentAsync(Appointment appointment) =>
             await _repository.UpdateAsync(appointment);
+
+        public async Task RemoveAppointmentsAsync(Hospital hospital)
+        {
+            var appointments = await _repository.GetAllAsync(a => a.Hospital == hospital);
+            
+            if (appointments == null)
+                return;
+
+            foreach (var appointment in appointments)
+                await _repository.DeleteAsync(appointment);
+        }
     }
 }

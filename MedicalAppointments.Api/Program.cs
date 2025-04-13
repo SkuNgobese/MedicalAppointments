@@ -8,20 +8,15 @@ using MedicalAppointments.Api.Infrastructure.Persistence.Data;
 using MedicalAppointments.Api.Infrastructure.Services;
 using MedicalAppointments.Api.Application.Services.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Options;
-using System.Reflection;
 using Microsoft.OpenApi.Models;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Interfaces.Shared;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Interfaces.Shared;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using MedicalAppointments.Api.Application;
+using MedicalAppointments.Api.Application.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,7 +91,7 @@ builder.Services.AddScoped<IDoctorValidation, DoctorValidationService>();
 builder.Services.AddScoped<IPatientValidation, PatientValidationService>();
 builder.Services.AddScoped<IAppointmentValidation, AppointmentValidationService>();
 
-builder.Services.AddScoped<Helpers>();
+builder.Services.AddScoped<CurrentUserHelper>();
 
 // Register user-related services
 builder.Services.AddScoped<IUserService, UserService>();

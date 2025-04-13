@@ -1,6 +1,5 @@
-﻿using MedicalAppointments.Shared.DTOs.Auth;
-using MedicalAppointments.Shared.Models;
-using Microsoft.AspNetCore.Http;
+﻿using MedicalAppointments.Api.DTOs.Auth;
+using MedicalAppointments.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

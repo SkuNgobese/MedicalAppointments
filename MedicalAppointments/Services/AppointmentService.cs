@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Interfaces;
+using MedicalAppointments.Api.Models;
 using System.IO;
 using System.Net.Http.Json;
 
@@ -37,6 +37,40 @@ namespace MedicalAppointments.Services
             {
                 var appointments = await _http.GetFromJsonAsync<List<Appointment>>(
                     $"{_http.BaseAddress}{_directory}/{hospital.Id}");
+                return appointments ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor)
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || doctor?.Id == null)
+                return [];
+
+            try
+            {
+                var appointments = await _http.GetFromJsonAsync<List<Appointment>>(
+                    $"{_directory}/{doctor.Id}");
+                return appointments ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient)
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory) || patient?.Id == null)
+                return [];
+
+            try
+            {
+                var appointments = await _http.GetFromJsonAsync<List<Appointment>>(
+                    $"{_directory}/{patient.Id}");
                 return appointments ?? [];
             }
             catch

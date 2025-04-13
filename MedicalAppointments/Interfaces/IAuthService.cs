@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Shared.DTOs.Auth;
+﻿using MedicalAppointments.Api.DTOs.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace MedicalAppointments.Interfaces

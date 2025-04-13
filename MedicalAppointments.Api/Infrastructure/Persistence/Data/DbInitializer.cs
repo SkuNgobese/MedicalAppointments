@@ -1,4 +1,4 @@
-﻿using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Api.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Api.Infrastructure.Persistence.Data

@@ -1,9 +1,9 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using Moq;
 using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Interfaces;
-using MedicalAppointments.Shared.Enums;
+using MedicalAppointments.Api.Models;
+using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Enums;
 
 namespace MedicalAppointments.Tests
 {
