@@ -9,7 +9,8 @@ namespace MedicalAppointments.Services
         private readonly HttpClient _http;
         private const string _endPoint = "api/Doctors";
 
-        public DoctorService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
+        public DoctorService(IHttpClientFactory httpClientFactory) => 
+            _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
         {

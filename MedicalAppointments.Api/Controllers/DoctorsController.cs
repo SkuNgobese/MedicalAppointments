@@ -5,8 +5,8 @@ using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Api.Models;
 using MedicalAppointments.Api.ViewModels;
-using MedicalAppointments.Api.Interfaces;
 using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -27,8 +27,6 @@ namespace MedicalAppointments.Api.Controllers
 
         private readonly IUserService _userService;
 
-        private readonly CurrentUserHelper _helpers;
-
         public DoctorsController(
             IHospital hospital,
             IDoctor doctor,
@@ -37,8 +35,7 @@ namespace MedicalAppointments.Api.Controllers
             IUserStore<ApplicationUser> userStore,
             IAddress address,
             IContact contact,
-            IUserService userService,
-            CurrentUserHelper helpers)
+            IUserService userService)
         {
             _hospital = hospital;
             _doctor = doctor;
@@ -49,30 +46,13 @@ namespace MedicalAppointments.Api.Controllers
             _contact = contact;
             _userService = userService;
             _emailStore = _userService!.GetEmailStore();
-            _helpers = helpers;
         }
 
         // GET: api/<DoctorsController>
         [HttpGet]
         public async Task<IActionResult> GetDoctors()
         {
-            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var role = await _helpers.GetUserRoleAsync();
-
-            IEnumerable<Doctor> doctors;
-
-            switch (role)
-            {
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
-                    doctors = await _doctor.GetAllDoctorsAsync(admin!.Hospital!);
-                    break;
-                case "SuperAdmin":
-                    doctors = await _doctor.GetAllDoctorsAsync();
-                    break;
-                default:
-                    return Unauthorized("Unauthorized.");
-            }
+            var doctors = await _doctor.GetCurrentUserHospitalDoctorsAsync();
 
             if (doctors == null)
                 return NotFound();
@@ -97,8 +77,10 @@ namespace MedicalAppointments.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var sysAdmin = await _helpers.GetCurrentUserAsync() as SysAdmin ?? throw new InvalidOperationException("Unauthorized.");
-            var hospital = await _hospital.GetHospitalByIdAsync(sysAdmin!.Hospital!.Id) ?? throw new InvalidOperationException("Hospital not found");
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+
+            if (hospital == null)
+                return BadRequest(ModelState);
 
             // Validate before adding
             var doctors = await _doctor.GetAllDoctorsAsync(hospital);
@@ -176,7 +158,11 @@ namespace MedicalAppointments.Api.Controllers
 
             var user = _userService.CreateUser<Doctor>();
             user.UserName = doctor.Contact.Email;
-            user.Hospital = doctor.Hospital;
+            user.Title = doctor.Title;
+            user.FirstName = doctor.FirstName;
+            user.LastName = doctor.LastName;
+            user.Address = doctor.Address;
+            user.Contact = doctor.Contact;
 
             await _userStore.SetUserNameAsync(user, doctor.Contact.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, doctor.Contact.Email, CancellationToken.None);

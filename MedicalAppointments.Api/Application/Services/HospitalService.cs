@@ -1,5 +1,6 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Interfaces;
+﻿using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
@@ -12,17 +13,21 @@ namespace MedicalAppointments.Api.Application.Services
         private readonly IAppointment _appointment;
         private readonly ISysAdmin _sysAdmin;
 
+        private readonly CurrentUserHelper _helpers;
+
         public HospitalService(IRepository<Hospital> hospitalRepository,
                                IDoctor doctor,
                                IPatient patient,
                                IAppointment appointment,
-                               ISysAdmin sysAdmin)
+                               ISysAdmin sysAdmin,
+                               CurrentUserHelper helpers)
         {
             _hospitalRepository = hospitalRepository;
             _doctor = doctor;
             _patient = patient;
             _appointment = appointment;
             _sysAdmin = sysAdmin;
+            _helpers = helpers;
         }
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
@@ -70,5 +75,28 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task UpdateHospitalAsync(Hospital hospital) =>
             await _hospitalRepository.UpdateAsync(hospital);
+
+        public async Task<Hospital?> GetCurrentUserHospitalAsync()
+        {
+            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helpers.GetUserRoleAsync() ?? throw new InvalidOperationException("Unauthorized.");
+
+            Hospital hospital;
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    hospital = doctor!.Hospital!;
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    hospital = admin!.Hospital!;
+                    break;
+                default:
+                    return null;
+            }
+
+            return hospital;
+        }
     }
 }

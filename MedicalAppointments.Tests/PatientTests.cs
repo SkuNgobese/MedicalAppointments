@@ -2,7 +2,7 @@
 using Moq;
 using MedicalAppointments.Api.Application.Services;
 using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces;
 
 namespace MedicalAppointments.Tests
 {

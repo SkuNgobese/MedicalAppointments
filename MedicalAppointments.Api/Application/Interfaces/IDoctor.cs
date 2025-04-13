@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Models;
 
-namespace MedicalAppointments.Api.Interfaces
+namespace MedicalAppointments.Api.Application.Interfaces
 {
     public interface IDoctor
     {
@@ -23,5 +23,7 @@ namespace MedicalAppointments.Api.Interfaces
         Task<bool> ExistsAsync(string email);
 
         Task<Doctor?> GetDoctorAsync(string email);
+
+        Task<IEnumerable<Doctor?>> GetCurrentUserHospitalDoctorsAsync();
     }
 }
