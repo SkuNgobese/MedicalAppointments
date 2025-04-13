@@ -12,11 +12,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Interfaces;
-using MedicalAppointments.Api.Interfaces.Shared;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +77,7 @@ builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
 builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
 
 // Register services
+builder.Services.AddScoped<ISuperAdmin, SuperAdminService>();
 builder.Services.AddScoped<ISysAdmin, SysAdminService>();
 builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
@@ -95,7 +96,7 @@ builder.Services.AddScoped<CurrentUserHelper>();
 
 // Register user-related services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPatientRegistration, PatientRegistrationService>();
+builder.Services.AddScoped(typeof(IRegistrationService<>), typeof(RegistrationService<>));
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 

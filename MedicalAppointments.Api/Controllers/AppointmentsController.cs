@@ -2,16 +2,16 @@
 using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Interfaces;
-using MedicalAppointments.Api.Interfaces.Shared;
 using MedicalAppointments.Api.Enums;
 using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
 
 namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,Admin,Doctor")]
+    [Authorize(Roles = "SuperAdmin,Admin,Doctor,Patient")]
     public class AppointmentsController : ControllerBase
     {
         private readonly IHospital _hospital;
@@ -21,9 +21,7 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IAppointment _appointment;
         private readonly IAppointmentValidation _appointmentValidation;
 
-        private readonly IPatientRegistration _patientRegistration;
-
-        private readonly CurrentUserHelper _helpers;
+        private readonly IRegistrationService<Patient> _registration;
 
         public AppointmentsController(
             IHospital hospital,
@@ -32,48 +30,22 @@ namespace MedicalAppointments.Api.Controllers
             IPatientValidation patientValidation,
             IAppointment appointment,
             IAppointmentValidation appointmentValidation,
-            IPatientRegistration patientRegistration,
-            CurrentUserHelper helpers)
+            IRegistrationService<Patient> registration)
         {
             _hospital = hospital ?? throw new ArgumentNullException(nameof(hospital));
             _doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
             _patient = patient ?? throw new ArgumentNullException(nameof(patient));
             _patientValidation = patientValidation ?? throw new ArgumentNullException(nameof(patientValidation));
-            _patientRegistration = patientRegistration;
+            _registration = registration;
             _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
             _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
-            _helpers = helpers ?? throw new ArgumentNullException(nameof(helpers));
         }
 
         // GET: api/<AppointmentController>
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
-            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var role = await _helpers.GetUserRoleAsync();
-
-            IEnumerable<Appointment> appointments;
-
-            switch (role)
-            {
-                case "Doctor":
-                    var doctor = user as Doctor;
-                    appointments = await _appointment.GetAllAppointmentsAsync(doctor!);
-                    break;
-                case "Patient":
-                    var patient = user as Patient;
-                    appointments = await _appointment.GetAllAppointmentsAsync(patient!);
-                    break;
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
-                    appointments = await _appointment.GetAllAppointmentsAsync(admin!.Hospital!);
-                    break;
-                case "SuperAdmin":
-                    appointments = await _appointment.GetAllAppointmentsAsync();
-                    break;
-                default:
-                    return Unauthorized("Unauthorized.");
-            }
+            var appointments = await _appointment.GetCurrentUserHospitalAppointmentsAsync();
 
             if (appointments == null)
                 return NotFound();
@@ -100,23 +72,10 @@ namespace MedicalAppointments.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var role = await _helpers.GetUserRoleAsync();
-
-            Hospital hospital;
-            switch (role)
-            {
-                case "Doctor":
-                    var doctor = user as Doctor;
-                    hospital = doctor!.Hospital!;
-                    break;
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
-                    hospital = admin!.Hospital!;
-                    break;
-                default:
-                    return Unauthorized("Unauthorized.");
-            }
+            var  hospital = await _hospital.GetCurrentUserHospitalAsync();
+            
+            if (hospital == null)
+                return BadRequest(ModelState);
 
             Appointment appointment = await CreateAppointment(model, hospital);
 
@@ -124,7 +83,7 @@ namespace MedicalAppointments.Api.Controllers
             {
                 await _appointment.BookAppointmentAsync(appointment);
                 //Register the patient as a user
-                await _patientRegistration.RegisterPatientAsync(appointment.Patient);
+                await _registration.RegisterAsync(appointment.Patient);
             }
 
             return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
@@ -193,23 +152,10 @@ namespace MedicalAppointments.Api.Controllers
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
         public async Task<IActionResult> ReAssignAppointment(int appointmentId, string doctorId)
         {
-            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var role = await _helpers.GetUserRoleAsync();
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            Hospital hospital;
-            switch (role)
-            {
-                case "Doctor":
-                    var doctor = user as Doctor;
-                    hospital = doctor!.Hospital!;
-                    break;
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
-                    hospital = admin!.Hospital!;
-                    break;
-                default:
-                    return Unauthorized("Unauthorized.");
-            }
+            if (hospital == null)
+                return BadRequest(ModelState);
 
             var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)

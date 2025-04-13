@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces;
 
 namespace MedicalAppointments.Api.Controllers
 {

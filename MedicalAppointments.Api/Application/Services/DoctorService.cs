@@ -1,6 +1,8 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Interfaces;
+﻿using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Models;
+using System.Collections;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -8,7 +10,13 @@ namespace MedicalAppointments.Api.Application.Services
     {
         private readonly IRepository<Doctor> _repository;
 
-        public DoctorService(IRepository<Doctor> repository) => _repository = repository;
+        private readonly CurrentUserHelper _helper;
+
+        public DoctorService(IRepository<Doctor> repository, CurrentUserHelper helper)
+        {
+            _repository = repository;
+            _helper = helper;
+        }
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
         {
@@ -124,5 +132,32 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<bool> ExistsAsync(string email) => 
             await _repository.Exists(d => d.Email == email);
+
+        public async Task<IEnumerable<Doctor?>> GetCurrentUserHospitalDoctorsAsync()
+        {
+            var user = await _helper.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helper.GetUserRoleAsync() ?? throw new InvalidOperationException("Unauthorized.");
+
+            IEnumerable<Doctor> doctors = null!;
+
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    doctors = doctors!.Append(doctor!);
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    doctors = await GetAllDoctorsAsync(admin!.Hospital!);
+                    break;
+                case "SuperAdmin":
+                    doctors = await GetAllDoctorsAsync();
+                    break;
+                default:
+                    return doctors;
+            }
+
+            return doctors;
+        }
     }
 }

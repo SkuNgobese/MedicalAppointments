@@ -1,5 +1,6 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Interfaces;
+﻿using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Models;
 
 namespace MedicalAppointments.Api.Application.Services
@@ -8,7 +9,13 @@ namespace MedicalAppointments.Api.Application.Services
     {
         private readonly IRepository<Appointment> _repository;
 
-        public AppointmentService(IRepository<Appointment> repository) => _repository = repository;
+        private readonly CurrentUserHelper _helper;
+
+        public AppointmentService(IRepository<Appointment> repository, CurrentUserHelper helper)
+        {
+            _repository = repository;
+            _helper = helper;
+        }
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync() =>
             await _repository.GetAllAsync();
@@ -43,6 +50,37 @@ namespace MedicalAppointments.Api.Application.Services
 
             foreach (var appointment in appointments)
                 await _repository.DeleteAsync(appointment);
+        }
+
+        public async Task<IEnumerable<Appointment?>> GetCurrentUserHospitalAppointmentsAsync()
+        {
+            var user = await _helper.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helper.GetUserRoleAsync();
+
+            IEnumerable<Appointment> appointments = null!;
+
+            switch (role)
+            {
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    appointments = await GetAllAppointmentsAsync(doctor!);
+                    break;
+                case "Patient":
+                    var patient = user as Patient;
+                    appointments = await GetAllAppointmentsAsync(patient!);
+                    break;
+                case "SysAdmin":
+                    var admin = user as SysAdmin;
+                    appointments = await GetAllAppointmentsAsync(admin!.Hospital!);
+                    break;
+                case "SuperAdmin":
+                    appointments = await GetAllAppointmentsAsync();
+                    break;
+                default:
+                    return appointments;
+            }
+
+            return appointments;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Api.Models;
 
-namespace MedicalAppointments.Api.Interfaces
+namespace MedicalAppointments.Api.Application.Interfaces
 {
     public interface IHospital
     {
@@ -13,5 +13,7 @@ namespace MedicalAppointments.Api.Interfaces
         Task UpdateHospitalAsync(Hospital hospital);
 
         Task RemoveHospitalAsync(Hospital hospital);
+
+        Task<Hospital?> GetCurrentUserHospitalAsync();
     }
 }
