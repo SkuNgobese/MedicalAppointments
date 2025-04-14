@@ -1,7 +1,7 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using MedicalAppointments.ViewModels;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Pages
 {
@@ -10,7 +10,7 @@ namespace MedicalAppointments.Pages
         [Inject]
         public IDoctor? _doctor { get; set; }
 
-        protected IEnumerable<Doctor>? doctors;
+        protected IEnumerable<DoctorViewModel>? doctors;
 
         private DoctorViewModel doctorVM = new()
         {
@@ -107,39 +107,50 @@ namespace MedicalAppointments.Pages
                 doctors = [];
         }
 
-        private void EditDoctor(Doctor doctor)
+        private void EditDoctor(DoctorViewModel doctor)
         {
-            doctorVM = new DoctorViewModel
-            {
-                Title = doctor.Title!,
-                FirstName = doctor.FirstName!,
-                LastName = doctor.LastName!,
-                IDNumber = doctor.IDNumber!,
-                Specialization = doctor.Specialization!,
-                HireDate = doctor.HireDate ?? DateTime.Now,
+            //doctorVM = new DoctorViewModel
+            //{
+            //    Title = doctor.Title!,
+            //    FirstName = doctor.FirstName!,
+            //    LastName = doctor.LastName!,
+            //    IDNumber = doctor.IDNumber!,
+            //    Specialization = doctor.Specialization!,
+            //    HireDate = doctor.HireDate ?? DateTime.Now,
 
-                AddressDetails = new AddressViewModel
-                {
-                    Street = doctor.Address?.Street ?? string.Empty,
-                    Suburb = doctor.Address?.Suburb ?? string.Empty,
-                    City = doctor.Address?.City ?? string.Empty,
-                    PostalCode = doctor.Address?.PostalCode ?? string.Empty,
-                    Country = doctor.Address?.Country ?? string.Empty
-                },
-                ContactDetails = new ContactViewModel
-                {
-                    ContactNumber = doctor.Contact?.ContactNumber ?? string.Empty,
-                    Fax = doctor.Contact?.Fax ?? string.Empty,
-                    Email = doctor.Contact?.Email ?? string.Empty
-                }
-            };
+            //    AddressDetails = new AddressViewModel
+            //    {
+            //        Street = doctor.Address?.Street ?? string.Empty,
+            //        Suburb = doctor.Address?.Suburb ?? string.Empty,
+            //        City = doctor.Address?.City ?? string.Empty,
+            //        PostalCode = doctor.Address?.PostalCode ?? string.Empty,
+            //        Country = doctor.Address?.Country ?? string.Empty
+            //    },
+            //    ContactDetails = new ContactViewModel
+            //    {
+            //        ContactNumber = doctor.Contact?.ContactNumber ?? string.Empty,
+            //        Fax = doctor.Contact?.Fax ?? string.Empty,
+            //        Email = doctor.Contact?.Email ?? string.Empty
+            //    }
+            //};
+            doctorVM = doctor;
 
             isEditing = true;
         }
 
-        private void ConfirmDelete(Doctor doctor)
+        private void ConfirmDelete(DoctorViewModel doctor)
         {
-            doctorToDelete = doctor;
+            doctorToDelete = new Doctor
+            {
+                Id = doctor.Id!,
+                Title = doctor.Title,
+                FirstName = doctor.FirstName,
+                LastName = doctor.LastName,
+                IDNumber = doctor.IDNumber,
+                Specialization = doctor.Specialization,
+                HireDate = doctor.HireDate
+            };
+
             showDeleteModal = true;
         }
 

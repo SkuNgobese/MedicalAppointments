@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class ContactViewModel
     {
+        public int? Id { get; set; }
+
         [Required, DisplayName("Phone Number")]
         [Phone]
         public required string ContactNumber { get; set; }

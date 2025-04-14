@@ -27,46 +27,21 @@ namespace MedicalAppointments.Api.Application.Services
             if (!doctors.Any())
                 return [];
 
-            return doctors.Select(d => new Doctor
-            {
-                Id = d.Id,
-                Title = d.Title,
-                FirstName = d.FirstName,
-                LastName = d.LastName,
-                IDNumber = d.IDNumber,
-                Specialization = d.Specialization,
-
-                Address = new Address
-                {
-                    Id = d.Address?.Id ?? 0,
-                    Street = d.Address?.Street ?? string.Empty,
-                    Suburb = d.Address?.Suburb ?? string.Empty,
-                    City = d.Address?.City ?? string.Empty,
-                    PostalCode = d.Address?.PostalCode ?? string.Empty,
-                    Country = d.Address?.Country ?? string.Empty
-                },
-                Contact = new Contact
-                {
-                    Id = d.Contact?.Id ?? 0,
-                    Email = d.Contact?.Email ?? string.Empty,
-                    ContactNumber = d.Contact?.ContactNumber ?? string.Empty,
-                    Fax = d.Contact?.Fax ?? string.Empty
-                }
-            });
+            return doctors;
         }
 
         public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital)
         {
+            ArgumentNullException.ThrowIfNull(hospital);
+
             var doctors = await _repository.GetAllAsync(
-                                d => d.Address!,
-                                d => d.Contact!,
-                                d => d.Hospital!
-                            );
+                d => d.Hospital!.Id == hospital.Id,
+                d => d.Address!,
+                d => d.Contact!,
+                d => d.Hospital!
+            );
 
-            if (!doctors.Any())
-                return [];
-
-            return doctors;
+            return doctors ?? [];
         }
 
         public async Task<Doctor> EnrollDoctorAsync(Doctor doctor) =>

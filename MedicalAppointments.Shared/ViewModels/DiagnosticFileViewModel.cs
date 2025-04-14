@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 
-namespace MedicalAppointments.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class DiagnosticFileViewModel
     {
+        public Guid? Id { get; set; }
+
         [DisplayName("Diagnosis")]
         public required string Diagnosis { get; set; }
 

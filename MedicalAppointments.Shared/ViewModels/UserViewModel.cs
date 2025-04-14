@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class UserViewModel
     {
@@ -16,6 +16,8 @@ namespace MedicalAppointments.ViewModels
 
         [Required, DisplayName("ID Number")]
         public required string IDNumber { get; set; }
+
+        public string FullName => $"{Title}. {FirstName?[..1]} {LastName}";
 
         public required AddressViewModel AddressDetails { get; set; }
         public required ContactViewModel ContactDetails { get; set; }

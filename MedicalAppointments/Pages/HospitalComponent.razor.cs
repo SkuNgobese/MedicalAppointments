@@ -1,7 +1,7 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using MedicalAppointments.ViewModels;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Pages
 {

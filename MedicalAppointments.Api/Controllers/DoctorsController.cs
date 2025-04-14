@@ -4,6 +4,7 @@ using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Controllers
 {
@@ -45,7 +46,20 @@ namespace MedicalAppointments.Api.Controllers
             if (doctors == null)
                 return NotFound();
 
-            return Ok(doctors);
+            var doctorVMs = doctors.Select(d => new DoctorViewModel
+            {
+                Id = d!.Id,
+                Title = d.Title!,
+                FirstName = d.FirstName!,
+                LastName = d.LastName!,
+                Specialization = d.Specialization!,
+                IDNumber = d.IDNumber!,
+                HireDate = d.HireDate ?? DateTime.Now,
+                ContactDetails = new ContactViewModel {Id = d.Contact!.Id, ContactNumber = d.Contact!.ContactNumber, Email = d.Contact?.Email, Fax = d.Contact!.Fax },
+                AddressDetails = new AddressViewModel { Id = d.Address!.Id, Street = d.Address!.Street!, Suburb = d.Address!.Street!, City = d.Address!.City!, Country = d.Address!.Country!, PostalCode = d.Address!.PostalCode! }
+            });
+
+            return Ok(doctorVMs);
         }
 
         // GET: api/<DoctorsController>/{id}

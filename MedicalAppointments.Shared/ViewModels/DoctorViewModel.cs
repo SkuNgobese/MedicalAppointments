@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class DoctorViewModel : UserViewModel
     {
+        public string? Id { get; set; }
+
         [Required, DisplayName("Specialization")]
         public required string Specialization { get; set; }
 

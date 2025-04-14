@@ -1,5 +1,5 @@
 ﻿using Moq;
-using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Api.Application.Services;
 using MedicalAppointments.Shared.Models;
 using System.Linq.Expressions;
 using MedicalAppointments.Api.Infrastructure.Interfaces;

@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointments.ViewModels
+﻿namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class PatientViewModel : UserViewModel
     {

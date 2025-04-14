@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Interfaces;
 using System.Net.Http.Json;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Services
 {
@@ -12,34 +13,19 @@ namespace MedicalAppointments.Services
         public DoctorService(IHttpClientFactory httpClientFactory) => 
             _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
-        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
+        public async Task<IEnumerable<DoctorViewModel>> GetAllDoctorsAsync()
         {
             if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
                 return [];
 
             try
             {
-                return await _http.GetFromJsonAsync<IEnumerable<Doctor>>($"{_endPoint}") ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<DoctorViewModel>>($"{_endPoint}") ?? [];
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital)
-        {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || hospital?.Id == null)
-                return [];
-
-            try
-            {
-                return await _http.GetFromJsonAsync<IEnumerable<Doctor>>(
-                    $"{_endPoint}?hospitalId={hospital.Id}") ?? [];
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                Console.Error.WriteLine($"Error getting doctors: {ex.Message}");
+                throw;
             }
         }
 
@@ -62,10 +48,10 @@ namespace MedicalAppointments.Services
         }
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) => 
-            await _http.GetFromJsonAsync<Doctor>($"{_http.BaseAddress?.ToString() + _endPoint}/{id}");
+            await _http.GetFromJsonAsync<Doctor>($"{_endPoint}/{id}");
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital) => 
-            await _http.GetFromJsonAsync<Doctor>($"{_endPoint}/{id}?hospitalId={hospital.Id}");
+            await _http.GetFromJsonAsync<Doctor>($"{_endPoint}/{id}?Id={hospital.Id}");
 
         public async Task UpdateDoctorAsync(Doctor doctor)
         {

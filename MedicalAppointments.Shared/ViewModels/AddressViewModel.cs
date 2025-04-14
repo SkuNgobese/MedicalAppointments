@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class AddressViewModel
     {
+        public int? Id { get; set; }
+
         [Required, DisplayName("Street")]
         [StringLength(100, ErrorMessage = "Street name cannot exceed 100 characters")]
         public required string Street { get; set; }
