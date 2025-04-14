@@ -1,22 +1,26 @@
-using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Services.Shared;
-using MedicalAppointments.Api.Domain.Services;
-using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Persistence.Data;
-using MedicalAppointments.Api.Infrastructure.Services;
-using MedicalAppointments.Api.Application.Services.Shared;
+using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Shared.Domain.Interfaces.Shared;
+using MedicalAppointments.Shared.Domain.Interfaces;
+using MedicalAppointments.Shared.Domain.Services.Shared;
+using MedicalAppointments.Shared.Domain.Services;
+using MedicalAppointments.Shared.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
+using MedicalAppointments.Shared.Infrastructure.Services;
+using MedicalAppointments.Shared.Application.Services.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using MedicalAppointments.Api.Models;
+using MedicalAppointments.Shared.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using MedicalAppointments.Api.Application.Helpers;
-using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Application.Helpers;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
+using MedicalAppointments.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +82,7 @@ builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
 
 // Register services
 builder.Services.AddScoped<ISuperAdmin, SuperAdminService>();
-builder.Services.AddScoped<ISysAdmin, SysAdminService>();
+builder.Services.AddScoped<IAdmin, AdminService>();
 builder.Services.AddScoped<IHospital, HospitalService>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IPatient, PatientService>();
@@ -92,7 +96,7 @@ builder.Services.AddScoped<IDoctorValidation, DoctorValidationService>();
 builder.Services.AddScoped<IPatientValidation, PatientValidationService>();
 builder.Services.AddScoped<IAppointmentValidation, AppointmentValidationService>();
 
-builder.Services.AddScoped<CurrentUserHelper>();
+builder.Services.AddScoped<ICurrentUserHelper, CurrentUserHelper>();
 
 // Register user-related services
 builder.Services.AddScoped<IUserService, UserService>();

@@ -1,9 +1,11 @@
-﻿using MedicalAppointments.Api.Application.Helpers;
-using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Helpers;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Application.Services
+namespace MedicalAppointments.Shared.Application.Services
 {
     public class HospitalService : IHospital
     {
@@ -11,23 +13,23 @@ namespace MedicalAppointments.Api.Application.Services
         private readonly IDoctor _doctor;
         private readonly IPatient _patient;
         private readonly IAppointment _appointment;
-        private readonly ISysAdmin _sysAdmin;
+        private readonly IAdmin _sysAdmin;
 
-        private readonly CurrentUserHelper _helpers;
+        private readonly ICurrentUserHelper _helper;
 
         public HospitalService(IRepository<Hospital> hospitalRepository,
                                IDoctor doctor,
                                IPatient patient,
                                IAppointment appointment,
-                               ISysAdmin sysAdmin,
-                               CurrentUserHelper helpers)
+                               IAdmin sysAdmin,
+                               ICurrentUserHelper helper)
         {
             _hospitalRepository = hospitalRepository;
             _doctor = doctor;
             _patient = patient;
             _appointment = appointment;
             _sysAdmin = sysAdmin;
-            _helpers = helpers;
+            _helper = helper;
         }
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
@@ -78,8 +80,8 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<Hospital?> GetCurrentUserHospitalAsync()
         {
-            var user = await _helpers.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
-            var role = await _helpers.GetUserRoleAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var user = await _helper.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
+            var role = await _helper.GetUserRoleAsync() ?? throw new InvalidOperationException("Unauthorized.");
 
             Hospital hospital;
             switch (role)
@@ -88,8 +90,8 @@ namespace MedicalAppointments.Api.Application.Services
                     var doctor = user as Doctor;
                     hospital = doctor!.Hospital!;
                     break;
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
+                case "Admin":
+                    var admin = user as Admin;
                     hospital = admin!.Hospital!;
                     break;
                 default:

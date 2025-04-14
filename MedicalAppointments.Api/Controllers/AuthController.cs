@@ -1,5 +1,5 @@
-﻿using MedicalAppointments.Api.DTOs.Auth;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.DTOs.Auth;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace MedicalAppointments.Api.Controllers
+namespace MedicalAppointments.Shared.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

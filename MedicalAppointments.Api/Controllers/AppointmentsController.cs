@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Enums;
-using MedicalAppointments.Api.Application.Helpers;
-using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Domain.Interfaces;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Enums;
+using MedicalAppointments.Shared.Application.Helpers;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Controllers
+namespace MedicalAppointments.Shared.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

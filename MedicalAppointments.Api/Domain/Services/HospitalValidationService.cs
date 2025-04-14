@@ -1,7 +1,7 @@
-﻿using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Domain.Interfaces;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Domain.Services
+namespace MedicalAppointments.Shared.Domain.Services
 {
     public class HospitalValidationService : IHospitalValidation
     {

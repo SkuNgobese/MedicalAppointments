@@ -1,8 +1,9 @@
-﻿using MedicalAppointments.Api.Application.Interfaces;
+﻿using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
 
-namespace MedicalAppointments.Api.Application.Helpers
+namespace MedicalAppointments.Shared.Application.Helpers
 {
-    public class CurrentUserHelper
+    public class CurrentUserHelper : ICurrentUserHelper
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
@@ -23,7 +24,7 @@ namespace MedicalAppointments.Api.Application.Helpers
             if (await superAdmin.ExistsAsync(email))
                 return await superAdmin.GetAdminAsync(email);
 
-            var sysAdmin = _serviceProvider.GetRequiredService<ISysAdmin>();
+            var sysAdmin = _serviceProvider.GetRequiredService<IAdmin>();
             if (await sysAdmin.ExistsAsync(email))
                 return await sysAdmin.GetAdminAsync(email);
 
@@ -48,9 +49,9 @@ namespace MedicalAppointments.Api.Application.Helpers
             if (await superAdmin.ExistsAsync(email))
                 return "SuperAdmin";
 
-            var sysAdmin = _serviceProvider.GetRequiredService<ISysAdmin>();
+            var sysAdmin = _serviceProvider.GetRequiredService<IAdmin>();
             if (await sysAdmin.ExistsAsync(email))
-                return "SysAdmin";
+                return "Admin";
 
             var doctor = _serviceProvider.GetRequiredService<IDoctor>();
             if (await doctor.ExistsAsync(email))

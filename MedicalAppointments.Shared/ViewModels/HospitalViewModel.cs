@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Api.ViewModels
+namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class HospitalViewModel
     {

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace MedicalAppointments.Api.Infrastructure.Interfaces
+namespace MedicalAppointments.Shared.Infrastructure.Interfaces
 {
     public interface IRepository<T> where T : class
     {

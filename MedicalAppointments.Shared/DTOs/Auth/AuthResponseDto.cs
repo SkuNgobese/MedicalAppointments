@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalAppointments.Api.DTOs.Auth
+namespace MedicalAppointments.Shared.DTOs.Auth
 {
     public class AuthResponseDto
     {

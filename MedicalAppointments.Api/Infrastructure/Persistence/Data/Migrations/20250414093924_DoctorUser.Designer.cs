@@ -4,6 +4,7 @@ using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalAppointments.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414093924_DoctorUser")]
+    partial class DoctorUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace MedicalAppointments.Shared.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Address", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,6 +57,133 @@ namespace MedicalAppointments.Shared.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "date");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "description");
+
+                    b.Property<string>("DoctorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("HospitalId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PatientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("HospitalId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Contact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContactNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "contactnumber");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "email");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "fax");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Api.Models.DiagnosticFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    b.Property<string>("AttachmentFileName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "attachmentfilename");
+
+                    b.Property<string>("Diagnosis")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "diagnosis");
+
+                    b.Property<string>("PatientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Treatment")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "treatment");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("DiagnosticFile");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Hospital", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("Hospitals");
                 });
 
             modelBuilder.Entity("MedicalAppointments.Shared.Models.ApplicationUser", b =>
@@ -150,133 +280,6 @@ namespace MedicalAppointments.Shared.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
 
                     b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Appointment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2")
-                        .HasAnnotation("Relational:JsonPropertyName", "date");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "description");
-
-                    b.Property<string>("DoctorId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("HospitalId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PatientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("HospitalId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Appointments");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Contact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "contactnumber");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "email");
-
-                    b.Property<string>("Fax")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "fax");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Contacts");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.DiagnosticFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    b.Property<string>("AttachmentFileName")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "attachmentfilename");
-
-                    b.Property<string>("Diagnosis")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "diagnosis");
-
-                    b.Property<string>("PatientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Treatment")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "treatment");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("DiagnosticFile");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Hospital", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ContactId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("ContactId");
-
-                    b.ToTable("Hospitals");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -412,7 +415,7 @@ namespace MedicalAppointments.Shared.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Admin", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Admin", b =>
                 {
                     b.HasBaseType("MedicalAppointments.Shared.Models.ApplicationUser");
 
@@ -421,10 +424,16 @@ namespace MedicalAppointments.Shared.Migrations
 
                     b.HasIndex("HospitalId");
 
+                    b.ToTable("AspNetUsers", t =>
+                        {
+                            t.Property("HospitalId")
+                                .HasColumnName("Admin_HospitalId");
+                        });
+
                     b.HasDiscriminator().HasValue("Admin");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Doctor", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Doctor", b =>
                 {
                     b.HasBaseType("MedicalAppointments.Shared.Models.ApplicationUser");
 
@@ -465,12 +474,21 @@ namespace MedicalAppointments.Shared.Migrations
                         {
                             t.Property("HospitalId")
                                 .HasColumnName("Doctor_HospitalId");
+
+                            t.Property("IDNumber")
+                                .HasColumnName("Doctor_IDNumber");
+
+                            t.Property("IsActive")
+                                .HasColumnName("Doctor_IsActive");
+
+                            t.Property("RemoveDate")
+                                .HasColumnName("Doctor_RemoveDate");
                         });
 
                     b.HasDiscriminator().HasValue("Doctor");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Patient", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Patient", b =>
                 {
                     b.HasBaseType("MedicalAppointments.Shared.Models.ApplicationUser");
 
@@ -500,59 +518,29 @@ namespace MedicalAppointments.Shared.Migrations
 
                     b.HasIndex("PrimaryDoctorId");
 
-                    b.ToTable("AspNetUsers", t =>
-                        {
-                            t.Property("HospitalId")
-                                .HasColumnName("Patient_HospitalId");
-
-                            t.Property("IDNumber")
-                                .HasColumnName("Patient_IDNumber");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Patient_IsActive");
-
-                            t.Property("RemoveDate")
-                                .HasColumnName("Patient_RemoveDate");
-                        });
-
                     b.HasDiscriminator().HasValue("Patient");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.SuperAdmin", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.SuperAdmin", b =>
                 {
                     b.HasBaseType("MedicalAppointments.Shared.Models.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("SuperAdmin");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.ApplicationUser", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Appointment", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("MedicalAppointments.Shared.Models.Contact", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Contact");
-                });
-
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Appointment", b =>
-                {
-                    b.HasOne("MedicalAppointments.Shared.Models.Doctor", "Doctor")
+                    b.HasOne("MedicalAppointments.Api.Models.Doctor", "Doctor")
                         .WithMany("Appointments")
                         .HasForeignKey("DoctorId");
 
-                    b.HasOne("MedicalAppointments.Shared.Models.Hospital", "Hospital")
+                    b.HasOne("MedicalAppointments.Api.Models.Hospital", "Hospital")
                         .WithMany("Appointments")
                         .HasForeignKey("HospitalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MedicalAppointments.Shared.Models.Patient", "Patient")
+                    b.HasOne("MedicalAppointments.Api.Models.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId");
 
@@ -563,22 +551,37 @@ namespace MedicalAppointments.Shared.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.DiagnosticFile", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.DiagnosticFile", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Patient", "Patient")
+                    b.HasOne("MedicalAppointments.Api.Models.Patient", "Patient")
                         .WithMany("DiagnosticFiles")
                         .HasForeignKey("PatientId");
 
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Hospital", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Hospital", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Address", "Address")
+                    b.HasOne("MedicalAppointments.Api.Models.Address", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId");
 
-                    b.HasOne("MedicalAppointments.Shared.Models.Contact", "Contact")
+                    b.HasOne("MedicalAppointments.Api.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact");
+                });
+
+            modelBuilder.Entity("MedicalAppointments.Shared.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("MedicalAppointments.Api.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("MedicalAppointments.Api.Models.Contact", "Contact")
                         .WithMany()
                         .HasForeignKey("ContactId");
 
@@ -638,31 +641,31 @@ namespace MedicalAppointments.Shared.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Admin", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Admin", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Hospital", "Hospital")
+                    b.HasOne("MedicalAppointments.Api.Models.Hospital", "Hospital")
                         .WithMany()
                         .HasForeignKey("HospitalId");
 
                     b.Navigation("Hospital");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Doctor", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Doctor", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Hospital", "Hospital")
+                    b.HasOne("MedicalAppointments.Api.Models.Hospital", "Hospital")
                         .WithMany("Doctors")
                         .HasForeignKey("HospitalId");
 
                     b.Navigation("Hospital");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Patient", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Patient", b =>
                 {
-                    b.HasOne("MedicalAppointments.Shared.Models.Hospital", "Hospital")
+                    b.HasOne("MedicalAppointments.Api.Models.Hospital", "Hospital")
                         .WithMany("Patients")
                         .HasForeignKey("HospitalId");
 
-                    b.HasOne("MedicalAppointments.Shared.Models.Doctor", "PrimaryDoctor")
+                    b.HasOne("MedicalAppointments.Api.Models.Doctor", "PrimaryDoctor")
                         .WithMany("Patients")
                         .HasForeignKey("PrimaryDoctorId");
 
@@ -671,7 +674,7 @@ namespace MedicalAppointments.Shared.Migrations
                     b.Navigation("PrimaryDoctor");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Hospital", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Hospital", b =>
                 {
                     b.Navigation("Appointments");
 
@@ -680,14 +683,14 @@ namespace MedicalAppointments.Shared.Migrations
                     b.Navigation("Patients");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Doctor", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Doctor", b =>
                 {
                     b.Navigation("Appointments");
 
                     b.Navigation("Patients");
                 });
 
-            modelBuilder.Entity("MedicalAppointments.Shared.Models.Patient", b =>
+            modelBuilder.Entity("MedicalAppointments.Api.Models.Patient", b =>
                 {
                     b.Navigation("Appointments");
 

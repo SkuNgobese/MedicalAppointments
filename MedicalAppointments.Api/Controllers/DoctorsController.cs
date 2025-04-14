@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.ViewModels;
-using MedicalAppointments.Api.Application.Helpers;
-using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Domain.Interfaces;
+using MedicalAppointments.Shared.Domain.Interfaces.Shared;
+using MedicalAppointments.Shared.ViewModels;
+using MedicalAppointments.Shared.Application.Helpers;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Controllers
+namespace MedicalAppointments.Shared.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -21,31 +22,22 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IAddress _address;
         private readonly IContact _contact;
 
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUserStore<ApplicationUser> _userStore;
-        private readonly IUserEmailStore<ApplicationUser> _emailStore;
-
-        private readonly IUserService _userService;
+        private readonly IRegistrationService<Doctor> _registration;
 
         public DoctorsController(
             IHospital hospital,
             IDoctor doctor,
             IDoctorValidation doctorValidation,
-            UserManager<ApplicationUser> userManager,
-            IUserStore<ApplicationUser> userStore,
             IAddress address,
             IContact contact,
-            IUserService userService)
+            IRegistrationService<Doctor> registration)
         {
             _hospital = hospital;
             _doctor = doctor;
             _doctorValidation = doctorValidation;
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _userStore = userStore;
             _address = address;
             _contact = contact;
-            _userService = userService;
-            _emailStore = _userService!.GetEmailStore();
+            _registration = registration;
         }
 
         // GET: api/<DoctorsController>
@@ -91,7 +83,8 @@ namespace MedicalAppointments.Api.Controllers
 
                 doctor = await _doctor.EnrollDoctorAsync(doctor);
 
-                await RegisterDoctorAsUserAsync(doctor);
+                //Register doctor as user
+                await _registration.RegisterAsync(doctor);
             }
 
             return CreatedAtAction(nameof(GetDoctor), new { id = doctor.Id }, doctor);
@@ -144,34 +137,6 @@ namespace MedicalAppointments.Api.Controllers
                 await _doctor.RemoveDoctorAsync(doctor);
 
             return NoContent();
-        }
-
-        private async Task RegisterDoctorAsUserAsync(Doctor doctor)
-        {
-            if (doctor.Contact?.Email == null)
-                throw new NullReferenceException("Doctor's email is required.");
-
-            var existingUser = await _userManager.FindByEmailAsync(doctor.Contact.Email);
-
-            if (existingUser != null)
-                return;
-
-            var user = _userService.CreateUser<Doctor>();
-            user.UserName = doctor.Contact.Email;
-            user.Title = doctor.Title;
-            user.FirstName = doctor.FirstName;
-            user.LastName = doctor.LastName;
-            user.Address = doctor.Address;
-            user.Contact = doctor.Contact;
-
-            await _userStore.SetUserNameAsync(user, doctor.Contact.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, doctor.Contact.Email, CancellationToken.None);
-
-            string generatedPassword = _userService.GenerateRandomPassword(12);
-            var createUserResult = await _userManager.CreateAsync(user, generatedPassword);
-
-            if (createUserResult.Succeeded)
-                await _userManager.AddToRoleAsync(doctor, "Doctor");
         }
     }
 }

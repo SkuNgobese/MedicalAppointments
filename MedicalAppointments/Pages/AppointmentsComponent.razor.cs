@@ -1,8 +1,9 @@
 ﻿using MedicalAppointments.Interfaces;
-using MedicalAppointments.Api.Models;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Pages
 {
@@ -13,8 +14,6 @@ namespace MedicalAppointments.Pages
 
         [Inject]
         public IDoctor? Doctor { get; set; }
-
-        private Hospital? _currentHospital = null;
 
         protected IEnumerable<Appointment>? appointments;
 
@@ -34,10 +33,8 @@ namespace MedicalAppointments.Pages
             allDoctors = await LoadDoctorsAsync();
         }
 
-        private async Task<List<Doctor>> LoadDoctorsAsync()
-        {
-            return (List<Doctor>)await Doctor!.GetAllDoctorsAsync();
-        }
+        private async Task<List<Doctor>> LoadDoctorsAsync() => 
+            (List<Doctor>)await Doctor!.GetAllDoctorsAsync();
 
         private void ShowRescheduleModal(Appointment appointment)
         {

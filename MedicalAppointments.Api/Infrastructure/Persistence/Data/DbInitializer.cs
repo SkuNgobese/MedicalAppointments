@@ -1,7 +1,7 @@
-﻿using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
+namespace MedicalAppointments.Shared.Infrastructure.Persistence.Data
 {
     public static class DbInitializer
     {

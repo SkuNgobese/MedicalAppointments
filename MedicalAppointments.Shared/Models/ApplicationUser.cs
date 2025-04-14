@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace MedicalAppointments.Api.Models
+namespace MedicalAppointments.Shared.Models
 {
     public class ApplicationUser : IdentityUser
     {
@@ -17,7 +17,7 @@ namespace MedicalAppointments.Api.Models
 
         public Contact? Contact { get; set; }
         public Address? Address { get; set; }
-        
+    
         [NotMapped]
         [JsonPropertyName("fullname")]
         public string FullName => $"{Title}. {FirstName?[..1]} {LastName}";

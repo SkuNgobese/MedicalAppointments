@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using MedicalAppointments.Api.Domain.Interfaces;
-using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Domain.Interfaces;
+using MedicalAppointments.Shared.Domain.Interfaces.Shared;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Controllers
+namespace MedicalAppointments.Shared.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -17,30 +19,24 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IHospitalValidation _hospitalValidation;
         private readonly IAddress _address;
         private readonly IContact _contact;
+        private readonly IAdmin _admin;
 
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUserStore<ApplicationUser> _userStore;
-        private readonly IUserEmailStore<ApplicationUser> _emailStore;
-
-        private readonly IUserService _userService;
+        private readonly IRegistrationService<Admin> _registration;
 
         public HospitalsController(
             IHospital hospital, 
             IHospitalValidation hospitalValidation, 
-            UserManager<ApplicationUser> userManager,
-            IUserStore<ApplicationUser> userStore,
             IAddress address,
             IContact contact,
-            IUserService userService)
+            IAdmin admin,
+            IRegistrationService<Admin> registration)
         {
             _hospital = hospital;
             _hospitalValidation = hospitalValidation;
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _userStore = userStore;
             _address = address;
             _contact = contact;
-            _userService = userService;
-            _emailStore = _userService!.GetEmailStore();
+            _admin = admin;
+            _registration = registration;
         }
 
         // GET: api/hospitals
@@ -147,30 +143,17 @@ namespace MedicalAppointments.Api.Controllers
 
         private async Task RegisterHospitalAdminAsync(Hospital hospital)
         {
-            if (hospital.Contact?.Email == null)
-                return;
+            var admin = new Admin
+            {
+                Title = "Admin",
+                FirstName = hospital.Name,
+                LastName = "Admin",
+                Hospital = hospital
+            };
 
-            var existingUser = await _userManager.FindByEmailAsync(hospital.Contact.Email);
+            admin = await _admin.AddAdminAsync(admin);
 
-            if (existingUser != null)
-                return;
-
-            var user = _userService.CreateUser<SysAdmin>();
-
-            user.UserName = hospital.Contact.Email;
-            user.Title = "Admin";
-            user.FirstName = hospital.Name;
-            user.LastName = "Admin";
-            user.Hospital = hospital;
-
-            await _userStore.SetUserNameAsync(user, hospital.Contact.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, hospital.Contact.Email, CancellationToken.None);
-
-            string generatedPassword = _userService.GenerateRandomPassword(12);
-            var createUserResult = await _userManager.CreateAsync(user, generatedPassword);
-
-            if (createUserResult.Succeeded)
-                await _userManager.AddToRoleAsync(user, "Admin");
+            await _registration.RegisterAsync(admin, hospital);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Api.DTOs.Auth
+namespace MedicalAppointments.Shared.DTOs.Auth
 {
     public class LoginDto
     {

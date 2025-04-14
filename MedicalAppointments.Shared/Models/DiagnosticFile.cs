@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace MedicalAppointments.Api.Models
+namespace MedicalAppointments.Shared.Models
 {
     public class DiagnosticFile
     {

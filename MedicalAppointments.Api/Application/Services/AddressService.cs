@@ -1,8 +1,8 @@
-﻿using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Application.Services
+namespace MedicalAppointments.Shared.Application.Services
 {
     public class AddressService : IAddress
     {

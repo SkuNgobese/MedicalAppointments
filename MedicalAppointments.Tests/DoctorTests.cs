@@ -1,9 +1,10 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
+﻿using MedicalAppointments.Shared.Infrastructure.Interfaces;
 using Moq;
-using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Api.Models;
+using MedicalAppointments.Shared.Application.Services;
 using System.Linq.Expressions;
-using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Tests
 {
@@ -14,13 +15,17 @@ namespace MedicalAppointments.Tests
         private List<Doctor> _doctors;
 
         private Mock<IRepository<Doctor>> _doctorRepositoryMock;
+        private Mock<ICurrentUserHelper>? _currentUserHelperMock;
         private IDoctor _doctorService;
 
         [SetUp]
         public void Setup()
         {
             _doctorRepositoryMock = new Mock<IRepository<Doctor>>();
-            _doctorService = new DoctorService(_doctorRepositoryMock.Object);
+            _currentUserHelperMock = new Mock<ICurrentUserHelper>();
+
+            _doctorService = new DoctorService(_doctorRepositoryMock.Object,
+                                               _currentUserHelperMock!.Object);
 
             _doctor = new Doctor
             {

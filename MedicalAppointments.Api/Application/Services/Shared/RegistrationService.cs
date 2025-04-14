@@ -1,9 +1,10 @@
-﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Domain.Interfaces.Shared;
+using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
+using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Api.Application.Services.Shared
+namespace MedicalAppointments.Shared.Application.Services.Shared
 {
     public class RegistrationService<T> : IRegistrationService<T> where T : ApplicationUser, new()
     {
@@ -23,36 +24,49 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             _userService = userService;
         }
 
-        public async Task RegisterAsync(T userData)
+        public async Task RegisterAsync(T userData, Hospital hospital = default!)
         {
-            var email = userData.Email ?? userData.Contact?.Email;
+            var email = userData.Contact?.Email ?? hospital.Contact!.Email;
             if (string.IsNullOrWhiteSpace(email))
                 return;
 
-            var existingUser = await _userManager.FindByEmailAsync(email.ToUpper());
-            if (existingUser != null)
-                return;
+            var existingUser = !string.IsNullOrEmpty(userData.Id) ? await _userManager.FindByIdAsync(userData.Id) : await _userManager.FindByEmailAsync(email.ToUpper());
 
-            T user = _userService.CreateUser<T>();
+            T? user = existingUser as T;
+            bool isNewUser = user == null;
+            if (existingUser == null)
+                user = _userService.CreateUser<T>();
 
-            user.Title = userData.Title;
+            user!.Title = userData.Title;
             user.FirstName = userData.FirstName;
             user.LastName = userData.LastName;
-            user.Address = userData.Address;
-            user.Contact = userData.Contact;
-
+            
             await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
 
             var password = _userService.GenerateRandomPassword(12);
-            var createUserResult = await _userManager.CreateAsync(user, password);
+            
+            IdentityResult result;
+            if (isNewUser)
+            {
+                user.Address = userData.Address;
+                user.Contact = userData.Contact;
+                result = await _userManager.CreateAsync(user, password);
+            }
+            else
+            {
+                _userManager.AddPasswordAsync(user, password).Wait();
+                result = await _userManager.UpdateAsync(user);
+            }
+                
 
-            if (createUserResult.Succeeded)
+            if (result.Succeeded)
             {
                 string role = typeof(T).Name switch
                 {
                     nameof(Patient) => "Patient",
                     nameof(Doctor) => "Doctor",
+                    nameof(Admin) => "Admin",
                     _ => "User"
                 };
 

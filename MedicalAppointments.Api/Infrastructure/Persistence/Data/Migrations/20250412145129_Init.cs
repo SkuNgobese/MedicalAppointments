@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MedicalAppointments.Api.Migrations
+namespace MedicalAppointments.Shared.Migrations
 {
     /// <inheritdoc />
     public partial class Init : Migration

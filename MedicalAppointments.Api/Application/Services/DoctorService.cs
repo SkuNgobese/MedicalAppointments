@@ -1,18 +1,19 @@
-﻿using MedicalAppointments.Api.Application.Helpers;
-using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Models;
+﻿using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Models;
 using System.Collections;
 
-namespace MedicalAppointments.Api.Application.Services
+namespace MedicalAppointments.Shared.Application.Services
 {
     public class DoctorService : IDoctor
     {
         private readonly IRepository<Doctor> _repository;
 
-        private readonly CurrentUserHelper _helper;
+        private readonly ICurrentUserHelper _helper;
 
-        public DoctorService(IRepository<Doctor> repository, CurrentUserHelper helper)
+        public DoctorService(IRepository<Doctor> repository, ICurrentUserHelper helper)
         {
             _repository = repository;
             _helper = helper;
@@ -146,8 +147,8 @@ namespace MedicalAppointments.Api.Application.Services
                     var doctor = user as Doctor;
                     doctors = doctors!.Append(doctor!);
                     break;
-                case "SysAdmin":
-                    var admin = user as SysAdmin;
+                case "Admin":
+                    var admin = user as Admin;
                     doctors = await GetAllDoctorsAsync(admin!.Hospital!);
                     break;
                 case "SuperAdmin":

@@ -1,9 +1,11 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
+﻿using MedicalAppointments.Shared.Infrastructure.Interfaces;
 using Moq;
-using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Api.Models;
+using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Shared.Models;
 using System.Linq.Expressions;
-using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Tests
 {
@@ -17,7 +19,8 @@ namespace MedicalAppointments.Tests
         private Mock<IDoctor> _doctorServiceMock;
         private Mock<IPatient> _patientServiceMock;
         private Mock<IAppointment> _appointmentServiceMock;
-        private Mock<ISysAdmin> _sysAdminMock;
+        private Mock<IAdmin> _sysAdminMock;
+        private Mock<ICurrentUserHelper>? _currentUserHelperMock;
         private IHospital _hospitalService;
 
         [SetUp]
@@ -27,14 +30,16 @@ namespace MedicalAppointments.Tests
             _doctorServiceMock = new Mock<IDoctor>();
             _patientServiceMock = new Mock<IPatient>();
             _appointmentServiceMock = new Mock<IAppointment>();
-            _sysAdminMock = new Mock<ISysAdmin>();
+            _sysAdminMock = new Mock<IAdmin>();
+            _currentUserHelperMock = new Mock<ICurrentUserHelper>();
 
             _hospitalService = new HospitalService(
                 _hospitalRepositoryMock.Object,
                 _doctorServiceMock.Object,
                 _patientServiceMock.Object,
                 _appointmentServiceMock.Object,
-                _sysAdminMock.Object);
+                _sysAdminMock.Object,
+                _currentUserHelperMock!.Object);
 
             Address address = new()
             {
@@ -48,8 +53,8 @@ namespace MedicalAppointments.Tests
             Contact contact = new()
             {
                 Id = 2,
-                ContactNumber = "0640617805",
-                Email = "i.skngobese@gmai.com"
+                ContactNumber = "string",
+                Email = "string"
             };
 
             _hospital = new Hospital

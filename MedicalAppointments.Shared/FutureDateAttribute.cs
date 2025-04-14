@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Api
+namespace MedicalAppointments.Shared
 {
     public class FutureDateAttribute : ValidationAttribute
     {

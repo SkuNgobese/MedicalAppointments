@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace MedicalAppointments.Api.Infrastructure.Services
+namespace MedicalAppointments.Shared.Infrastructure.Services
 {
     public class EmailSender : IEmailSender
     {

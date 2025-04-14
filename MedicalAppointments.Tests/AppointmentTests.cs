@@ -1,9 +1,11 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
+﻿using MedicalAppointments.Shared.Infrastructure.Interfaces;
 using Moq;
-using MedicalAppointments.Api.Application.Services;
-using MedicalAppointments.Api.Models;
-using MedicalAppointments.Api.Enums;
-using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.Enums;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Application.Interfaces;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Tests
 {
@@ -14,13 +16,16 @@ namespace MedicalAppointments.Tests
         private List<Appointment> _appointments;
 
         private Mock<IRepository<Appointment>> _appointmentRepositoryMock;
+        private Mock<ICurrentUserHelper>? _currentUserHelperMock;
         private IAppointment _appointmentService;
 
         [SetUp]
         public void Setup()
         {
+            _currentUserHelperMock = new Mock<ICurrentUserHelper>();
             _appointmentRepositoryMock = new Mock<IRepository<Appointment>>();
-            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object);
+
+            _appointmentService = new AppointmentService(_appointmentRepositoryMock.Object, _currentUserHelperMock!.Object);
 
             Address address = new()
             {

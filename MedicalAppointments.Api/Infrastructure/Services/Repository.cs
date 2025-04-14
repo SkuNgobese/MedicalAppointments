@@ -1,9 +1,9 @@
-﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Persistence.Data;
+﻿using MedicalAppointments.Shared.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace MedicalAppointments.Api.Infrastructure.Services
+namespace MedicalAppointments.Shared.Infrastructure.Services
 {
     public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : class
     {

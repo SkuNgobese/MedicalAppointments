@@ -1,7 +1,7 @@
-﻿using MedicalAppointments.Api.Enums;
+﻿using MedicalAppointments.Shared.Enums;
 using System.Text.Json.Serialization;
 
-namespace MedicalAppointments.Api.Models
+namespace MedicalAppointments.Shared.Models
 {
     public class Appointment
     {
