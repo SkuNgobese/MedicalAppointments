@@ -1,9 +1,6 @@
-﻿using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Infrastructure.Interfaces;
+﻿using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Models;
-using System.Collections;
 
 namespace MedicalAppointments.Shared.Application.Services
 {

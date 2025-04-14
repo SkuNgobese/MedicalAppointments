@@ -1,7 +1,6 @@
 ﻿using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Shared.Domain.Interfaces
+namespace MedicalAppointments.Api.Domain.Interfaces
 {
     public interface IAppointmentValidation
     {

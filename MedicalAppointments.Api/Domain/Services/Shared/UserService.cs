@@ -1,9 +1,9 @@
-﻿using MedicalAppointments.Shared.Domain.Interfaces.Shared;
+﻿using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 
-namespace MedicalAppointments.Shared.Domain.Services.Shared
+namespace MedicalAppointments.Api.Domain.Services.Shared
 {
     public class UserService : IUserService
     {

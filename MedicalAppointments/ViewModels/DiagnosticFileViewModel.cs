@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 
-namespace MedicalAppointments.Shared.ViewModels
+namespace MedicalAppointments.ViewModels
 {
     public partial class DiagnosticFileViewModel
     {

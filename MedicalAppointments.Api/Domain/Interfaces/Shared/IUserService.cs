@@ -1,7 +1,7 @@
 ﻿using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace MedicalAppointments.Shared.Domain.Interfaces.Shared
+namespace MedicalAppointments.Api.Domain.Interfaces.Shared
 {
     public interface IUserService
     {

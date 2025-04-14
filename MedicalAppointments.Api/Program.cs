@@ -1,12 +1,4 @@
 using MedicalAppointments.Shared.Application.Services;
-using MedicalAppointments.Shared.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.Domain.Interfaces;
-using MedicalAppointments.Shared.Domain.Services.Shared;
-using MedicalAppointments.Shared.Domain.Services;
-using MedicalAppointments.Shared.Infrastructure.Interfaces;
-using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
-using MedicalAppointments.Shared.Infrastructure.Services;
-using MedicalAppointments.Shared.Application.Services.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +6,18 @@ using Microsoft.OpenApi.Models;
 using MedicalAppointments.Shared.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using MedicalAppointments.Shared.Application.Helpers;
-using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Application.Interfaces.Shared;
-using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Application.Services;
-using MedicalAppointments.Shared.Infrastructure.Persistence.Data;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Persistence.Data;
+using MedicalAppointments.Api.Infrastructure.Services;
+using MedicalAppointments.Api.Domain.Interfaces.Shared;
+using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Api.Domain.Services.Shared;
+using MedicalAppointments.Api.Application.Services;
+using MedicalAppointments.Api.Domain.Services;
+using MedicalAppointments.Api.Application.Helpers;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Api.Application.Services.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 

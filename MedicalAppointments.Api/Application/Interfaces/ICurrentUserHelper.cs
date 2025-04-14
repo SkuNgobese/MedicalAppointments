@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointments.Shared.Application.Interfaces
+﻿namespace MedicalAppointments.Api.Application.Interfaces
 {
     public interface ICurrentUserHelper
     {

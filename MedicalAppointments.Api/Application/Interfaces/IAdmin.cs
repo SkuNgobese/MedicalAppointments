@@ -1,7 +1,6 @@
 ﻿using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Shared.Application.Interfaces
+namespace MedicalAppointments.Api.Application.Interfaces
 {
     public interface IAdmin
     {

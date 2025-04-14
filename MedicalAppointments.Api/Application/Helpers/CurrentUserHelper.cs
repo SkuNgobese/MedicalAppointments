@@ -1,7 +1,6 @@
-﻿using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Application.Interfaces;
+﻿using MedicalAppointments.Api.Application.Interfaces;
 
-namespace MedicalAppointments.Shared.Application.Helpers
+namespace MedicalAppointments.Api.Application.Helpers
 {
     public class CurrentUserHelper : ICurrentUserHelper
     {

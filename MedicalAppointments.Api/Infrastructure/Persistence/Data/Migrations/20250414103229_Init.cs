@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MedicalAppointments.Shared.Migrations
+namespace MedicalAppointments.Api.Migrations
 {
     /// <inheritdoc />
     public partial class Init : Migration
@@ -114,6 +114,7 @@ namespace MedicalAppointments.Shared.Migrations
                     ContactId = table.Column<int>(type: "int", nullable: true),
                     AddressId = table.Column<int>(type: "int", nullable: true),
                     Discriminator = table.Column<string>(type: "nvarchar(21)", maxLength: 21, nullable: false),
+                    HospitalId = table.Column<int>(type: "int", nullable: true),
                     IDNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HireDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -121,14 +122,13 @@ namespace MedicalAppointments.Shared.Migrations
                     RetireDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsRetired = table.Column<bool>(type: "bit", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    HospitalId = table.Column<int>(type: "int", nullable: true),
+                    Doctor_HospitalId = table.Column<int>(type: "int", nullable: true),
                     Patient_IDNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Patient_RemoveDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Patient_IsActive = table.Column<bool>(type: "bit", nullable: true),
                     Patient_HospitalId = table.Column<int>(type: "int", nullable: true),
                     PrimaryDoctorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    SysAdmin_HospitalId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -163,6 +163,11 @@ namespace MedicalAppointments.Shared.Migrations
                         principalTable: "Contacts",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_AspNetUsers_Hospitals_Doctor_HospitalId",
+                        column: x => x.Doctor_HospitalId,
+                        principalTable: "Hospitals",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_AspNetUsers_Hospitals_HospitalId",
                         column: x => x.HospitalId,
                         principalTable: "Hospitals",
@@ -170,11 +175,6 @@ namespace MedicalAppointments.Shared.Migrations
                     table.ForeignKey(
                         name: "FK_AspNetUsers_Hospitals_Patient_HospitalId",
                         column: x => x.Patient_HospitalId,
-                        principalTable: "Hospitals",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_Hospitals_SysAdmin_HospitalId",
-                        column: x => x.SysAdmin_HospitalId,
                         principalTable: "Hospitals",
                         principalColumn: "Id");
                 });
@@ -376,6 +376,11 @@ namespace MedicalAppointments.Shared.Migrations
                 column: "ContactId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Doctor_HospitalId",
+                table: "AspNetUsers",
+                column: "Doctor_HospitalId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_HospitalId",
                 table: "AspNetUsers",
                 column: "HospitalId");
@@ -389,11 +394,6 @@ namespace MedicalAppointments.Shared.Migrations
                 name: "IX_AspNetUsers_PrimaryDoctorId",
                 table: "AspNetUsers",
                 column: "PrimaryDoctorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_SysAdmin_HospitalId",
-                table: "AspNetUsers",
-                column: "SysAdmin_HospitalId");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",

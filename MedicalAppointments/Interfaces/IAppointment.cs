@@ -1,5 +1,4 @@
 ﻿using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Interfaces
 {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalAppointments.Shared.ViewModels
+namespace MedicalAppointments.ViewModels
 {
     public partial class ContactViewModel
     {

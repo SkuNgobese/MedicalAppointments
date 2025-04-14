@@ -1,10 +1,9 @@
-﻿using MedicalAppointments.Shared.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.Application.Interfaces.Shared;
+﻿using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
-using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Domain.Interfaces.Shared;
 
-namespace MedicalAppointments.Shared.Application.Services.Shared
+namespace MedicalAppointments.Api.Application.Services.Shared
 {
     public class RegistrationService<T> : IRegistrationService<T> where T : ApplicationUser, new()
     {

@@ -1,8 +1,6 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
-using System.IO;
 using System.Net.Http.Json;
-using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Services
 {

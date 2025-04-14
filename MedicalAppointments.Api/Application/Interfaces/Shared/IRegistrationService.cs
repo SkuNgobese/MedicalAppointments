@@ -1,6 +1,6 @@
 ﻿using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Shared.Application.Interfaces.Shared
+namespace MedicalAppointments.Api.Application.Interfaces.Shared
 {
     public interface IRegistrationService<T> where T : ApplicationUser
     {

@@ -1,9 +1,8 @@
 ﻿using MedicalAppointments.Shared.Models;
-using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace MedicalAppointments.Shared.Infrastructure.Persistence.Data;
+namespace MedicalAppointments.Api.Infrastructure.Persistence.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {

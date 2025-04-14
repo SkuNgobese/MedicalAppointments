@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MedicalAppointments.Shared.Domain.Interfaces;
-using MedicalAppointments.Shared.Domain.Interfaces.Shared;
-using MedicalAppointments.Shared.ViewModels;
-using MedicalAppointments.Shared.Application.Helpers;
-using MedicalAppointments.Shared.Application.Interfaces;
-using MedicalAppointments.Shared.Application.Interfaces.Shared;
+using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Api.Domain.Interfaces;
 
-namespace MedicalAppointments.Shared.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -92,7 +88,7 @@ namespace MedicalAppointments.Shared.Controllers
 
         // PUT api/<DoctorsController>/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDoctor(string id, [FromBody] DoctorViewModel model)
+        public async Task<IActionResult> UpdateDoctor(string id, [FromBody] Doctor model)
         {
             if (model == null)
                 return BadRequest("Invalid doctor data.");
@@ -101,24 +97,15 @@ namespace MedicalAppointments.Shared.Controllers
             if (doctor == null)
                 return NotFound($"Doctor with ID {id} not found.");
 
-            // Create and save Address
-            doctor.Address = new()
-            {
-                Street = model.AddressDetails.Street,
-                City = model.AddressDetails.City,
-                Suburb = model.AddressDetails.Suburb,
-                PostalCode = model.AddressDetails.PostalCode
-            };
-            await _address.UpdateAddress(doctor.Address);
+            // Update and save Address
+            doctor.Address = model.Address;
 
-            // Create and save Contact
-            doctor.Contact = new()
-            {
-                ContactNumber = model.ContactDetails.ContactNumber,
-                Email = model.ContactDetails.Email,
-                Fax = model.ContactDetails.Fax
-            };
-            await _contact.UpdateContact(doctor.Contact);
+            await _address.UpdateAddress(doctor.Address!);
+
+            // Update and save Contact
+            doctor.Contact = model.Contact;
+
+            await _contact.UpdateContact(doctor.Contact!);
 
             await _doctor.UpdateDoctorAsync(doctor);
 
