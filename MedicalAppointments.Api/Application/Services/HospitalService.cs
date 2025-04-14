@@ -2,7 +2,7 @@
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces;
 
-namespace MedicalAppointments.Shared.Application.Services
+namespace MedicalAppointments.Api.Application.Services
 {
     public class HospitalService : IHospital
     {

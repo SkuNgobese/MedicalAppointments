@@ -1,4 +1,4 @@
-using MedicalAppointments.Shared.Application.Services;
+using MedicalAppointments.Api.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,6 @@ using MedicalAppointments.Api.Infrastructure.Services;
 using MedicalAppointments.Api.Domain.Interfaces.Shared;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Api.Domain.Services.Shared;
-using MedicalAppointments.Api.Application.Services;
 using MedicalAppointments.Api.Domain.Services;
 using MedicalAppointments.Api.Application.Helpers;
 using MedicalAppointments.Api.Application.Interfaces.Shared;

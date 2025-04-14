@@ -2,7 +2,7 @@
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Shared.Models;
 
-namespace MedicalAppointments.Shared.Application.Services
+namespace MedicalAppointments.Api.Application.Services
 {
     public class ContactService : IContact
     {
