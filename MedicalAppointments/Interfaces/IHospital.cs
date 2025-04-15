@@ -1,10 +1,11 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Interfaces
 {
     public interface IHospital
     {
-        Task<IEnumerable<Hospital>> GetAllHospitalsAsync();
+        Task<IEnumerable<HospitalViewModel>> GetAllHospitalsAsync();
 
         Task<Hospital> AddHospitalAsync(Hospital hospital);
 

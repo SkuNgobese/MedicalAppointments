@@ -4,6 +4,6 @@ namespace MedicalAppointments.Api.Application.Interfaces.Shared
 {
     public interface IRegistrationService<T> where T : ApplicationUser
     {
-        Task RegisterAsync(T userData, Hospital hospital = default!);
+        Task RegisterAsync(T userData, string password = default!, Hospital hospital = default!);
     }
 }

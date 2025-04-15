@@ -4,8 +4,8 @@ namespace MedicalAppointments.Api.Application.Interfaces
 {
     public interface ISuperAdmin
     {
-        Task<SuperAdmin> AddAdminAsync(SuperAdmin superAdmin);
+        Task<SuperAdmin> AddSuperAdminAsync(SuperAdmin superAdmin);
         Task<bool> ExistsAsync(string email);
-        Task<SuperAdmin?> GetAdminAsync(string email);
+        Task<SuperAdmin?> GetSuperAdminAsync(string email);
     }
 }

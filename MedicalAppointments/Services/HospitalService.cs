@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Interfaces;
 using System.Net.Http.Json;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Services
 {
@@ -10,6 +11,30 @@ namespace MedicalAppointments.Services
         private const string _endPoint = "api/Hospitals";
 
         public HospitalService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
+
+        public async Task<IEnumerable<HospitalViewModel>> GetAllHospitalsAsync()
+        {
+            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
+                return [];
+
+            try
+            {
+                return await _http.GetFromJsonAsync<IEnumerable<HospitalViewModel>>($"{_endPoint}") ?? [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
+            await _http.GetFromJsonAsync<Hospital>($"{_endPoint}/{id}");
+
+        public async Task RemoveHospitalAsync(Hospital hospital)
+        {
+            var response = await _http.DeleteAsync($"{_endPoint}/{hospital.Id}");
+            response.EnsureSuccessStatusCode();
+        }
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital)
         {
@@ -27,30 +52,6 @@ namespace MedicalAppointments.Services
             {
                 throw new InvalidOperationException("An error occurred while adding the hospital.", ex);
             }
-        }
-
-        public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
-        {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
-                return [];
-
-            try
-            {
-                return await _http.GetFromJsonAsync<IEnumerable<Hospital>>($"{_endPoint}") ?? [];
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
-            await _http.GetFromJsonAsync<Hospital>($"{_endPoint}/{id}");
-
-        public async Task RemoveHospitalAsync(Hospital hospital)
-        {
-            var response = await _http.DeleteAsync($"{_endPoint}/{hospital.Id}");
-            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateHospitalAsync(Hospital hospital)

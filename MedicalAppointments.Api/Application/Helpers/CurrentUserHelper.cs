@@ -21,7 +21,7 @@ namespace MedicalAppointments.Api.Application.Helpers
 
             var superAdmin = _serviceProvider.GetRequiredService<ISuperAdmin>();
             if (await superAdmin.ExistsAsync(email))
-                return await superAdmin.GetAdminAsync(email);
+                return await superAdmin.GetSuperAdminAsync(email);
 
             var sysAdmin = _serviceProvider.GetRequiredService<IAdmin>();
             if (await sysAdmin.ExistsAsync(email))

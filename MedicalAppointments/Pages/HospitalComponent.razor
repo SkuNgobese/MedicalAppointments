@@ -21,7 +21,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Street</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Street" />
+                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails!.Street" />
                 </div>
 
                 <div class="mb-3">
@@ -52,7 +52,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Contact Number</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.ContactNumber" />
+                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails!.ContactNumber" />
                 </div>
 
                 <div class="mb-3">
@@ -80,7 +80,7 @@
         {
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                    <strong>@(hospital?.Name)</strong> — @(hospital?.Address?.Suburb)
+                    <strong>@(hospital?.HospitalName)</strong> — @(hospital?.AddressDetails?.Suburb)
                 </span>
                 <span>
                     <button class="btn btn-sm btn-warning me-2" @onclick="() => EditHospital(hospital!)">Edit</button>

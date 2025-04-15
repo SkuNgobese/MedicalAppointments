@@ -1,5 +1,6 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 using System.Net.Http.Json;
 
 namespace MedicalAppointments.Services
@@ -11,19 +12,19 @@ namespace MedicalAppointments.Services
 
         public AppointmentService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
-        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
+        public async Task<IEnumerable<AppointmentViewModel>> GetAllAppointmentsAsync()
         {
             if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_directory))
                 return [];
 
             try
             {
-                var appointments = await _http.GetFromJsonAsync<List<Appointment>>($"{_http.BaseAddress}{_directory}");
-                return appointments ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<AppointmentViewModel>>($"{_directory}") ?? [];
             }
-            catch
+            catch(Exception ex)
             {
-                return [];
+                Console.Error.WriteLine($"Error getting doctors: {ex.Message}");
+                throw;
             }
         }
 

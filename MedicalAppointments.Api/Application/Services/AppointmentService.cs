@@ -16,17 +16,34 @@ namespace MedicalAppointments.Api.Application.Services
             _helper = helper;
         }
 
-        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync() =>
-            await _repository.GetAllAsync();
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
+        {
+            var appointments = await _repository.GetAllAsync(
+                                        a => a.Hospital,
+                                        a => a.Doctor,
+                                        a => a.Patient);
+
+            if (!appointments.Any())
+                return [];
+
+            return appointments;
+        }
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
-            await _repository.GetAllAsync(a => a.Hospital == hospital);
+            await _repository.GetAllAsync(
+                                a => a.Hospital == hospital,
+                                a => a.Doctor,
+                                a => a.Patient);
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor) =>
-            await _repository.GetAllAsync(a => a.Doctor == doctor);
+            await _repository.GetAllAsync(
+                                a => a.Doctor == doctor,
+                                a => a.Patient);
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient) =>
-            await _repository.GetAllAsync(a => a.Patient == patient);
+            await _repository.GetAllAsync(
+                                a => a.Patient == patient,
+                                a => a.Doctor);
 
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
             await _repository.GetByIdAsync(id);
@@ -60,13 +77,13 @@ namespace MedicalAppointments.Api.Application.Services
 
             switch (role)
             {
-                case "Doctor":
-                    var doctor = user as Doctor;
-                    appointments = await GetAllAppointmentsAsync(doctor!);
-                    break;
                 case "Patient":
                     var patient = user as Patient;
                     appointments = await GetAllAppointmentsAsync(patient!);
+                    break;
+                case "Doctor":
+                    var doctor = user as Doctor;
+                    appointments = await GetAllAppointmentsAsync(doctor!);
                     break;
                 case "Admin":
                     var admin = user as Admin;

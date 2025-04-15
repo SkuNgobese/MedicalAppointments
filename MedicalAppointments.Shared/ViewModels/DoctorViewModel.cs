@@ -5,12 +5,10 @@ namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class DoctorViewModel : UserViewModel
     {
-        public string? Id { get; set; }
-
         [Required, DisplayName("Specialization")]
         public required string Specialization { get; set; }
 
         [Required, DisplayName("Hire Date")]
-        public required DateTime HireDate { get; set; }
+        public DateTime? HireDate { get; set; }
     }
 }

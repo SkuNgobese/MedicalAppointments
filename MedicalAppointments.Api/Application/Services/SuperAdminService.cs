@@ -8,12 +8,13 @@ namespace MedicalAppointments.Api.Application.Services
     {
         private readonly IRepository<SuperAdmin> _repository;
 
-        public SuperAdminService(IRepository<SuperAdmin> repository) => _repository = repository;
+        public SuperAdminService(IRepository<SuperAdmin> repository) => 
+            _repository = repository;
 
-        public async Task<SuperAdmin> AddAdminAsync(SuperAdmin superAdmin) =>
+        public async Task<SuperAdmin> AddSuperAdminAsync(SuperAdmin superAdmin) => 
             await _repository.AddAsync(superAdmin);
 
-        public async Task<SuperAdmin?> GetAdminAsync(string email) => 
+        public async Task<SuperAdmin?> GetSuperAdminAsync(string email) => 
             await _repository.GetByConditionAsync(a => a.Email == email);
 
         public async Task<bool> ExistsAsync(string email) => 

@@ -4,6 +4,7 @@ using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Shared.Controllers
 {
@@ -45,7 +46,29 @@ namespace MedicalAppointments.Shared.Controllers
             if(_hospitals == null)
                 return NotFound();
 
-            return Ok(_hospitals);
+            var hospitalVM = _hospitals.Select(h => new HospitalViewModel
+            {
+                Id = h.Id,
+                HospitalName = h.Name,
+                ContactDetails = new ContactViewModel 
+                { 
+                    Id = h.Contact!.Id, 
+                    ContactNumber = h.Contact!.ContactNumber, 
+                    Email = h.Contact?.Email, 
+                    Fax = h.Contact!.Fax 
+                },
+                AddressDetails = new AddressViewModel 
+                { 
+                    Id = h.Address!.Id, 
+                    Street = h.Address!.Street!, 
+                    Suburb = h.Address!.Street!, 
+                    City = h.Address!.City!, 
+                    Country = h.Address!.Country!,
+                    PostalCode = h.Address!.PostalCode! 
+                }
+            });
+
+            return Ok(hospitalVM);
         }
 
         // GET: api/hospitals/{id}
@@ -53,10 +76,33 @@ namespace MedicalAppointments.Shared.Controllers
         public async Task<IActionResult> GetHospital(int id)
         {
             var hospital = await _hospital.GetHospitalByIdAsync(id);
+
             if (hospital == null)
                 return NotFound();
 
-            return Ok(hospital);
+            var hospitalVM = (new HospitalViewModel
+            {
+                Id = hospital.Id,
+                HospitalName = hospital.Name,
+                ContactDetails = new ContactViewModel
+                {
+                    Id = hospital.Contact!.Id,
+                    ContactNumber = hospital.Contact!.ContactNumber,
+                    Email = hospital.Contact?.Email,
+                    Fax = hospital.Contact!.Fax
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Id = hospital.Address!.Id,
+                    Street = hospital.Address!.Street!,
+                    Suburb = hospital.Address!.Street!,
+                    City = hospital.Address!.City!,
+                    Country = hospital.Address!.Country!,
+                    PostalCode = hospital.Address!.PostalCode!
+                }
+            });
+
+            return Ok(hospitalVM);
         }
 
         [HttpPost]
@@ -150,7 +196,7 @@ namespace MedicalAppointments.Shared.Controllers
 
             admin = await _admin.AddAdminAsync(admin);
 
-            await _registration.RegisterAsync(admin, hospital);
+            await _registration.RegisterAsync(admin, null!, hospital);
         }
     }
 }

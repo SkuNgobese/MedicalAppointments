@@ -5,6 +5,8 @@ namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class UserViewModel
     {
+        public string? Id { get; set; }
+
         [Required, DisplayName("Title")]
         public required string Title { get; set; }
 
@@ -15,11 +17,11 @@ namespace MedicalAppointments.Shared.ViewModels
         public required string LastName { get; set; }
 
         [Required, DisplayName("ID Number")]
-        public required string IDNumber { get; set; }
+        public string? IDNumber { get; set; }
 
         public string FullName => $"{Title}. {FirstName?[..1]} {LastName}";
 
-        public required AddressViewModel AddressDetails { get; set; }
-        public required ContactViewModel ContactDetails { get; set; }
+        public AddressViewModel? AddressDetails { get; set; }
+        public ContactViewModel? ContactDetails { get; set; }
     }
 }

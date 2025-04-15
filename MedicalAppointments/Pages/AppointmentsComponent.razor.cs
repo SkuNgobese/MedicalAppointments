@@ -1,5 +1,6 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 using Microsoft.AspNetCore.Components;
 
 namespace MedicalAppointments.Pages
@@ -12,7 +13,7 @@ namespace MedicalAppointments.Pages
         [Inject]
         public IDoctor? Doctor { get; set; }
 
-        protected IEnumerable<Appointment>? appointments;
+        protected IEnumerable<AppointmentViewModel>? appointments;
 
         private bool rescheduleModalVisible = false;
         private bool reassignModalVisible = false;
@@ -33,10 +34,36 @@ namespace MedicalAppointments.Pages
         private async Task<List<Doctor>> LoadDoctorsAsync() => 
             (List<Doctor>)await Doctor!.GetAllDoctorsAsync();
 
-        private void ShowRescheduleModal(Appointment appointment)
+        private void ShowRescheduleModal(AppointmentViewModel appointmentVM)
         {
-            selectedAppointment = appointment;
-            rescheduleDate = appointment.Date;
+            selectedAppointment = new Appointment
+            {
+                Id = appointmentVM.Id,
+                Date = appointmentVM.Date,
+                Description = appointmentVM.Description,
+                Status = appointmentVM.Status,
+                Hospital = new Hospital
+                { 
+                    Id = (int)appointmentVM.HospitalViewModel.Id!,
+                    Name = appointmentVM.HospitalViewModel.HospitalName,
+                },
+                Doctor = new Doctor
+                {
+                    Id = appointmentVM.DoctorViewModel.Id!,
+                    Title = appointmentVM.DoctorViewModel.Title,
+                    FirstName = appointmentVM.DoctorViewModel.FirstName,
+                    LastName = appointmentVM.DoctorViewModel.LastName,
+                    Specialization = appointmentVM.DoctorViewModel.Specialization
+                },
+                Patient = new Patient
+                {
+                    Id = appointmentVM.PatientViewModel.Id!,
+                    Title = appointmentVM.PatientViewModel.Title,
+                    FirstName = appointmentVM.PatientViewModel.FirstName,
+                    LastName = appointmentVM.PatientViewModel.LastName
+                }
+            };
+            rescheduleDate = appointmentVM.Date;
             rescheduleModalVisible = true;
         }
 
@@ -53,9 +80,35 @@ namespace MedicalAppointments.Pages
 
         private void CloseRescheduleModal() => rescheduleModalVisible = false;
 
-        private void ShowReassignModal(Appointment appointment)
+        private void ShowReassignModal(AppointmentViewModel appointmentVM)
         {
-            selectedAppointment = appointment;
+            selectedAppointment = new Appointment
+            {
+                Id = appointmentVM.Id,
+                Date = appointmentVM.Date,
+                Description = appointmentVM.Description,
+                Status = appointmentVM.Status,
+                Hospital = new Hospital
+                { 
+                    Id = (int)appointmentVM.HospitalViewModel.Id!,
+                    Name = appointmentVM.HospitalViewModel.HospitalName,
+                },
+                Doctor = new Doctor
+                {
+                    Id = appointmentVM.DoctorViewModel.Id!,
+                    Title = appointmentVM.DoctorViewModel.Title,
+                    FirstName = appointmentVM.DoctorViewModel.FirstName,
+                    LastName = appointmentVM.DoctorViewModel.LastName,
+                    Specialization = appointmentVM.DoctorViewModel.Specialization
+                },
+                Patient = new Patient
+                {
+                    Id = appointmentVM.PatientViewModel.Id!,
+                    Title = appointmentVM.PatientViewModel.Title,
+                    FirstName = appointmentVM.PatientViewModel.FirstName,
+                    LastName = appointmentVM.PatientViewModel.LastName
+                }
+            };
             selectedDoctorId = null;
             reassignModalVisible = true;
         }

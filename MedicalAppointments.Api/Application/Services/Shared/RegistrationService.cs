@@ -23,9 +23,10 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             _userService = userService;
         }
 
-        public async Task RegisterAsync(T userData, Hospital hospital = default!)
+        public async Task RegisterAsync(T userData, string password = default!, Hospital hospital = default!)
         {
-            var email = userData.Contact?.Email ?? hospital.Contact!.Email;
+            var email = userData.Email ?? userData.Contact?.Email ?? hospital.Contact!.Email;
+
             if (string.IsNullOrWhiteSpace(email))
                 return;
 
@@ -43,7 +44,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
 
-            var password = _userService.GenerateRandomPassword(12);
+            password = password ?? _userService.GenerateRandomPassword(12);
             
             IdentityResult result;
             if (isNewUser)
@@ -66,6 +67,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
                     nameof(Patient) => "Patient",
                     nameof(Doctor) => "Doctor",
                     nameof(Admin) => "Admin",
+                    nameof(SuperAdmin) => "SuperAdmin",
                     _ => "User"
                 };
 

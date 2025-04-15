@@ -10,7 +10,7 @@ namespace MedicalAppointments.Pages
         [Inject]
         private IHospital? _hospital { get; set; }
 
-        protected IEnumerable<Hospital>? hospitals;
+        protected IEnumerable<HospitalViewModel>? hospitals;
 
         private bool isEditing = false;
         private int? editingHospitalId = null;
@@ -59,7 +59,7 @@ namespace MedicalAppointments.Pages
                 Name = hospitalVM.HospitalName,
                 Address = new Address
                 {
-                    Street = hospitalVM.AddressDetails.Street,
+                    Street = hospitalVM.AddressDetails!.Street,
                     Suburb = hospitalVM.AddressDetails.Suburb,
                     City = hospitalVM.AddressDetails.City,
                     PostalCode = hospitalVM.AddressDetails.PostalCode,
@@ -67,7 +67,7 @@ namespace MedicalAppointments.Pages
                 },
                 Contact = new Contact
                 {
-                    ContactNumber = hospitalVM.ContactDetails.ContactNumber,
+                    ContactNumber = hospitalVM.ContactDetails!.ContactNumber,
                     Fax = hospitalVM.ContactDetails.Fax,
                     Email = hospitalVM.ContactDetails.Email
                 }
@@ -92,37 +92,38 @@ namespace MedicalAppointments.Pages
             ResetForm();
         }
 
-        private void EditHospital(Hospital hospital)
+        private void EditHospital(HospitalViewModel hospital)
         {
-            hospitalVM = new HospitalViewModel
-            {
-                HospitalName = hospital.Name,
-                AddressDetails = new AddressViewModel
-                {
-                    Street = hospital.Address?.Street ?? string.Empty,
-                    Suburb = hospital.Address?.Suburb ?? string.Empty,
-                    City = hospital.Address?.City ?? string.Empty,
-                    PostalCode = hospital.Address?.PostalCode ?? string.Empty,
-                    Country = hospital.Address?.Country ?? string.Empty
-                },
-                ContactDetails = new ContactViewModel
-                {
-                    ContactNumber = hospital.Contact?.ContactNumber ?? string.Empty,
-                    Fax = hospital.Contact?.Fax ?? string.Empty,
-                    Email = hospital.Contact?.Email ?? string.Empty
-                }
-            };
+            hospitalVM = hospital;
 
             editingHospitalId = hospital.Id;
-            editingAddressId = hospital.Address!.Id;
-            editingContactId = hospital.Contact?.Id;
+            editingAddressId = hospital.AddressDetails!.Id;
+            editingContactId = hospital.ContactDetails?.Id;
 
             isEditing = true;
         }
 
-        private void ConfirmDelete(Hospital hospital)
+        private void ConfirmDelete(HospitalViewModel hospitalVM)
         {
-            hospitalToDelete = hospital;
+            hospitalToDelete = new Hospital
+            {
+                Name = hospitalVM.HospitalName,
+                Address = new Address
+                {
+                    Street = hospitalVM.AddressDetails!.Street,
+                    Suburb = hospitalVM.AddressDetails.Suburb,
+                    City = hospitalVM.AddressDetails.City,
+                    PostalCode = hospitalVM.AddressDetails.PostalCode,
+                    Country = hospitalVM.AddressDetails.Country
+                },
+                Contact = new Contact
+                {
+                    ContactNumber = hospitalVM.ContactDetails!.ContactNumber,
+                    Fax = hospitalVM.ContactDetails.Fax,
+                    Email = hospitalVM.ContactDetails.Email
+                }
+            };
+
             showDeleteModal = true;
         }
 

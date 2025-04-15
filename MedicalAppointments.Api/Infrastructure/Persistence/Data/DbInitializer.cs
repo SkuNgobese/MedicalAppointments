@@ -1,4 +1,7 @@
-﻿using MedicalAppointments.Shared.Models;
+﻿using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Api.Application.Services;
+using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
@@ -12,6 +15,8 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var registration = serviceProvider.GetRequiredService<IRegistrationService<SuperAdmin>>();
+            var admin = serviceProvider.GetRequiredService<ISuperAdmin>();
 
             string[] roles = { "SuperAdmin", "Admin", "Doctor", "Patient" };
 
@@ -21,27 +26,24 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
 
             // Create the SuperAdmin user if not exists
-            var superAdminEmail = configuration["SuperAdmin:Email"]!;
-            var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
-
-            if (superAdmin == null)
+            var email = configuration["SuperAdmin:Email"]!;
+            if (await userManager.FindByEmailAsync(email) is not SuperAdmin)
             {
-                var newSuperAdmin = new ApplicationUser
+                SuperAdmin superAdmin = new()
                 {
-                    UserName = superAdminEmail,
-                    Email = superAdminEmail,
+                    Email = email,
                     EmailConfirmed = true,
+                    Title = "Mr",
                     FirstName = "Super",
                     LastName = "Admin"
                 };
 
+                if (!await admin.ExistsAsync(superAdmin.Email))
+                    await admin.AddSuperAdminAsync(superAdmin);
+
                 var superAdminPassword = configuration["SuperAdmin:Password"];
-                if (!string.IsNullOrWhiteSpace(superAdminPassword))
-                {
-                    var createUserResult = await userManager.CreateAsync(newSuperAdmin, superAdminPassword);
-                    if (createUserResult.Succeeded)
-                        await userManager.AddToRoleAsync(newSuperAdmin, "SuperAdmin");
-                }
+
+                await registration.RegisterAsync(superAdmin, superAdminPassword!);
             }
         }
     }

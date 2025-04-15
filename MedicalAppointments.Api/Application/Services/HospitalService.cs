@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Services;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -29,38 +30,26 @@ namespace MedicalAppointments.Api.Application.Services
             _helper = helper;
         }
 
-        public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
-            await _hospitalRepository.AddAsync(hospital);
-
         public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
         {
-            var hospitals = await _hospitalRepository.GetAllAsync(h => h.Address!, h => h.Contact!);
+            var hospitals = await _hospitalRepository.GetAllAsync(
+                                                        h => h.Address!, 
+                                                        h => h.Contact!,
+                                                        h => h.Doctors,
+                                                        h => h.Patients,
+                                                        h => h.Appointments);
 
-            return hospitals.Select(h => new Hospital
-            {
-                Id = h.Id,
-                Name = h.Name,
-                Address = new Address
-                {
-                    Id = h.Address?.Id ?? 0,
-                    Street = h.Address?.Street ?? string.Empty,
-                    Suburb = h.Address?.Suburb ?? string.Empty,
-                    City = h.Address?.City ?? string.Empty,
-                    PostalCode = h.Address?.PostalCode ?? string.Empty,
-                    Country = h.Address?.Country ?? string.Empty
-                },
-                Contact = new Contact
-                {
-                    Id = h.Contact?.Id ?? 0,
-                    Email = h.Contact?.Email ?? string.Empty,
-                    ContactNumber = h.Contact?.ContactNumber ?? string.Empty,
-                    Fax = h.Contact?.Fax ?? string.Empty
-                }
-            });
+            if (!hospitals.Any())
+                return [];
+
+            return hospitals;
         }
 
         public async Task<Hospital?> GetHospitalByIdAsync(int id) =>
             await _hospitalRepository.GetByIdAsync(id);
+
+        public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
+            await _hospitalRepository.AddAsync(hospital);
 
         public async Task RemoveHospitalAsync(Hospital hospital)
         {

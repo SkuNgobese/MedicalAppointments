@@ -10,9 +10,9 @@
             <li class="p-4 border rounded shadow-sm bg-white">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold">@appointment.Patient.FullName</p>
+                        <p class="font-semibold">@appointment.PatientViewModel.FullName</p>
                         <p>
-                            With <strong>@appointment.Doctor.FullName</strong> on
+                            With <strong>@appointment.DoctorViewModel.FullName</strong> on
                             <strong>@appointment.Date.ToString("f")</strong>
                         </p>
                     </div>

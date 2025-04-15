@@ -55,8 +55,22 @@ namespace MedicalAppointments.Api.Controllers
                 Specialization = d.Specialization!,
                 IDNumber = d.IDNumber!,
                 HireDate = d.HireDate ?? DateTime.Now,
-                ContactDetails = new ContactViewModel {Id = d.Contact!.Id, ContactNumber = d.Contact!.ContactNumber, Email = d.Contact?.Email, Fax = d.Contact!.Fax },
-                AddressDetails = new AddressViewModel { Id = d.Address!.Id, Street = d.Address!.Street!, Suburb = d.Address!.Street!, City = d.Address!.City!, Country = d.Address!.Country!, PostalCode = d.Address!.PostalCode! }
+                ContactDetails = new ContactViewModel 
+                {
+                    Id = d.Contact!.Id,
+                    ContactNumber = d.Contact!.ContactNumber, 
+                    Email = d.Contact?.Email, 
+                    Fax = d.Contact!.Fax 
+                },
+                AddressDetails = new AddressViewModel 
+                {
+                    Id = d.Address!.Id,
+                    Street = d.Address!.Street!, 
+                    Suburb = d.Address!.Street!, 
+                    City = d.Address!.City!, 
+                    Country = d.Address!.Country!, 
+                    PostalCode = d.Address!.PostalCode! 
+                }
             });
 
             return Ok(doctorVMs);

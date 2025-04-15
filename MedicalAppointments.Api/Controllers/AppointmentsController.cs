@@ -5,6 +5,7 @@ using MedicalAppointments.Shared.Enums;
 using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Shared.Controllers
 {
@@ -49,7 +50,36 @@ namespace MedicalAppointments.Shared.Controllers
             if (appointments == null)
                 return NotFound();
 
-            return Ok(appointments);
+            var appointmentsVM = appointments.Select(a => new AppointmentViewModel
+            {
+                Id = a!.Id,
+                Date = a.Date,
+                Description = a.Description ?? "",
+                Status = a.Status,
+                PatientViewModel = new PatientViewModel
+                {
+                    Id = a.Patient.Id,
+                    Title = a.Patient!.Title!,
+                    FirstName = a.Patient!.FirstName!,
+                    LastName = a.Patient!.LastName!,
+                    IDNumber = a.Patient!.IDNumber!
+                },
+                DoctorViewModel = new DoctorViewModel
+                {
+                    Id = a.Doctor.Id,
+                    Title = a.Doctor!.Title!,
+                    FirstName = a.Doctor.FirstName!,
+                    LastName = a.Doctor.LastName!,
+                    Specialization = a.Doctor.Specialization!
+                },
+                HospitalViewModel = new HospitalViewModel
+                {
+                    Id = a.Hospital.Id,
+                    HospitalName = a.Hospital.Name
+                }
+            });
+
+            return Ok(appointmentsVM);
         }
 
         // GET api/<AppointmentController>/{id}

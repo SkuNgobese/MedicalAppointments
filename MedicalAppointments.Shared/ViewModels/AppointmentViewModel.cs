@@ -4,7 +4,7 @@ namespace MedicalAppointments.Shared.ViewModels
 {
     public partial class AppointmentViewModel
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
 
         [FutureDate(ErrorMessage = "Appointment date must be in the future.")]
         public required DateTime Date { get; set; }
