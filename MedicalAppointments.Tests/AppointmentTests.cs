@@ -4,6 +4,7 @@ using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.Enums;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces;
+using System.Linq.Expressions;
 
 namespace MedicalAppointments.Tests
 {
@@ -89,7 +90,9 @@ namespace MedicalAppointments.Tests
         public async Task GetAllAppointmentsAsync_ShouldReturnAppointments()
         {
             // Arrange
-            _appointmentRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_appointments);
+            _appointmentRepositoryMock
+                .Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Appointment, object>>[]>()))
+                .ReturnsAsync(_appointments);
 
             // Act
             var result = await _appointmentService.GetAllAppointmentsAsync();
@@ -145,7 +148,8 @@ namespace MedicalAppointments.Tests
         public async Task CancelAppointmentAsync_ShouldCallUpdateAsyncOnce()
         {
             // Act
-            await _appointmentService.CancelAppointmentAsync(_appointment);
+            _appointment.Status = AppointmentStatus.Cancelled;
+            await _appointmentService.UpdateAppointmentAsync(_appointment);
 
             // Assert
             _appointmentRepositoryMock.Verify(repo => repo.UpdateAsync(_appointment), Times.Once);

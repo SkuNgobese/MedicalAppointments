@@ -40,7 +40,9 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             user!.Title = userData.Title;
             user.FirstName = userData.FirstName;
             user.LastName = userData.LastName;
-            
+            user.CreateDate = DateTime.Now;
+            user.IsActive = true;
+
             await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
 

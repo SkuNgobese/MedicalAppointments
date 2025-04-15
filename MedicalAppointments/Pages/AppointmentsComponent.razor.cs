@@ -29,7 +29,21 @@ namespace MedicalAppointments.Pages
             Title = string.Empty,
             FirstName = string.Empty,
             LastName = string.Empty,
-            IDNumber = string.Empty
+            IDNumber = string.Empty,
+            ContactDetails = new ContactViewModel
+            {
+                ContactNumber = string.Empty,
+                Email = string.Empty,
+                Fax = string.Empty
+            },
+            AddressDetails = new AddressViewModel
+            {
+                Street = string.Empty,
+                Suburb = string.Empty,
+                City = string.Empty,
+                PostalCode = string.Empty,
+                Country = string.Empty
+            }
         };
         private AppointmentViewModel newAppointment = new()
         {
@@ -66,7 +80,7 @@ namespace MedicalAppointments.Pages
 
         private IEnumerable<DoctorViewModel> allDoctors = [];
 
-        private List<string> titles = new() { "Dr", "Mr", "Mrs", "Miss", "Ms", "Prof" };
+        private List<string> titles = ["Dr", "Mr", "Mrs", "Miss", "Ms", "Prof"];
 
         protected override async Task OnInitializedAsync()
         {
@@ -84,6 +98,15 @@ namespace MedicalAppointments.Pages
         private async Task<IEnumerable<DoctorViewModel>> LoadDoctorsAsync() => 
             await Doctor!.GetAllDoctorsAsync();
 
+        //private void ShowBookModal()
+        //{
+        //    bookModalVisible = true;
+        //    searchTerm = string.Empty;
+        //    existingPatient = null;
+        //    appointmentDate = DateTime.Now;
+        //    patientNotFound = false;
+        //}
+
         private void ShowBookModal()
         {
             bookModalVisible = true;
@@ -91,6 +114,28 @@ namespace MedicalAppointments.Pages
             existingPatient = null;
             appointmentDate = DateTime.Now;
             patientNotFound = false;
+
+            newPatient = new()
+            {
+                Title = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                IDNumber = string.Empty,
+                ContactDetails = new ContactViewModel
+                {
+                    ContactNumber = string.Empty,
+                    Email = string.Empty,
+                    Fax = string.Empty
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Street = string.Empty,
+                    Suburb = string.Empty,
+                    City = string.Empty,
+                    PostalCode = string.Empty,
+                    Country = string.Empty
+                }
+            };
         }
 
         private void CloseBookModal()
@@ -108,14 +153,18 @@ namespace MedicalAppointments.Pages
         {
             var patient = existingPatient;
 
-            if (patientNotFound)
+            if (patientNotFound && !string.IsNullOrEmpty(selectedDoctorId))
             {
+                var doctor = await Doctor!.GetDoctorByIdAsync(selectedDoctorId)
+                    ?? throw new InvalidOperationException("Doctor not found.");
+
                 patient = new Patient
                 {
                     Title = newPatient.Title,
                     FirstName = newPatient.FirstName,
                     LastName = newPatient.LastName,
                     IDNumber = newPatient.IDNumber,
+                    PrimaryDoctorId = doctor.Id,
                     Contact = new Contact
                     {
                         Email = newPatient.ContactDetails!.Email,
@@ -129,15 +178,7 @@ namespace MedicalAppointments.Pages
                         City = newPatient.AddressDetails!.City,
                         PostalCode = newPatient.AddressDetails!.PostalCode,
                         Country = newPatient.AddressDetails.Country
-                    },
-                    PrimaryDoctor = new Doctor
-                    {
-                        Id = newAppointment.DoctorViewModel.Id!,
-                        Title = newAppointment.DoctorViewModel.Title,
-                        FirstName = newAppointment.DoctorViewModel.FirstName,
-                        LastName = newAppointment.DoctorViewModel.LastName,
-                        Specialization = newAppointment.DoctorViewModel.Specialization
-                    },
+                    }
                 };
 
                 patient = await Patient!.AddPatientAsync(patient);

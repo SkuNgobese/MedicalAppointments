@@ -3,23 +3,34 @@ using MedicalAppointments.Api.Application.Services;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces;
+using System.Linq.Expressions;
 
 namespace MedicalAppointments.Tests
 {
     [TestFixture]
     public class PatientTests
     {
+        private Hospital _hospital;
         private Patient _patient;
         private List<Patient> _patients;
 
         private Mock<IRepository<Patient>> _patientRepositoryMock;
+        private Mock<ICurrentUserHelper>? _currentUserHelperMock;
         private IPatient _patientService;
 
         [SetUp]
         public void Setup()
         {
             _patientRepositoryMock = new Mock<IRepository<Patient>>();
-            _patientService = new PatientService(_patientRepositoryMock.Object);
+            _currentUserHelperMock = new Mock<ICurrentUserHelper>();
+
+            _patientService = new PatientService(_patientRepositoryMock.Object,
+                                                 _currentUserHelperMock!.Object);
+            _hospital = new Hospital
+            {
+                Id = 1,
+                Name = "City Hospital"
+            };
 
             _patient = new Patient
             {
@@ -28,17 +39,13 @@ namespace MedicalAppointments.Tests
                 FirstName = "Innocent",
                 LastName = "Ngobese",
                 IsActive = true,
-                Hospital = new Hospital
-                {
-                    Id = 1,
-                    Name = "City Hospital"
-                }
+                Hospital = _hospital
             };
 
             _patients = new List<Patient>
             {
-                new() { Id = "1", IsActive = true, Hospital = _patient.Hospital },
-                new() { Id = "2", IsActive = true, Hospital = _patient.Hospital }
+                new() { Id = "1", IsActive = true, Hospital = _hospital },
+                new() { Id = "2", IsActive = true, Hospital = _hospital }
             };
         }
 
@@ -46,10 +53,12 @@ namespace MedicalAppointments.Tests
         public async Task GetAllPatientsAsync_ShouldReturnPatients()
         {
             // Arrange
-            _patientRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_patients);
+            _patientRepositoryMock
+                .Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Patient, object>>[]>()))
+                .ReturnsAsync(_patients);
 
             // Act
-            var result = await _patientService.GetAllPatientsAsync(_patient.Hospital!);
+            var result = await _patientService.GetAllPatientsAsync();
 
             // Assert
             Assert.That(result, Is.Not.Null);

@@ -10,6 +10,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Patient>()
+            .HasOne(p => p.PrimaryDoctor)
+            .WithMany(d => d.Patients)
+            .HasForeignKey(p => p.PrimaryDoctorId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+
     public DbSet<SuperAdmin> SuperAdmins { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Hospital> Hospitals { get; set; }

@@ -103,8 +103,6 @@ namespace MedicalAppointments.Api.Controllers
             if (_doctorValidation.CanAdd(doctor, [.. doctors]))
             {
                 doctor.Hospital = hospital;
-                doctor.IsActive = true;
-
                 doctor = await _doctor.EnrollDoctorAsync(doctor);
 
                 //Register doctor as user

@@ -45,7 +45,7 @@ namespace MedicalAppointments.Services
         {
             try
             {
-                var response = await _http.PostAsJsonAsync(_endPoint, patient);
+                var response = await _http.PostAsJsonAsync($"{_endPoint}", patient);
                 response.EnsureSuccessStatusCode();
 
                 return await response.Content.ReadFromJsonAsync<Patient>() ?? null!;

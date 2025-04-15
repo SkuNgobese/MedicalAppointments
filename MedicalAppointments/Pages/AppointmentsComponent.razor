@@ -77,19 +77,27 @@ else
             @if (patientNotFound)
             {
                 <div class="mb-2">
-                    <input class="form-control mb-2" placeholder="Full Name" @bind="newPatient.FirstName" />
+                    <InputSelect class="form-control mb-2" @bind-Value="newPatient.Title">
+                        @foreach (var title in titles)
+                        {
+                            <option value="@title">@title</option>
+                        }
+                    </InputSelect>
+                    <input class="form-control mb-2" placeholder="First Name" @bind="newPatient.FirstName" />
+                    <input class="form-control mb-2" placeholder="Last Name" @bind="newPatient.LastName" />
                     <input class="form-control mb-2" placeholder="ID Number" @bind="newPatient.IDNumber" />
                     <input class="form-control mb-2" placeholder="Contact Number" @bind="newPatient.ContactDetails!.ContactNumber" />
+                    <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
                 </div>
             }
 
-            <select class="form-control mb-2" @bind="selectedDoctorId">
-                <option disabled value="">-- Select Doctor --</option>
+            <InputSelect class="form-control mb-2" @bind-value="selectedDoctorId">
+                <option value="">-- Select Doctor --</option>
                 @foreach (var doc in allDoctors)
                 {
                     <option value="@doc.Id">@doc.FullName</option>
                 }
-            </select>
+            </InputSelect>
 
             <input type="datetime-local" class="form-control mb-2" @bind="appointmentDate" />
 
