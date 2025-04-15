@@ -1,12 +1,15 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Interfaces
 {
     public interface IPatient
     {
-        Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital);
+        Task<IEnumerable<PatientViewModel>> GetAllPatientsAsync();
 
-        Task AddPatientAsync(Patient patient);
+        Task<Patient> AddPatientAsync(Patient model);
+
+        Task<Patient?> GetPatientByIdNumberOrContactAsync(string term);
 
         Task<Patient?> GetPatientByIdAsync(string id);
 

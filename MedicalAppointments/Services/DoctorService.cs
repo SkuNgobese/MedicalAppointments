@@ -15,9 +15,6 @@ namespace MedicalAppointments.Services
 
         public async Task<IEnumerable<DoctorViewModel>> GetAllDoctorsAsync()
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
-                return [];
-
             try
             {
                 return await _http.GetFromJsonAsync<IEnumerable<DoctorViewModel>>($"{_endPoint}") ?? [];
@@ -31,9 +28,6 @@ namespace MedicalAppointments.Services
 
         public async Task<Doctor> EnrollDoctorAsync(Doctor doctor)
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || doctor is null)
-                return null!;
-
             try
             {
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", doctor);

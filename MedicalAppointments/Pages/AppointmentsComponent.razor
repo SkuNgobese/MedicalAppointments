@@ -2,6 +2,8 @@
 
 <h2 class="text-2xl font-bold mb-4">Appointments</h2>
 
+<button class="btn btn-primary mb-4" @onclick="ShowBookModal">Book Appointment</button>
+
 @if (appointments is not null && appointments.Any())
 {
     <ul class="space-y-4">
@@ -59,6 +61,40 @@ else
             </select>
             <button class="btn btn-primary" @onclick="ConfirmReassign">Save</button>
             <button class="btn btn-outline" @onclick="CloseReassignModal">Cancel</button>
+        </div>
+    </div>
+}
+
+@if (bookModalVisible)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-2">Book New Appointment</h3>
+
+            <input class="form-control mb-2" placeholder="Patient ID Number or Contact Number" @bind="searchTerm" />
+            <button class="btn btn-outline mb-2" @onclick="SearchPatient">Search Patient</button>
+
+            @if (patientNotFound)
+            {
+                <div class="mb-2">
+                    <input class="form-control mb-2" placeholder="Full Name" @bind="newPatient.FirstName" />
+                    <input class="form-control mb-2" placeholder="ID Number" @bind="newPatient.IDNumber" />
+                    <input class="form-control mb-2" placeholder="Contact Number" @bind="newPatient.ContactDetails!.ContactNumber" />
+                </div>
+            }
+
+            <select class="form-control mb-2" @bind="selectedDoctorId">
+                <option disabled value="">-- Select Doctor --</option>
+                @foreach (var doc in allDoctors)
+                {
+                    <option value="@doc.Id">@doc.FullName</option>
+                }
+            </select>
+
+            <input type="datetime-local" class="form-control mb-2" @bind="appointmentDate" />
+
+            <button class="btn btn-primary" @onclick="ConfirmBooking">Book</button>
+            <button class="btn btn-outline" @onclick="CloseBookModal">Cancel</button>
         </div>
     </div>
 }

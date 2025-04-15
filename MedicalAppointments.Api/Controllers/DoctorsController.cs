@@ -46,7 +46,7 @@ namespace MedicalAppointments.Api.Controllers
             if (doctors == null)
                 return NotFound();
 
-            var doctorVMs = doctors.Select(d => new DoctorViewModel
+            var doctorVM = doctors.Select(d => new DoctorViewModel
             {
                 Id = d!.Id,
                 Title = d.Title!,
@@ -73,7 +73,7 @@ namespace MedicalAppointments.Api.Controllers
                 }
             });
 
-            return Ok(doctorVMs);
+            return Ok(doctorVM);
         }
 
         // GET: api/<DoctorsController>/{id}

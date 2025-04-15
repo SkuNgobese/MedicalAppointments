@@ -6,11 +6,10 @@ namespace MedicalAppointments.Interfaces
     public interface IAppointment
     {
         Task<IEnumerable<AppointmentViewModel>> GetAllAppointmentsAsync();
-        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital);
-        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor);
         Task<Appointment?> GetAppointmentByIdAsync(int id);
-        Task BookAppointmentAsync(Appointment appointment);
-        Task ReAssignAppointmentAsync(Appointment appointment);
+        Task<Appointment> BookAppointmentAsync(Appointment appointment);
+        Task RescheduleAppointmentAsync(Appointment appointment);
+        Task ReAssignAppointmentAsync(Appointment appointment, Doctor doctor);
         Task CancelAppointmentAsync(Appointment appointment);
     }
 }

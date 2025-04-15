@@ -1,49 +1,70 @@
 ﻿using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Interfaces;
 using System.Net.Http.Json;
+using MedicalAppointments.Shared.ViewModels;
+using System.Net;
 
 namespace MedicalAppointments.Services
 {
     public class PatientService : IPatient
     {
         private readonly HttpClient _http;
-        private const string _directory = "/patients";
+        private const string _endPoint = "api/Patients";
 
-        public PatientService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
+        public PatientService(IHttpClientFactory httpClientFactory) => 
+            _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
-        public async Task<IEnumerable<Patient>> GetAllPatientsAsync(Hospital hospital)
+        public async Task<IEnumerable<PatientViewModel>> GetAllPatientsAsync()
         {
-            if (_http.BaseAddress is null)
-                return [];
-
             try
             {
-                return await _http.GetFromJsonAsync<IEnumerable<Patient>>($"{_http.BaseAddress}{_directory}?hospitalId={hospital.Id}") ?? [];
+                return await _http.GetFromJsonAsync<IEnumerable<PatientViewModel>>(_endPoint) ?? [];
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
-                throw new Exception(ex.Message);
+                return null!;
             }
         }
 
-        public async Task AddPatientAsync(Patient patient)
+        public async Task<Patient?> GetPatientByIdNumberOrContactAsync(string term)
         {
-            var response = await _http.PostAsJsonAsync(_http.BaseAddress?.ToString() + _directory, patient);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                return await _http.GetFromJsonAsync<Patient>($"{_endPoint}/patientsearch?term={term}");
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
 
         public async Task<Patient?> GetPatientByIdAsync(string id) => 
-            await _http.GetFromJsonAsync<Patient>($"{_http.BaseAddress?.ToString() + _directory}/{id}");
+            await _http.GetFromJsonAsync<Patient>($"{_endPoint}/{id}");
+
+        public async Task<Patient> AddPatientAsync(Patient patient)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync(_endPoint, patient);
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<Patient>() ?? null!;
+            }
+            catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null!;
+            }
+        }
 
         public async Task UpdatePatientAsync(Patient patient)
         {
-            var response = await _http.PutAsJsonAsync($"{_http.BaseAddress?.ToString() + _directory}/{patient.Id}", patient);
+            var response = await _http.PutAsJsonAsync($"{_endPoint}/{patient.Id}", patient);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task RemovePatientAsync(Patient patient)
         {
-            var response = await _http.DeleteAsync($"{_http.BaseAddress?.ToString() + _directory}/{patient.Id}");
+            var response = await _http.DeleteAsync($"{_endPoint}/{patient.Id}");
             response.EnsureSuccessStatusCode();
         }
     }

@@ -51,11 +51,17 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task BookAppointmentAsync(Appointment appointment) => 
             await _repository.AddAsync(appointment);
 
-        public async Task ReAssignAppointmentAsync(Appointment appointment) =>
+        public async Task UpdateAppointmentAsync(Appointment appointment) =>
             await _repository.UpdateAsync(appointment);
 
-        public async Task CancelAppointmentAsync(Appointment appointment) =>
-            await _repository.UpdateAsync(appointment);
+        //public async Task RescheduleAppointmentAsync(Appointment appointment) =>
+        //    await _repository.UpdateAsync(appointment);
+
+        //public async Task ReAssignAppointmentAsync(Appointment appointment) =>
+        //    await _repository.UpdateAsync(appointment);
+
+        //public async Task CancelAppointmentAsync(Appointment appointment) =>
+        //    await _repository.UpdateAsync(appointment);
 
         public async Task RemoveAppointmentsAsync(Hospital hospital)
         {

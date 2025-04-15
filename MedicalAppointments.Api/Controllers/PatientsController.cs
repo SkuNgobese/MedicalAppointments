@@ -1,0 +1,158 @@
+﻿using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Api.Application.Interfaces.Shared;
+using MedicalAppointments.Api.Domain.Interfaces;
+using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace MedicalAppointments.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(Roles = "SuperAdmin,Admin,Doctor,Patient")]
+    public class PatientsController : ControllerBase
+    {
+        private readonly IHospital _hospital;
+        private readonly IPatient _patient;
+        private readonly IPatientValidation _patientValidation;
+
+        private readonly IRegistrationService<Patient> _registration;
+
+        public PatientsController(IHospital hospital,
+                                  IPatient patient,
+                                  IPatientValidation patientValidation,
+                                  IRegistrationService<Patient> registration)
+        {
+            _hospital = hospital;
+            _patient = patient;
+            _patientValidation = patientValidation;
+            _registration = registration;
+        }
+
+        // GET: api/<PatientsController>
+        [HttpGet]
+        public async Task<IActionResult> GetPatients()
+        {
+            var patients = await _patient.GetCurrentUserHospitalPatientsAsync();
+
+            if (patients == null)
+                return NotFound();
+
+            var patientVM = patients.Select(p => new PatientViewModel
+            {
+                Id = p!.Id,
+                Title = p.Title!,
+                FirstName = p.FirstName!,
+                LastName = p.LastName!,
+                IDNumber = p.IDNumber!,
+                ContactDetails = new ContactViewModel
+                {
+                    Id = p.Contact!.Id,
+                    ContactNumber = p.Contact.ContactNumber,
+                    Email = p.Contact.Email,
+                    Fax = p.Contact.Fax
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Id = p.Address!.Id,
+                    Street = p.Address.Street!,
+                    Suburb = p.Address.Suburb!,
+                    City = p.Address.City!,
+                    PostalCode = p.Address.PostalCode!,
+                    Country = p.Address.Country!
+                }
+            });
+            
+            return Ok(patientVM);
+        }
+
+        [Authorize(Roles = "Admin,Doctor")]
+        [HttpGet("patientsearch")]
+        public async Task<ActionResult<Patient>> SearchPatient([FromQuery] string term)
+        {
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+
+            if (hospital == null)
+                return NotFound("Hospital not found.");
+
+            var patient = await _patient.GetByIdNumberOrContactAsync(hospital, term);
+
+            if (patient is null)
+                return NotFound();
+
+            //PatientViewModel patientViewModel = new()
+            //{
+            //    Id = patient.Id,
+            //    Title = patient.Title!,
+            //    FirstName = patient.FirstName!,
+            //    LastName = patient.LastName!,
+            //    IDNumber = patient.IDNumber!,
+            //};
+
+            //patientViewModel.AppointmentDetails = patient.Appointments.Select(a => new AppointmentViewModel
+            //{
+            //    Id = a.Id,
+            //    Date = a.Date,
+            //    Description = a.Description ?? "Regular checkup",
+            //    Status = a.Status,
+            //    DoctorViewModel = new DoctorViewModel
+            //    {
+            //        Id = a.Doctor.Id,
+            //        Title = a.Doctor.Title!,
+            //        FirstName = a.Doctor.FirstName!,
+            //        LastName = a.Doctor.LastName!,
+            //        Specialization = a.Doctor.Specialization!
+            //    },
+            //    HospitalViewModel = new HospitalViewModel
+            //    {
+            //        Id = a.Hospital.Id,
+            //        HospitalName = a.Hospital.Name!
+            //    },
+            //    PatientViewModel = patientViewModel
+            //});
+
+            return Ok(patient);
+        }
+
+        // GET: api/<PatientsController>/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPatient(string id)
+        {
+            var patient = await _patient.GetPatientByIdAsync(id);
+            if (patient == null)
+                return NotFound();
+
+            return Ok(patient);
+        }
+
+        [Authorize(Roles = "Admin,Doctor")]
+        [HttpPost]
+        public async Task<IActionResult> AddPatient([FromBody] Patient patient)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+
+            if (hospital == null)
+                return BadRequest(ModelState);
+
+            // Validate before adding
+            var patients = await _patient.GetAllPatientsAsync(hospital);
+
+            if (_patientValidation.CanAddPatient(patient, [.. patients]))
+            {
+                patient.Hospital = hospital;
+                patient.IsActive = true;
+
+                patient = await _patient.AddPatientAsync(patient);
+
+                //Register patient as user
+                await _registration.RegisterAsync(patient);
+            }
+
+            return CreatedAtAction(nameof(GetPatient), new { id = patient.Id }, patient);
+        }
+    }
+}

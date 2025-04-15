@@ -10,5 +10,9 @@ namespace MedicalAppointments.Shared.ViewModels
 
         [Required, DisplayName("Hire Date")]
         public DateTime? HireDate { get; set; }
+
+        public HospitalViewModel? Hospital { get; set; }
+
+        public IEnumerable<PatientViewModel>? Patients { get; set; } = [];
     }
 }

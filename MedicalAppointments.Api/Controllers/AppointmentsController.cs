@@ -7,7 +7,7 @@ using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.ViewModels;
 
-namespace MedicalAppointments.Shared.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -41,7 +41,7 @@ namespace MedicalAppointments.Shared.Controllers
             _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
         }
 
-        // GET: api/<AppointmentController>
+        // GET: api/<AppointmentsController>
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
@@ -50,7 +50,7 @@ namespace MedicalAppointments.Shared.Controllers
             if (appointments == null)
                 return NotFound();
 
-            var appointmentsVM = appointments.Select(a => new AppointmentViewModel
+            var appointmentVM = appointments.Select(a => new AppointmentViewModel
             {
                 Id = a!.Id,
                 Date = a.Date,
@@ -79,10 +79,57 @@ namespace MedicalAppointments.Shared.Controllers
                 }
             });
 
-            return Ok(appointmentsVM);
+            return Ok(appointmentVM);
         }
 
-        // GET api/<AppointmentController>/{id}
+        [HttpGet("patientsearch")]
+        public async Task<ActionResult<PatientViewModel>> SearchPatient([FromQuery] string term)
+        {
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+
+            if (hospital == null)
+                return NotFound("Hospital not found.");
+
+            var patient = await _patient.GetByIdNumberOrContactAsync(hospital, term);
+
+            if (patient is null)
+                return NotFound();
+
+            PatientViewModel patientViewModel = new()
+            {
+                Id = patient.Id,
+                Title = patient.Title!,
+                FirstName = patient.FirstName!,
+                LastName = patient.LastName!,
+                IDNumber = patient.IDNumber!,
+            };
+
+            patientViewModel.AppointmentDetails = patient.Appointments.Select(a => new AppointmentViewModel
+            {
+                Id = a.Id,
+                Date = a.Date,
+                Description = a.Description ?? "Regular checkup",
+                Status = a.Status,
+                DoctorViewModel = new DoctorViewModel
+                {
+                    Id = a.Doctor.Id,
+                    Title = a.Doctor.Title!,
+                    FirstName = a.Doctor.FirstName!,
+                    LastName = a.Doctor.LastName!,
+                    Specialization = a.Doctor.Specialization!
+                },
+                HospitalViewModel = new HospitalViewModel
+                {
+                    Id = a.Hospital.Id,
+                    HospitalName = a.Hospital.Name!
+                },
+                PatientViewModel = patientViewModel
+            });
+
+            return Ok(patientViewModel);
+        }
+
+        // GET api/<AppointmentsController>/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAppointment(int id)
         {
@@ -94,9 +141,9 @@ namespace MedicalAppointments.Shared.Controllers
             return Ok(appointment);
         }
 
-        // POST api/<AppointmentController>
+        // POST api/<AppointmentsController>
         [HttpPost]
-        public async Task<IActionResult> BookNew([FromBody] Appointment model)
+        public async Task<IActionResult> BookNew([FromBody] Appointment appointment)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -106,76 +153,33 @@ namespace MedicalAppointments.Shared.Controllers
             if (hospital == null)
                 return BadRequest(ModelState);
 
-            Appointment appointment = await CreateAppointment(model, hospital);
-
             if (_appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient))
-            {
                 await _appointment.BookAppointmentAsync(appointment);
-                //Register the patient as a user
-                await _registration.RegisterAsync(appointment.Patient);
-            }
-
+            
             return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
         }
 
-        private async Task<Appointment> CreateAppointment(Appointment model, Hospital hospital)
+        [HttpPut("{appointmentId}/reschedule/{newDate}")]
+        public async Task<IActionResult> RescheduleAppointment(int appointmentId, DateTime newDate)
         {
-            Patient patient;
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            if (!string.IsNullOrEmpty(model.Patient.Id))
-                patient = await _patient.GetPatientByIdAsync(model.Patient.Id) ?? throw new InvalidOperationException("Patient not found.");
-            else
-                patient = await AddPatient(model, hospital);
+            if (hospital == null)
+                return BadRequest(ModelState);
 
-            Appointment appointment = new()
+            var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
+            if (appointment == null)
+                return NotFound("Appointment not found.");
+
+            if (_appointmentValidation.CanReschedule(newDate, appointment))
             {
-                Date = model.Date,
-                Description = model.Description,
-                Hospital = hospital,
-                Doctor = await _doctor.GetDoctorByIdAsync(model.Doctor.Id) ?? throw new InvalidOperationException("Doctor not found."),
-                Patient = patient ?? throw new InvalidOperationException("Patient cannot be null.")
-            };
+                appointment.Date = newDate;
+                await _appointment.UpdateAppointmentAsync(appointment);
 
-            return appointment;
-        }
+                return Ok(appointment);
+            }
 
-        private async Task<Patient> AddPatient(Appointment model, Hospital hospital)
-        {
-            Patient patient = new()
-            {
-                Title = model.Patient.Title,
-                FirstName = model.Patient.FirstName,
-                LastName = model.Patient.LastName,
-                IDNumber = model.Patient.IDNumber,
-                Email = model.Patient.Contact!.Email,
-                PhoneNumber = model.Patient.Contact!.ContactNumber,
-                IsActive = true,
-                CreateDate = DateTime.Now,
-
-                Address = new()
-                {
-                    Street = model.Patient.Address!.Street,
-                    City = model.Patient.Address.City,
-                    Suburb = model.Patient.Address.Suburb,
-                    PostalCode = model.Patient.Address.PostalCode
-                },
-
-                Contact = new()
-                {
-                    ContactNumber = model.Patient.Contact!.ContactNumber,
-                    Email = model.Patient.Contact!.Email,
-                    Fax = model.Patient.Contact!.Fax
-                },
-
-                Hospital = hospital
-            };
-
-            var patients = await _patient.GetAllPatientsAsync(hospital);
-
-            if (_patientValidation.CanAddPatient(patient, [.. patients]))
-                await _patient.AddPatientAsync(patient);
-
-            return patient;
+            return BadRequest("Reassignment is not allowed.");
         }
 
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
@@ -197,7 +201,7 @@ namespace MedicalAppointments.Shared.Controllers
             if (_appointmentValidation.CanReassign(newDoctor, appointment))
             {
                 appointment.Doctor = newDoctor;
-                await _appointment.ReAssignAppointmentAsync(appointment);
+                await _appointment.UpdateAppointmentAsync(appointment);
                 return Ok(appointment);
             }
 
@@ -214,7 +218,8 @@ namespace MedicalAppointments.Shared.Controllers
             if (_appointmentValidation.CanCancel(appointment))
             {
                 appointment.Status = AppointmentStatus.Cancelled;
-                await _appointment.CancelAppointmentAsync(appointment);
+                appointment.Description = "Cancelled by the patient.";
+                await _appointment.UpdateAppointmentAsync(appointment);
             }
 
             return BadRequest("Cancellation is not allowed for this appointment.");

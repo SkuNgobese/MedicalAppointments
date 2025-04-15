@@ -64,7 +64,7 @@ namespace MedicalAppointments.Pages
                 HireDate = doctorVM.HireDate,
                 Address = new Address
                 {
-                    Street = doctorVM.AddressDetails.Street,
+                    Street = doctorVM.AddressDetails!.Street,
                     Suburb = doctorVM.AddressDetails.Suburb,
                     City = doctorVM.AddressDetails.City,
                     PostalCode = doctorVM.AddressDetails.PostalCode,
@@ -72,7 +72,7 @@ namespace MedicalAppointments.Pages
                 },
                 Contact = new Contact
                 {
-                    ContactNumber = doctorVM.ContactDetails.ContactNumber,
+                    ContactNumber = doctorVM.ContactDetails!.ContactNumber,
                     Fax = doctorVM.ContactDetails.Fax,
                     Email = doctorVM.ContactDetails.Email
                 }
