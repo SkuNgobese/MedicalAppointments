@@ -10,7 +10,7 @@ namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin,Doctor,Patient")]
     public class DoctorsController : ControllerBase
     {
         private readonly IHospital _hospital;
@@ -55,22 +55,22 @@ namespace MedicalAppointments.Api.Controllers
                 Specialization = d.Specialization!,
                 IDNumber = d.IDNumber!,
                 HireDate = d.HireDate ?? DateTime.Now,
-                ContactDetails = new ContactViewModel 
+                ContactDetails = d.Contact != null ? new ContactViewModel 
                 {
                     Id = d.Contact!.Id,
                     ContactNumber = d.Contact!.ContactNumber, 
                     Email = d.Contact?.Email, 
-                    Fax = d.Contact!.Fax 
-                },
-                AddressDetails = new AddressViewModel 
+                    Fax = d.Contact!.Fax
+                } : null,
+                AddressDetails = d.Address != null ? new AddressViewModel 
                 {
                     Id = d.Address!.Id,
                     Street = d.Address!.Street!, 
                     Suburb = d.Address!.Street!, 
                     City = d.Address!.City!, 
                     Country = d.Address!.Country!, 
-                    PostalCode = d.Address!.PostalCode! 
-                }
+                    PostalCode = d.Address!.PostalCode!
+                } : null
             });
 
             return Ok(doctorVM);
@@ -88,6 +88,7 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> AddDoctor([FromBody] Doctor doctor)
         {
             if (!ModelState.IsValid)
@@ -114,6 +115,7 @@ namespace MedicalAppointments.Api.Controllers
 
         // PUT api/<DoctorsController>/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> UpdateDoctor(string id, [FromBody] Doctor model)
         {
             if (model == null)
@@ -140,6 +142,7 @@ namespace MedicalAppointments.Api.Controllers
 
         // DELETE api/<DoctorsController>/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> DeleteDoctor(string id)
         {
             var doctor = await _doctor.GetDoctorByIdAsync(id);

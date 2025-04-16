@@ -31,14 +31,33 @@ namespace MedicalAppointments.Services
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Appointment>($"{_endPoint}/{id}");
 
-        public async Task<Appointment> BookAppointmentAsync(Appointment appointment)
+        public async Task<AppointmentViewModel> BookAppointmentAsync(AppointmentViewModel model)
         {
             try
             {
-                var response = await _http.PostAsJsonAsync(_endPoint, appointment);
+                Doctor doctor = new()
+                {
+                    Id = model.DoctorId!
+                };
+
+                Patient patient = new()
+                {
+                    Id = model.PatientId!
+                };
+
+                var appointment = new Appointment
+                {
+                    Date = model.Date,
+                    Description = model.Description,
+                    Doctor = doctor,
+                    Patient = patient,
+                    Hospital = null!
+                };
+
+                var response = await _http.PostAsJsonAsync($"{_endPoint}", appointment);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<Appointment>() ?? null!;
+                return await response.Content.ReadFromJsonAsync<AppointmentViewModel>() ?? null!;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {

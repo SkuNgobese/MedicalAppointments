@@ -26,11 +26,11 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Patient?> GetPatientByIdNumberOrContactAsync(string term)
+        public async Task<PatientViewModel?> GetPatientByIdNumberOrContactAsync(string term)
         {
             try
             {
-                return await _http.GetFromJsonAsync<Patient>($"{_endPoint}/patientsearch?term={term}");
+                return await _http.GetFromJsonAsync<PatientViewModel>($"{_endPoint}/patientsearch?term={term}");
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -41,10 +41,33 @@ namespace MedicalAppointments.Services
         public async Task<Patient?> GetPatientByIdAsync(string id) => 
             await _http.GetFromJsonAsync<Patient>($"{_endPoint}/{id}");
 
-        public async Task<Patient> AddPatientAsync(Patient patient)
+        public async Task<Patient> AddPatientAsync(PatientViewModel model)
         {
             try
             {
+                var patient = new Patient
+                {
+                    Title = model.Title,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    IDNumber = model.IDNumber,
+                    PrimaryDoctorId = model.Id,
+                    Contact = new Contact
+                    {
+                        Email = model.ContactDetails!.Email,
+                        ContactNumber = model.ContactDetails.ContactNumber,
+                        Fax = model.ContactDetails.Fax
+                    },
+                    Address = new Address
+                    {
+                        Street = model.AddressDetails!.Street,
+                        Suburb = model.AddressDetails.Suburb,
+                        City = model.AddressDetails!.City,
+                        PostalCode = model.AddressDetails!.PostalCode,
+                        Country = model.AddressDetails.Country
+                    }
+                };
+
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", patient);
                 response.EnsureSuccessStatusCode();
 

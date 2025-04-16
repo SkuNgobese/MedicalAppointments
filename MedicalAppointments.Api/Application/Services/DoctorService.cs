@@ -44,18 +44,20 @@ namespace MedicalAppointments.Api.Application.Services
             return doctors ?? [];
         }
 
+        public async Task<Doctor?> GetDoctorForPatientAsync(Patient patient) =>
+            await _repository.GetByConditionAsync(
+                d => d.Patients.Any(p => p == patient));
+
         public async Task<Doctor> EnrollDoctorAsync(Doctor doctor) =>
             await _repository.AddAsync(doctor);
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) =>
             await _repository.GetByIdAsync(id);
 
-        public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital)
-        {
-            return await _repository.GetByConditionAsync(
+        public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital) => 
+            await _repository.GetByConditionAsync(
                 d => d.Id == id && d.Hospital == hospital
             );
-        }
 
         public async Task UpdateDoctorAsync(Doctor doctor) =>
             await _repository.UpdateAsync(doctor);
@@ -85,13 +87,20 @@ namespace MedicalAppointments.Api.Application.Services
             var user = await _helper.GetCurrentUserAsync() ?? throw new InvalidOperationException("Unauthorized.");
             var role = await _helper.GetUserRoleAsync() ?? throw new InvalidOperationException("Unauthorized.");
 
-            IEnumerable<Doctor> doctors = null!;
+            IEnumerable<Doctor> doctors = [];
 
             switch (role)
             {
+                case "Patient":
+                    var patient = user as Patient;
+                    var doctor = await GetDoctorForPatientAsync(patient!);
+                    if (doctor != null)
+                        doctors = doctors.Append(doctor);
+                    break;
                 case "Doctor":
-                    var doctor = user as Doctor;
-                    doctors = doctors!.Append(doctor!);
+                    doctor = user as Doctor;
+                    if (doctor != null)
+                        doctors = doctors.Append(doctor);
                     break;
                 case "Admin":
                     var admin = user as Admin;

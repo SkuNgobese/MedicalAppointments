@@ -13,7 +13,10 @@ namespace MedicalAppointments.Shared.ViewModels
         public AppointmentStatus? Status { get; set; } = AppointmentStatus.Scheduled;
 
         public HospitalViewModel? HospitalViewModel { get; set; }
-        public required DoctorViewModel DoctorViewModel { get; set; }
-        public required PatientViewModel PatientViewModel { get; set; }
+        public int? HospitalId { get; set; }
+        public DoctorViewModel? DoctorViewModel { get; set; }
+        public string? DoctorId { get; set; }
+        public PatientViewModel? PatientViewModel { get; set; }
+        public string? PatientId { get; set; }
     }
 }

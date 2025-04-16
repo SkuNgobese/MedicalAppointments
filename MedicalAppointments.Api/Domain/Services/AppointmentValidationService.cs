@@ -20,10 +20,12 @@ namespace MedicalAppointments.Api.Domain.Services
             if (!doctor.IsActive)
                 throw new ArgumentException($"{doctor.FullName} is currently unavailable.");
 
-            if (doctor.Appointments != null && doctor.Appointments.Count == 10)
-                throw new ArgumentException($"{doctor.FullName} is fully booked.");
+            if (doctor.Appointments != null &&
+                doctor.Appointments.Count(a => a.Date.Date == date) >= 10)
+                throw new ArgumentException($"{doctor.FullName} is fully booked on {date:dd/MMM/yyyy}.");
 
-            if (doctor.Appointments != null && doctor.Appointments.Any(a => a.Date == date && a.Status != AppointmentStatus.Cancelled))
+            if (doctor.Appointments != null && doctor.Appointments.Any(a => a.Date == date && 
+                a.Status != AppointmentStatus.Cancelled))
                 throw new ArgumentException($"{doctor.FullName} is already booked for {date:dd/MMM/yyyy HH:mm}.");
 
             patient.Appointments ??= [];

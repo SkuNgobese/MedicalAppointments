@@ -7,9 +7,9 @@ namespace MedicalAppointments.Interfaces
     {
         Task<IEnumerable<PatientViewModel>> GetAllPatientsAsync();
 
-        Task<Patient> AddPatientAsync(Patient model);
+        Task<Patient> AddPatientAsync(PatientViewModel model);
 
-        Task<Patient?> GetPatientByIdNumberOrContactAsync(string term);
+        Task<PatientViewModel?> GetPatientByIdNumberOrContactAsync(string term);
 
         Task<Patient?> GetPatientByIdAsync(string id);
 

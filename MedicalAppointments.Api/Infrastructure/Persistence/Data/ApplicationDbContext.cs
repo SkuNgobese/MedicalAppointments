@@ -20,6 +20,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(d => d.Patients)
             .HasForeignKey(p => p.PrimaryDoctorId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Doctor)
+            .WithMany(d => d.Appointments)
+            .HasForeignKey(a => a.DoctorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Patient)
+            .WithMany(p => p.Appointments)
+            .HasForeignKey(a => a.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Hospital)
+            .WithMany(h => h.Appointments)
+            .HasForeignKey(a => a.HospitalId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     public DbSet<SuperAdmin> SuperAdmins { get; set; }

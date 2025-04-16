@@ -12,13 +12,18 @@ namespace MedicalAppointments.Shared.Models
         public DateTime Date { get; set; }
 
         [JsonPropertyName("description")]
-        public string? Description { get; set; }
+        public string Description { get; set; } = "General checkup";
 
         [JsonPropertyName("status")]
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Scheduled;
 
-        public required Hospital Hospital { get; set; }
-        public required Doctor Doctor { get; set; }
-        public required Patient Patient { get; set; }
+        public Hospital? Hospital { get; set; }
+        public int? HospitalId { get; set; }
+
+        public Doctor? Doctor { get; set; }
+        public string? DoctorId { get; set; }
+
+        public Patient? Patient { get; set; }
+        public string? PatientId { get; set; }
     }
 }

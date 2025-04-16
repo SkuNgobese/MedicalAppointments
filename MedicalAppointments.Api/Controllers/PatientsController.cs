@@ -72,7 +72,7 @@ namespace MedicalAppointments.Api.Controllers
 
         [Authorize(Roles = "Admin,Doctor")]
         [HttpGet("patientsearch")]
-        public async Task<ActionResult<Patient>> SearchPatient([FromQuery] string term)
+        public async Task<ActionResult<PatientViewModel>> SearchPatient([FromQuery] string term)
         {
             var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
@@ -84,38 +84,32 @@ namespace MedicalAppointments.Api.Controllers
             if (patient is null)
                 return NotFound();
 
-            //PatientViewModel patientViewModel = new()
-            //{
-            //    Id = patient.Id,
-            //    Title = patient.Title!,
-            //    FirstName = patient.FirstName!,
-            //    LastName = patient.LastName!,
-            //    IDNumber = patient.IDNumber!,
-            //};
+            var patientVM = new PatientViewModel
+            {
+                Id = patient!.Id,
+                Title = patient.Title!,
+                FirstName = patient.FirstName!,
+                LastName = patient.LastName!,
+                IDNumber = patient.IDNumber!,
+                ContactDetails = new ContactViewModel
+                {
+                    Id = patient.Contact!.Id,
+                    ContactNumber = patient.Contact.ContactNumber,
+                    Email = patient.Contact.Email,
+                    Fax = patient.Contact.Fax
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Id = patient.Address!.Id,
+                    Street = patient.Address.Street!,
+                    Suburb = patient.Address.Suburb!,
+                    City = patient.Address.City!,
+                    PostalCode = patient.Address.PostalCode!,
+                    Country = patient.Address.Country!
+                }
+            };
 
-            //patientViewModel.AppointmentDetails = patient.Appointments.Select(a => new AppointmentViewModel
-            //{
-            //    Id = a.Id,
-            //    Date = a.Date,
-            //    Description = a.Description ?? "Regular checkup",
-            //    Status = a.Status,
-            //    DoctorViewModel = new DoctorViewModel
-            //    {
-            //        Id = a.Doctor.Id,
-            //        Title = a.Doctor.Title!,
-            //        FirstName = a.Doctor.FirstName!,
-            //        LastName = a.Doctor.LastName!,
-            //        Specialization = a.Doctor.Specialization!
-            //    },
-            //    HospitalViewModel = new HospitalViewModel
-            //    {
-            //        Id = a.Hospital.Id,
-            //        HospitalName = a.Hospital.Name!
-            //    },
-            //    PatientViewModel = patientViewModel
-            //});
-
-            return Ok(patient);
+            return Ok(patientVM);
         }
 
         // GET: api/<PatientsController>/{id}

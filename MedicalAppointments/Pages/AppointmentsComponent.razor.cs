@@ -23,7 +23,8 @@ namespace MedicalAppointments.Pages
         private bool patientNotFound = false;
         private string searchTerm = string.Empty;
         private DateTime appointmentDate = DateTime.Now;
-        private Patient? existingPatient;
+        private Patient? patient;
+        private PatientViewModel? existingPatient;
         private PatientViewModel newPatient = new()
         {
             Title = string.Empty,
@@ -49,7 +50,7 @@ namespace MedicalAppointments.Pages
         {
             Date = DateTime.Now,
             Description = string.Empty,
-            Status = AppointmentStatus.NoShow,
+            Status = AppointmentStatus.Scheduled,
             HospitalViewModel = new HospitalViewModel
             {
                 Id = 0,
@@ -77,16 +78,22 @@ namespace MedicalAppointments.Pages
         private AppointmentViewModel? selectedAppointment;
         private DateTime rescheduleDate = DateTime.Now;
         private string? selectedDoctorId;
+        private string? patientId;
 
         private IEnumerable<DoctorViewModel> allDoctors = [];
 
         private List<string> titles = ["Dr", "Mr", "Mrs", "Miss", "Ms", "Prof"];
 
+        private bool _loaded = false;
+
         protected override async Task OnInitializedAsync()
         {
-            await LoadAppointments();
-
-            allDoctors = await LoadDoctorsAsync();
+            if (!_loaded)
+            {
+                await LoadAppointments();
+                allDoctors = await LoadDoctorsAsync(); 
+                _loaded = true;
+            }
         }
 
         private async Task LoadAppointments()
@@ -97,15 +104,6 @@ namespace MedicalAppointments.Pages
 
         private async Task<IEnumerable<DoctorViewModel>> LoadDoctorsAsync() => 
             await Doctor!.GetAllDoctorsAsync();
-
-        //private void ShowBookModal()
-        //{
-        //    bookModalVisible = true;
-        //    searchTerm = string.Empty;
-        //    existingPatient = null;
-        //    appointmentDate = DateTime.Now;
-        //    patientNotFound = false;
-        //}
 
         private void ShowBookModal()
         {
@@ -151,62 +149,20 @@ namespace MedicalAppointments.Pages
 
         private async Task ConfirmBooking()
         {
-            var patient = existingPatient;
-
             if (patientNotFound && !string.IsNullOrEmpty(selectedDoctorId))
             {
-                var doctor = await Doctor!.GetDoctorByIdAsync(selectedDoctorId)
-                    ?? throw new InvalidOperationException("Doctor not found.");
+                newPatient.PrimaryDoctorId = selectedDoctorId;
+                patient = await Patient!.AddPatientAsync(newPatient);
 
-                patient = new Patient
-                {
-                    Title = newPatient.Title,
-                    FirstName = newPatient.FirstName,
-                    LastName = newPatient.LastName,
-                    IDNumber = newPatient.IDNumber,
-                    PrimaryDoctorId = doctor.Id,
-                    Contact = new Contact
-                    {
-                        Email = newPatient.ContactDetails!.Email,
-                        ContactNumber = newPatient.ContactDetails.ContactNumber,
-                        Fax = newPatient.ContactDetails.Fax
-                    },
-                    Address = new Address
-                    {
-                        Street = newPatient.AddressDetails!.Street,
-                        Suburb = newPatient.AddressDetails.Suburb,
-                        City = newPatient.AddressDetails!.City,
-                        PostalCode = newPatient.AddressDetails!.PostalCode,
-                        Country = newPatient.AddressDetails.Country
-                    }
-                };
-
-                patient = await Patient!.AddPatientAsync(patient);
+                patientId = patient.Id;
             }
+            else
+                patientId = existingPatient?.Id;
 
-            var appointment = new Appointment
-            {
-                Date = newAppointment.Date,
-                Description = newAppointment.Description,
-                Doctor = new Doctor
-                {
-                    Id = newAppointment.DoctorViewModel.Id!,
-                    Title = newAppointment.DoctorViewModel.Title,
-                    FirstName = newAppointment.DoctorViewModel.FirstName,
-                    LastName = newAppointment.DoctorViewModel.LastName,
-                    Specialization = newAppointment.DoctorViewModel.Specialization
-                },
-                Patient = new Patient
-                {
-                    Id = patient!.Id,
-                    Title = patient.Title!,
-                    FirstName = patient.FirstName!,
-                    LastName = patient.LastName!
-                },
-                Hospital = null!
-            };
+            newAppointment.DoctorId = selectedDoctorId;
+            newAppointment.PatientId = patientId;
 
-            await Appointment!.BookAppointmentAsync(appointment);
+            await Appointment!.BookAppointmentAsync(newAppointment);
 
             await LoadAppointments();
             CloseBookModal();

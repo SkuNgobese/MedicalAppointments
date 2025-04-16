@@ -23,5 +23,6 @@ namespace MedicalAppointments.Shared.ViewModels
 
         public AddressViewModel? AddressDetails { get; set; }
         public ContactViewModel? ContactDetails { get; set; }
+        public HospitalViewModel? HospitalDetails { get; set; }
     }
 }

@@ -56,77 +56,38 @@ namespace MedicalAppointments.Api.Controllers
                 Date = a.Date,
                 Description = a.Description ?? "",
                 Status = a.Status,
-                PatientViewModel = new PatientViewModel
+
+                PatientViewModel = a.Patient != null ? new PatientViewModel
                 {
                     Id = a.Patient.Id,
-                    Title = a.Patient!.Title!,
-                    FirstName = a.Patient!.FirstName!,
-                    LastName = a.Patient!.LastName!,
-                    IDNumber = a.Patient!.IDNumber!
-                },
-                DoctorViewModel = new DoctorViewModel
+                    Title = a.Patient.Title ?? "",
+                    FirstName = a.Patient.FirstName ?? "",
+                    LastName = a.Patient.LastName ?? "",
+                    IDNumber = a.Patient.IDNumber ?? "",
+                    ContactDetails = a.Patient.Contact != null ? new ContactViewModel
+                    {
+                        ContactNumber = a.Patient.Contact.ContactNumber ?? "",
+                        Email = a.Patient.Contact.Email ?? ""
+                    } : null
+                } : null,
+
+                DoctorViewModel = a.Doctor != null ? new DoctorViewModel
                 {
                     Id = a.Doctor.Id,
-                    Title = a.Doctor!.Title!,
-                    FirstName = a.Doctor.FirstName!,
-                    LastName = a.Doctor.LastName!,
-                    Specialization = a.Doctor.Specialization!
-                },
-                HospitalViewModel = new HospitalViewModel
+                    Title = a.Doctor.Title ?? "",
+                    FirstName = a.Doctor.FirstName ?? "",
+                    LastName = a.Doctor.LastName ?? "",
+                    Specialization = a.Doctor.Specialization ?? ""
+                } : null,
+
+                HospitalViewModel = a.Hospital != null ? new HospitalViewModel
                 {
                     Id = a.Hospital.Id,
-                    HospitalName = a.Hospital.Name
-                }
+                    HospitalName = a.Hospital.Name ?? ""
+                } : null
             });
 
             return Ok(appointmentVM);
-        }
-
-        [HttpGet("patientsearch")]
-        public async Task<ActionResult<PatientViewModel>> SearchPatient([FromQuery] string term)
-        {
-            var hospital = await _hospital.GetCurrentUserHospitalAsync();
-
-            if (hospital == null)
-                return NotFound("Hospital not found.");
-
-            var patient = await _patient.GetByIdNumberOrContactAsync(hospital, term);
-
-            if (patient is null)
-                return NotFound();
-
-            PatientViewModel patientViewModel = new()
-            {
-                Id = patient.Id,
-                Title = patient.Title!,
-                FirstName = patient.FirstName!,
-                LastName = patient.LastName!,
-                IDNumber = patient.IDNumber!,
-            };
-
-            patientViewModel.AppointmentDetails = patient.Appointments.Select(a => new AppointmentViewModel
-            {
-                Id = a.Id,
-                Date = a.Date,
-                Description = a.Description ?? "Regular checkup",
-                Status = a.Status,
-                DoctorViewModel = new DoctorViewModel
-                {
-                    Id = a.Doctor.Id,
-                    Title = a.Doctor.Title!,
-                    FirstName = a.Doctor.FirstName!,
-                    LastName = a.Doctor.LastName!,
-                    Specialization = a.Doctor.Specialization!
-                },
-                HospitalViewModel = new HospitalViewModel
-                {
-                    Id = a.Hospital.Id,
-                    HospitalName = a.Hospital.Name!
-                },
-                PatientViewModel = patientViewModel
-            });
-
-            return Ok(patientViewModel);
         }
 
         // GET api/<AppointmentsController>/{id}
@@ -151,12 +112,37 @@ namespace MedicalAppointments.Api.Controllers
             var  hospital = await _hospital.GetCurrentUserHospitalAsync();
             
             if (hospital == null)
-                return BadRequest(ModelState);
+                return BadRequest("Hospital not found.");
+
+            var doctor = await _doctor.GetDoctorByIdAsync(appointment.Doctor!.Id, hospital);
+
+            if (doctor == null)
+                return BadRequest("Doctor not found.");
+
+            var patient = await _patient.GetPatientByIdAsync(appointment.Patient!.Id);
+
+            if (patient == null)
+                return BadRequest("Patient not found.");
+
+            appointment.Hospital = hospital;
+            appointment.Doctor = doctor;
+            appointment.Patient = patient;
 
             if (_appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient))
-                await _appointment.BookAppointmentAsync(appointment);
-            
-            return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
+                appointment = await _appointment.BookAppointmentAsync(appointment);
+
+            var appointmentVM = new AppointmentViewModel
+            {
+                Id = appointment!.Id,
+                Date = appointment.Date,
+                Description = appointment.Description,
+                Status = appointment.Status,
+                HospitalId = appointment.Hospital!.Id,
+                DoctorId = appointment.Doctor!.Id,
+                PatientId = appointment.Patient!.Id
+            };
+
+            return Ok(appointmentVM);
         }
 
         [HttpPut("{appointmentId}/reschedule/{newDate}")]

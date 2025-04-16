@@ -12,9 +12,15 @@
             <li class="p-4 border rounded shadow-sm bg-white">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold">@appointment.PatientViewModel.FullName</p>
+                        <p class="font-semibold">@appointment.PatientViewModel!.FullName
+                            @if (appointment.PatientViewModel.ContactDetails != null)
+                            {
+                                <span> - @appointment.PatientViewModel.ContactDetails.ContactNumber</span> 
+                                <a> - @appointment.PatientViewModel.ContactDetails!.Email</a>
+                            }
+                        </p>
                         <p>
-                            With <strong>@appointment.DoctorViewModel.FullName</strong> on
+                            With <strong>@appointment.DoctorViewModel!.FullName</strong> on
                             <strong>@appointment.Date.ToString("f")</strong>
                         </p>
                     </div>
@@ -99,7 +105,8 @@ else
                 }
             </InputSelect>
 
-            <input type="datetime-local" class="form-control mb-2" @bind="appointmentDate" />
+            <InputText class="form-control mb-2" @bind-value="newAppointment.Description" />
+            <input type="datetime-local" class="form-control mb-2" @bind-value="newAppointment.Date" />
 
             <button class="btn btn-primary" @onclick="ConfirmBooking">Book</button>
             <button class="btn btn-outline" @onclick="CloseBookModal">Cancel</button>
