@@ -37,7 +37,7 @@ namespace MedicalAppointments.Pages
             }
         };
 
-        private List<string> titles = new() { "Dr", "Mr", "Mrs", "Miss", "Ms", "Prof" };
+        private List<string> titles = ["Dr", "Mr", "Mrs", "Miss", "Ms", "Prof"];
 
         private bool isEditing = false;
         private string? editingDoctorId = null;
@@ -94,9 +94,8 @@ namespace MedicalAppointments.Pages
             else
                 await _doctor!.EnrollDoctorAsync(doctor);
 
-            await LoadDoctors();
             ResetForm();
-            isEditing = false;
+            await LoadDoctors();
         }
 
         private async Task LoadDoctors()
@@ -107,48 +106,24 @@ namespace MedicalAppointments.Pages
                 doctors = [];
         }
 
-        private void EditDoctor(DoctorViewModel doctor)
+        private void EditDoctor(DoctorViewModel model)
         {
-            //doctorVM = new DoctorViewModel
-            //{
-            //    Title = doctor.Title!,
-            //    FirstName = doctor.FirstName!,
-            //    LastName = doctor.LastName!,
-            //    IDNumber = doctor.IDNumber!,
-            //    Specialization = doctor.Specialization!,
-            //    HireDate = doctor.HireDate ?? DateTime.Now,
-
-            //    AddressDetails = new AddressViewModel
-            //    {
-            //        Street = doctor.Address?.Street ?? string.Empty,
-            //        Suburb = doctor.Address?.Suburb ?? string.Empty,
-            //        City = doctor.Address?.City ?? string.Empty,
-            //        PostalCode = doctor.Address?.PostalCode ?? string.Empty,
-            //        Country = doctor.Address?.Country ?? string.Empty
-            //    },
-            //    ContactDetails = new ContactViewModel
-            //    {
-            //        ContactNumber = doctor.Contact?.ContactNumber ?? string.Empty,
-            //        Fax = doctor.Contact?.Fax ?? string.Empty,
-            //        Email = doctor.Contact?.Email ?? string.Empty
-            //    }
-            //};
-            doctorVM = doctor;
+            doctorVM = model;
 
             isEditing = true;
         }
 
-        private void ConfirmDelete(DoctorViewModel doctor)
+        private void ConfirmDelete(DoctorViewModel model)
         {
             doctorToDelete = new Doctor
             {
-                Id = doctor.Id!,
-                Title = doctor.Title,
-                FirstName = doctor.FirstName,
-                LastName = doctor.LastName,
-                IDNumber = doctor.IDNumber,
-                Specialization = doctor.Specialization,
-                HireDate = doctor.HireDate
+                Id = model.Id!,
+                Title = model.Title,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                IDNumber = model.IDNumber,
+                Specialization = model.Specialization,
+                HireDate = model.HireDate
             };
 
             showDeleteModal = true;

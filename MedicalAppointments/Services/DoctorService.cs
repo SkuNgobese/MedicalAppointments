@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace MedicalAppointments.Services
 {
@@ -21,23 +22,37 @@ namespace MedicalAppointments.Services
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error getting doctors: {ex.Message}");
-                throw;
+                throw new Exception(ex.Message); ;
             }
         }
 
-        public async Task<Doctor> EnrollDoctorAsync(Doctor doctor)
+        public async Task<ErrorViewModel> EnrollDoctorAsync(Doctor doctor)
         {
             try
             {
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", doctor);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<Doctor>() ?? null!;
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Doctor added successfully."
+                };
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the doctor.",
+                    Errors = [ex.Message]
+                };
             }
         }
 
@@ -53,10 +68,34 @@ namespace MedicalAppointments.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task RemoveDoctorAsync(Doctor doctor)
+        public async Task<ErrorViewModel> RemoveDoctorAsync(Doctor doctor)
         {
-            var response = await _http.DeleteAsync($"{_endPoint}/{doctor.Id}");
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await _http.DeleteAsync($"{_endPoint}/{doctor.Id}");
+                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Doctor removed successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the hospital.",
+                    Errors = [ex.Message]
+                };
+            }
         }
     }
 }

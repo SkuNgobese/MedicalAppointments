@@ -101,16 +101,17 @@ namespace MedicalAppointments.Api.Controllers
 
             // Validate before adding
             var doctors = await _doctor.GetAllDoctorsAsync(hospital);
-            if (_doctorValidation.CanAdd(doctor, [.. doctors]))
-            {
-                doctor.Hospital = hospital;
-                doctor = await _doctor.EnrollDoctorAsync(doctor);
+            var validationError = _doctorValidation.CanAdd(doctor, [.. doctors]);
+            if (validationError != null)
+                return BadRequest(validationError);
 
-                //Register doctor as user
-                await _registration.RegisterAsync(doctor);
-            }
+            doctor.Hospital = hospital;
+            doctor = await _doctor.EnrollDoctorAsync(doctor);
 
-            return CreatedAtAction(nameof(GetDoctor), new { id = doctor.Id }, doctor);
+            //Register doctor as user
+            await _registration.RegisterAsync(doctor);
+
+            return Ok(doctor);
         }
 
         // PUT api/<DoctorsController>/{id}
@@ -118,6 +119,9 @@ namespace MedicalAppointments.Api.Controllers
         [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> UpdateDoctor(string id, [FromBody] Doctor model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if (model == null)
                 return BadRequest("Invalid doctor data.");
 
@@ -149,10 +153,13 @@ namespace MedicalAppointments.Api.Controllers
             if (doctor == null)
                 return NotFound();
 
-            if (_doctorValidation.CanRemove(doctor))
-                await _doctor.RemoveDoctorAsync(doctor);
+            var validationError = _doctorValidation.CanRemove(doctor);
+            if (validationError != null)
+                return BadRequest(validationError);
+            
+            await _doctor.RemoveDoctorAsync(doctor);
 
-            return NoContent();
+            return Ok(validationError);
         }
     }
 }

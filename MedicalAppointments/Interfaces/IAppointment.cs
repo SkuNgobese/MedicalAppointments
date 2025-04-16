@@ -7,9 +7,9 @@ namespace MedicalAppointments.Interfaces
     {
         Task<IEnumerable<AppointmentViewModel>> GetAllAppointmentsAsync();
         Task<Appointment?> GetAppointmentByIdAsync(int id);
-        Task<AppointmentViewModel> BookAppointmentAsync(AppointmentViewModel appointment);
-        Task RescheduleAppointmentAsync(Appointment appointment);
+        Task<ErrorViewModel> BookAppointmentAsync(AppointmentViewModel appointment);
+        Task<ErrorViewModel> RescheduleAppointmentAsync(Appointment appointment);
         Task ReAssignAppointmentAsync(Appointment appointment, Doctor doctor);
-        Task CancelAppointmentAsync(Appointment appointment);
+        Task<ErrorViewModel> CancelAppointmentAsync(Appointment appointment);
     }
 }

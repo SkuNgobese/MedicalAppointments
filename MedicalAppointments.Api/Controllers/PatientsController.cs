@@ -14,20 +14,17 @@ namespace MedicalAppointments.Api.Controllers
     public class PatientsController : ControllerBase
     {
         private readonly IHospital _hospital;
-        private readonly IDoctor _doctor;
         private readonly IPatient _patient;
         private readonly IPatientValidation _patientValidation;
 
         private readonly IRegistrationService<Patient> _registration;
 
         public PatientsController(IHospital hospital,
-                                  IDoctor doctor,
                                   IPatient patient,
                                   IPatientValidation patientValidation,
                                   IRegistrationService<Patient> registration)
         {
             _hospital = hospital;
-            _doctor = doctor;
             _patient = patient;
             _patientValidation = patientValidation;
             _registration = registration;
@@ -138,17 +135,18 @@ namespace MedicalAppointments.Api.Controllers
             // Validate before adding
             var patients = await _patient.GetAllPatientsAsync(hospital);
 
-            if (_patientValidation.CanAddPatient(patient, [.. patients]))
-            {
-                patient.Hospital = hospital;
+            var validationError = _patientValidation.CanAddPatient(patient, [.. patients]);
+            if (validationError != null)
+                return BadRequest(validationError);
 
-                patient = await _patient.AddPatientAsync(patient);
+            patient.Hospital = hospital;
 
-                //Register patient as user
-                await _registration.RegisterAsync(patient);
-            }
+            patient = await _patient.AddPatientAsync(patient);
 
-            return CreatedAtAction(nameof(GetPatient), new { id = patient.Id }, patient);
+            //Register patient as user
+            await _registration.RegisterAsync(patient);
+
+            return Ok(patient);
         }
     }
 }

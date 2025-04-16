@@ -20,6 +20,10 @@ namespace MedicalAppointments.Pages
         private bool showDeleteModal = false;
         private Hospital? hospitalToDelete;
 
+        private bool isSubmitting = false;
+
+        private ErrorViewModel? errorModel;
+
         protected override async Task OnInitializedAsync()
         {
             await LoadHospitals();
@@ -54,6 +58,9 @@ namespace MedicalAppointments.Pages
 
         private async Task HandleValidSubmit()
         {
+            errorModel = null;
+            isSubmitting = true;
+
             var hospital = new Hospital
             {
                 Name = hospitalVM.HospitalName,
@@ -83,13 +90,15 @@ namespace MedicalAppointments.Pages
                 if (editingContactId.HasValue)
                     hospital.Contact.Id = editingContactId.Value;
 
-                await _hospital!.UpdateHospitalAsync(hospital);
+                errorModel = await _hospital!.UpdateHospitalAsync(hospital);
             }
             else
-                await _hospital!.AddHospitalAsync(hospital);
+                errorModel = await _hospital!.AddHospitalAsync(hospital);
 
             await LoadHospitals();
             ResetForm();
+
+            isSubmitting = false;
         }
 
         private void EditHospital(HospitalViewModel hospital)
@@ -131,7 +140,7 @@ namespace MedicalAppointments.Pages
         {
             if (hospitalToDelete is not null)
             {
-                await _hospital!.RemoveHospitalAsync(hospitalToDelete);
+                errorModel = await _hospital!.RemoveHospitalAsync(hospitalToDelete);
                 await LoadHospitals();
                 hospitalToDelete = null;
             }

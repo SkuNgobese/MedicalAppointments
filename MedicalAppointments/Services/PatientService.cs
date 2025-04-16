@@ -3,6 +3,7 @@ using MedicalAppointments.Interfaces;
 using System.Net.Http.Json;
 using MedicalAppointments.Shared.ViewModels;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace MedicalAppointments.Services
 {
@@ -38,8 +39,17 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Patient?> GetPatientByIdAsync(string id) => 
-            await _http.GetFromJsonAsync<Patient>($"{_endPoint}/{id}");
+        public async Task<Patient?> GetPatientByIdAsync(string id)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<Patient>($"{_endPoint}/{id}");
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
 
         public async Task<Patient> AddPatientAsync(PatientViewModel model)
         {
@@ -73,7 +83,7 @@ namespace MedicalAppointments.Services
 
                 return await response.Content.ReadFromJsonAsync<Patient>() ?? null!;
             }
-            catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return null!;
             }
@@ -85,10 +95,34 @@ namespace MedicalAppointments.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task RemovePatientAsync(Patient patient)
+        public async Task<ErrorViewModel> RemovePatientAsync(Patient patient)
         {
-            var response = await _http.DeleteAsync($"{_endPoint}/{patient.Id}");
-            response.EnsureSuccessStatusCode();
+            try
+            { 
+                var response = await _http.DeleteAsync($"{_endPoint}/{patient.Id}");
+                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Patient removed successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the patient.",
+                    Errors = [ex.Message]
+                };
+            }
         }
     }
 }

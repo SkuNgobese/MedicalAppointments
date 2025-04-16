@@ -1,12 +1,13 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Interfaces
 {
     public interface IAppointmentValidation
     {
-        bool CanSchedule(DateTime date, Doctor doctor, Patient patient);
-        bool CanReschedule(DateTime newDate, Appointment appointment);
-        bool CanReassign(Doctor doctor, Appointment appointment);
-        bool CanCancel(Appointment appointment);
+        ErrorViewModel? CanSchedule(DateTime date, Doctor doctor, Patient patient);
+        ErrorViewModel? CanReschedule(DateTime newDate, Appointment appointment);
+        ErrorViewModel? CanReassign(Doctor doctor, Appointment appointment);
+        ErrorViewModel? CanCancel(Appointment appointment);
     }
 }

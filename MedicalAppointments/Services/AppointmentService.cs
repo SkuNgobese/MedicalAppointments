@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Interfaces;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -31,7 +32,7 @@ namespace MedicalAppointments.Services
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Appointment>($"{_endPoint}/{id}");
 
-        public async Task<AppointmentViewModel> BookAppointmentAsync(AppointmentViewModel model)
+        public async Task<ErrorViewModel> BookAppointmentAsync(AppointmentViewModel model)
         {
             try
             {
@@ -57,24 +58,56 @@ namespace MedicalAppointments.Services
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", appointment);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<AppointmentViewModel>() ?? null!;
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Appointment booked successfully."
+                };
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (Exception ex)
             {
-                return null!;
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while booking an appointment.",
+                    Errors = [ex.Message]
+                };
             }
         }
 
-        public async Task RescheduleAppointmentAsync(Appointment appointment)
+        public async Task<ErrorViewModel> RescheduleAppointmentAsync(Appointment appointment)
         {
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{appointment.Id}/reschedule/", appointment);
                 response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Appointment rescheduled successfully."
+                };
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (Exception ex)
             {
-                throw;
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while rescheduling the appointment.",
+                    Errors = [ex.Message]
+                };
             }
         }
 
@@ -91,16 +124,33 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task CancelAppointmentAsync(Appointment appointment)
+        public async Task<ErrorViewModel> CancelAppointmentAsync(Appointment appointment)
         {
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{appointment.Id}/cancel", appointment);
                 response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Appointment cancelled successfully."
+                };
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (Exception ex)
             {
-                throw;
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while cancelling the appointment.",
+                    Errors = [ex.Message]
+                };
             }
         }
     }

@@ -1,30 +1,41 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.Enums;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Services
 {
     public class PatientValidationService : IPatientValidation
     {
-        public bool CanAddPatient(Patient patient, List<Patient> patients)
+        public ErrorViewModel? CanAddPatient(Patient patient, List<Patient> patients)
         {
             if (patients.Any(p => p.FullName == patient.FullName && p.IDNumber == patient.IDNumber))
-                throw new Exception($"{patient.FullName} already exists as patient");
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{patient.FullName} already exists as patient"]
+                };
 
-            return true;
+            return null;
         }
 
-        public bool CanRemovePatient(Patient patient)
+        public ErrorViewModel? CanRemovePatient(Patient patient)
         {
             if (patient.Appointments != null && patient.Appointments.Any(a => a.Date > DateTime.Now && a.Status != AppointmentStatus.Cancelled))
-                throw new Exception($"{patient.FullName} has future appointments");
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{patient.FullName} has pending appointments"]
+                };
 
-            return true;
+            return null;
         }
 
-        public bool CanUpdatePatient(Patient patient)
+        public ErrorViewModel? CanUpdatePatient(Patient patient)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

@@ -1,32 +1,44 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.Enums;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Services
 {
     public class DoctorValidationService : IDoctorValidation
     {
-        public bool CanAdd(Doctor doctor, List<Doctor> doctors)
+        public ErrorViewModel? CanAdd(Doctor doctor, List<Doctor> doctors)
         {
             if (doctors.Any(d => d.FullName == doctor.FullName && d.IDNumber == doctor.IDNumber))
-                throw new Exception($"{doctor.FullName} already exists");
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{doctor.FullName} already exists."]
+                };
 
-            return true;
+            return null;
         }
 
-        public bool CanRemove(Doctor doctor, DateTime removeDate = default)
+        public ErrorViewModel? CanRemove(Doctor doctor, DateTime removeDate = default)
         {
             removeDate = removeDate == default ? DateTime.Now : removeDate;
 
             if (doctor.Appointments != null && doctor.Appointments.Any(a => a.Date > removeDate && a.Status != AppointmentStatus.Cancelled))
-                throw new Exception($"{doctor.FullName} has coming appointments");
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{doctor.FullName} has coming appointments."]
+                };
 
-            return true;
+            return null;
         }
 
-        public bool CanRetire(Doctor doctor, DateTime retireDate)
-        {
-            return CanRemove(doctor, retireDate);
-        }
+        public bool CanRetire(Doctor doctor, DateTime retireDate) =>
+            CanRemove(doctor, retireDate) == null;
+
+        public ErrorViewModel? CanUpdate(Doctor doctor, List<Doctor> doctors) =>
+            null;
     }
 }

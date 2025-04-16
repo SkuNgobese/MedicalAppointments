@@ -18,6 +18,7 @@ namespace MedicalAppointments.Pages
         public IDoctor? Doctor { get; set; }
 
         protected IEnumerable<AppointmentViewModel>? appointments;
+        private ErrorViewModel? errorModel;
 
         private bool bookModalVisible = false;
         private bool patientNotFound = false;
@@ -162,7 +163,7 @@ namespace MedicalAppointments.Pages
             newAppointment.DoctorId = selectedDoctorId;
             newAppointment.PatientId = patientId;
 
-            await Appointment!.BookAppointmentAsync(newAppointment);
+            errorModel = await Appointment!.BookAppointmentAsync(newAppointment);
 
             await LoadAppointments();
             CloseBookModal();
@@ -182,7 +183,7 @@ namespace MedicalAppointments.Pages
                     ?? throw new InvalidOperationException("Appointment not found.");
 
                 appointment.Date = selectedAppointment.Date;
-                await Appointment!.RescheduleAppointmentAsync(appointment);
+                errorModel = await Appointment!.RescheduleAppointmentAsync(appointment);
 
                 rescheduleModalVisible = false;
             }
@@ -222,9 +223,9 @@ namespace MedicalAppointments.Pages
             if (appointment == null)
                 return;
 
-            await Appointment!.CancelAppointmentAsync(appointment);
+            errorModel = await Appointment!.CancelAppointmentAsync(appointment);
 
-            appointments = (await Appointment!.GetAllAppointmentsAsync())?.ToList();
+            await LoadAppointments();
         }
     }
 }

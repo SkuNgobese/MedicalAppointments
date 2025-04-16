@@ -7,7 +7,7 @@ namespace MedicalAppointments.Interfaces
     {
         Task<IEnumerable<DoctorViewModel>> GetAllDoctorsAsync();
 
-        Task<Doctor> EnrollDoctorAsync(Doctor doctor);
+        Task<ErrorViewModel> EnrollDoctorAsync(Doctor doctor);
 
         Task<Doctor?> GetDoctorByIdAsync(string id);
 
@@ -15,6 +15,6 @@ namespace MedicalAppointments.Interfaces
 
         Task UpdateDoctorAsync(Doctor doctor);
 
-        Task RemoveDoctorAsync(Doctor doctor);
+        Task<ErrorViewModel> RemoveDoctorAsync(Doctor doctor);
     }
 }

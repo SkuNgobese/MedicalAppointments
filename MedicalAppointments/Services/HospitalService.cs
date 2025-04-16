@@ -2,6 +2,8 @@
 using System.Net.Http.Json;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.ViewModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.Http;
 
 namespace MedicalAppointments.Services
 {
@@ -10,13 +12,11 @@ namespace MedicalAppointments.Services
         private readonly HttpClient _http;
         private const string _endPoint = "api/Hospitals";
 
-        public HospitalService(IHttpClientFactory httpClientFactory) => _http = httpClientFactory.CreateClient("AuthorizedAPI");
+        public HospitalService(IHttpClientFactory httpClientFactory) => 
+            _http = httpClientFactory.CreateClient("AuthorizedAPI");
 
         public async Task<IEnumerable<HospitalViewModel>> GetAllHospitalsAsync()
         {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint))
-                return [];
-
             try
             {
                 return await _http.GetFromJsonAsync<IEnumerable<HospitalViewModel>>($"{_endPoint}") ?? [];
@@ -27,37 +27,99 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Hospital?> GetHospitalByIdAsync(int id) => 
+        public async Task<Hospital?> GetHospitalByIdAsync(int id) =>
             await _http.GetFromJsonAsync<Hospital>($"{_endPoint}/{id}");
 
-        public async Task RemoveHospitalAsync(Hospital hospital)
+        public async Task<ErrorViewModel> AddHospitalAsync(Hospital hospital)
         {
-            var response = await _http.DeleteAsync($"{_endPoint}/{hospital.Id}");
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async Task<Hospital> AddHospitalAsync(Hospital hospital)
-        {
-            if (_http.BaseAddress is null || string.IsNullOrWhiteSpace(_endPoint) || hospital is null)
-                throw new ArgumentNullException(nameof(hospital));
-
             try
             {
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", hospital);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<Hospital>() ?? throw new InvalidOperationException("Failed to deserialize the response.");
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ?? 
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Hospital added successfully."
+                };
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("An error occurred while adding the hospital.", ex);
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the hospital.",
+                    Errors = [ex.Message]
+                };
             }
         }
 
-        public async Task UpdateHospitalAsync(Hospital hospital)
+        public async Task<ErrorViewModel> UpdateHospitalAsync(Hospital hospital)
         {
-            var response = await _http.PutAsJsonAsync($"{_endPoint}/{hospital.Id}", hospital);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"{_endPoint}/{hospital.Id}", hospital);
+                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Errors = [response.ReasonPhrase],
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Hospital added successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the hospital.",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<ErrorViewModel> RemoveHospitalAsync(Hospital hospital)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"{_endPoint}/{hospital.Id}");
+                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Errors = [response.ReasonPhrase],
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Hospital added successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the hospital.",
+                    Errors = [ex.Message]
+                };
+            }
         }
     }
 }

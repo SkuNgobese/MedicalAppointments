@@ -15,6 +15,6 @@ namespace MedicalAppointments.Interfaces
 
         Task UpdatePatientAsync(Patient patient);
 
-        Task RemovePatientAsync(Patient patient);
+        Task<ErrorViewModel> RemovePatientAsync(Patient patient);
     }
 }

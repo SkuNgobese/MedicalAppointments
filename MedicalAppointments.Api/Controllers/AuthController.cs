@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace MedicalAppointments.Shared.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

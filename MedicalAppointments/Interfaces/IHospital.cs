@@ -7,12 +7,12 @@ namespace MedicalAppointments.Interfaces
     {
         Task<IEnumerable<HospitalViewModel>> GetAllHospitalsAsync();
 
-        Task<Hospital> AddHospitalAsync(Hospital hospital);
+        Task<ErrorViewModel> AddHospitalAsync(Hospital hospital);
 
         Task<Hospital?> GetHospitalByIdAsync(int id);
 
-        Task UpdateHospitalAsync(Hospital hospital);
+        Task<ErrorViewModel> UpdateHospitalAsync(Hospital hospital);
 
-        Task RemoveHospitalAsync(Hospital hospital);
+        Task<ErrorViewModel> RemoveHospitalAsync(Hospital hospital);
     }
 }

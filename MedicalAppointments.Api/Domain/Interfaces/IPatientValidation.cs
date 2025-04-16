@@ -1,11 +1,12 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Interfaces
 {
     public interface IPatientValidation
     {
-        bool CanAddPatient(Patient patient, List<Patient> patients);
-        bool CanUpdatePatient(Patient patient);
-        bool CanRemovePatient(Patient patient);
+        ErrorViewModel? CanAddPatient(Patient patient, List<Patient> patients);
+        ErrorViewModel? CanUpdatePatient(Patient patient);
+        ErrorViewModel? CanRemovePatient(Patient patient);
     }
 }

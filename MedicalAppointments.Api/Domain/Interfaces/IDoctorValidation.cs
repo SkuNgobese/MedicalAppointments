@@ -1,11 +1,13 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Interfaces
 {
     public interface IDoctorValidation
     {
-        bool CanAdd(Doctor doctor, List<Doctor> doctors);
+        ErrorViewModel? CanAdd(Doctor doctor, List<Doctor> doctors);
+        ErrorViewModel? CanUpdate(Doctor doctor, List<Doctor> doctors);
         bool CanRetire(Doctor doctor, DateTime retireDate);
-        bool CanRemove(Doctor doctor, DateTime removeDate = default);
+        ErrorViewModel? CanRemove(Doctor doctor, DateTime removeDate = default);
     }
 }

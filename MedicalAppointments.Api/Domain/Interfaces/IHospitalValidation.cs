@@ -1,11 +1,12 @@
 ﻿using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Interfaces
 {
     public interface IHospitalValidation
     {
-        bool CanAddHospital(Hospital hospital, List<Hospital> hospitals);
-        bool CanUpdateHospital(Hospital hospital, List<Hospital> hospitals);
-        bool CanDeleteHospital(Hospital hospital);
+        ErrorViewModel? CanAddHospital(Hospital hospital, List<Hospital> hospitals);
+        ErrorViewModel? CanUpdateHospital(Hospital hospital, List<Hospital> hospitals);
+        ErrorViewModel? CanDeleteHospital(Hospital hospital);
     }
 }

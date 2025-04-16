@@ -17,11 +17,8 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IHospital _hospital;
         private readonly IDoctor _doctor;
         private readonly IPatient _patient;
-        private readonly IPatientValidation _patientValidation;
         private readonly IAppointment _appointment;
         private readonly IAppointmentValidation _appointmentValidation;
-
-        private readonly IRegistrationService<Patient> _registration;
 
         public AppointmentsController(
             IHospital hospital,
@@ -29,14 +26,11 @@ namespace MedicalAppointments.Api.Controllers
             IPatient patient,
             IPatientValidation patientValidation,
             IAppointment appointment,
-            IAppointmentValidation appointmentValidation,
-            IRegistrationService<Patient> registration)
+            IAppointmentValidation appointmentValidation)
         {
             _hospital = hospital ?? throw new ArgumentNullException(nameof(hospital));
             _doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
             _patient = patient ?? throw new ArgumentNullException(nameof(patient));
-            _patientValidation = patientValidation ?? throw new ArgumentNullException(nameof(patientValidation));
-            _registration = registration;
             _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
             _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
         }
@@ -128,8 +122,11 @@ namespace MedicalAppointments.Api.Controllers
             appointment.Doctor = doctor;
             appointment.Patient = patient;
 
-            if (_appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient))
-                appointment = await _appointment.BookAppointmentAsync(appointment);
+            var validationError = _appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient);
+            if (validationError != null)
+                return BadRequest(validationError);
+
+            appointment = await _appointment.BookAppointmentAsync(appointment);
 
             var appointmentVM = new AppointmentViewModel
             {
@@ -157,15 +154,14 @@ namespace MedicalAppointments.Api.Controllers
             if (appointment == null)
                 return NotFound("Appointment not found.");
 
-            if (_appointmentValidation.CanReschedule(newDate, appointment))
-            {
-                appointment.Date = newDate;
-                await _appointment.UpdateAppointmentAsync(appointment);
+            var validationError = _appointmentValidation.CanReschedule(newDate, appointment);
+            if (validationError != null)
+                return BadRequest(validationError);
 
-                return Ok(appointment);
-            }
+            appointment.Date = newDate;
+            await _appointment.UpdateAppointmentAsync(appointment);
 
-            return BadRequest("Reassignment is not allowed.");
+            return Ok(appointment);
         }
 
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
@@ -184,14 +180,14 @@ namespace MedicalAppointments.Api.Controllers
             if (newDoctor == null)
                 return NotFound("Doctor not found.");
 
-            if (_appointmentValidation.CanReassign(newDoctor, appointment))
-            {
-                appointment.Doctor = newDoctor;
-                await _appointment.UpdateAppointmentAsync(appointment);
-                return Ok(appointment);
-            }
+            var validationError = _appointmentValidation.CanReassign(newDoctor, appointment);
+            if (validationError != null)
+                return BadRequest(validationError);
 
-            return BadRequest("Reassignment is not allowed.");
+            appointment.Doctor = newDoctor;
+            await _appointment.UpdateAppointmentAsync(appointment);
+
+            return Ok(appointment);
         }
 
         [HttpPut("{id}/cancel")]
@@ -201,14 +197,15 @@ namespace MedicalAppointments.Api.Controllers
             if (appointment == null)
                 return NotFound("Appointment not found.");
 
-            if (_appointmentValidation.CanCancel(appointment))
-            {
-                appointment.Status = AppointmentStatus.Cancelled;
-                appointment.Description = "Cancelled by the patient.";
-                await _appointment.UpdateAppointmentAsync(appointment);
-            }
+            var validationError = _appointmentValidation.CanCancel(appointment);
+            if (validationError != null)
+                return BadRequest(validationError);
 
-            return BadRequest("Cancellation is not allowed for this appointment.");
+            appointment.Status = AppointmentStatus.Cancelled;
+            appointment.Description = "Cancelled by the patient.";
+            await _appointment.UpdateAppointmentAsync(appointment);
+            
+            return Ok(appointment);
         }
     }
 }

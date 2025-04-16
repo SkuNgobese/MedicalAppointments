@@ -6,7 +6,7 @@ using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.ViewModels;
 
-namespace MedicalAppointments.Shared.Controllers
+namespace MedicalAppointments.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -78,9 +78,9 @@ namespace MedicalAppointments.Shared.Controllers
             var hospital = await _hospital.GetHospitalByIdAsync(id);
 
             if (hospital == null)
-                return NotFound();
+                return BadRequest("Invalid hospital ID.");
 
-            var hospitalVM = (new HospitalViewModel
+            var hospitalVM = new HospitalViewModel
             {
                 Id = hospital.Id,
                 HospitalName = hospital.Name,
@@ -100,7 +100,7 @@ namespace MedicalAppointments.Shared.Controllers
                     Country = hospital.Address!.Country!,
                     PostalCode = hospital.Address!.PostalCode!
                 }
-            });
+            };
 
             return Ok(hospitalVM);
         }
@@ -113,15 +113,17 @@ namespace MedicalAppointments.Shared.Controllers
 
             // Validate before adding
             var hospitals = await _hospital.GetAllHospitalsAsync();
-            if (!_hospitalValidation.CanAddHospital(hospital, [.. hospitals]))
-                return Conflict(new { message = "Hospital already exists or validation failed." });
+
+            var validationError = _hospitalValidation.CanAddHospital(hospital, [.. hospitals]);
+            if (validationError != null)
+                return BadRequest(validationError);
 
             hospital = await _hospital.AddHospitalAsync(hospital);
 
             // Register the Hospital Admin as a user
             await RegisterHospitalAdminAsync(hospital);
 
-            return CreatedAtAction(nameof(GetHospital), new { id = hospital.Id }, hospital);
+            return Ok(validationError);
         }
 
         [HttpPut("{id}")]
@@ -133,6 +135,12 @@ namespace MedicalAppointments.Shared.Controllers
             var existingHospital = await _hospital.GetHospitalByIdAsync(id);
             if (existingHospital == null)
                 return NotFound($"Hospital with ID {id} not found.");
+
+            var hospitals = await _hospital.GetAllHospitalsAsync();
+
+            var validationError = _hospitalValidation.CanUpdateHospital(hospital, [.. hospitals]);
+            if (validationError != null)
+                return BadRequest(validationError);
 
             // Create and save Address
             existingHospital.Address = new()
@@ -156,16 +164,8 @@ namespace MedicalAppointments.Shared.Controllers
             };
             await _contact.UpdateContact(existingHospital.Contact);
 
-            if (!hospital.Name.Equals(existingHospital.Name))
-            {
-                var hospitals = await _hospital.GetAllHospitalsAsync();
-
-                if (_hospitalValidation.CanUpdateHospital(hospital, [.. hospitals]))
-                {
-                    existingHospital.Name = hospital.Name;
-                    await _hospital.UpdateHospitalAsync(existingHospital);
-                }
-            }
+            existingHospital.Name = hospital.Name;
+            await _hospital.UpdateHospitalAsync(existingHospital);
             
             return Ok(existingHospital);
         }
@@ -176,12 +176,13 @@ namespace MedicalAppointments.Shared.Controllers
         {
             var hospital = await _hospital.GetHospitalByIdAsync(id);
             if (hospital == null)
-                return NotFound();
+                return NotFound($"Hospital with ID {id} not found.");
 
-            if (_hospitalValidation.CanDeleteHospital(hospital))
-                await _hospital.RemoveHospitalAsync(hospital);
+            var validationError = _hospitalValidation.CanDeleteHospital(hospital);
+            if (validationError != null)
+                return BadRequest(validationError);
             
-            return NoContent();
+            return Ok(hospital);
         }
 
         private async Task RegisterHospitalAdminAsync(Hospital hospital)

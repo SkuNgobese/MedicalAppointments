@@ -1,35 +1,62 @@
 ﻿using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.Models;
+using MedicalAppointments.Shared.ViewModels;
 
 namespace MedicalAppointments.Api.Domain.Services
 {
     public class HospitalValidationService : IHospitalValidation
     {
-        public bool CanAddHospital(Hospital hospital, List<Hospital> hospitals)
+        public ErrorViewModel? CanAddHospital(Hospital hospital, List<Hospital> hospitals)
         {
             if (hospitals.Any(h => h.Name == hospital.Name))
-                throw new ArgumentException($"{hospital.Name} already exists.");
+            {
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{hospital.Name} already exists."]
+                };
+            }
 
-            return true;
+            return null;
         }
 
-        public bool CanUpdateHospital(Hospital hospital, List<Hospital> hospitals)
+        public ErrorViewModel? CanUpdateHospital(Hospital hospital, List<Hospital> hospitals)
         {
             if (hospitals.Any(h => h.Name == hospital.Name))
-                throw new ArgumentException($"{hospital.Name} already exists.");
+            {
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation Error",
+                    Errors = [$"{hospital.Name} already exists."]
+                };
+            }
 
-            return true;
+            return null;
         }
 
-        public bool CanDeleteHospital(Hospital hospital)
+        public ErrorViewModel? CanDeleteHospital(Hospital hospital)
         {
-            if (hospital.Doctors != null && hospital.Doctors.Any(p => p.IsActive == true))
-                throw new ArgumentException($"{hospital.Name} has active doctors.");
+            var errors = new List<string>();
 
-            if (hospital.Patients != null && hospital.Patients.Any(p => p.IsActive == true))
-                throw new ArgumentException($"{hospital.Name} has active patients.");
+            if (hospital.Doctors?.Any(p => p.IsActive) == true)
+                errors.Add($"{hospital.Name} has active doctors.");
 
-            return true;
+            if (hospital.Patients?.Any(p => p.IsActive) == true)
+                errors.Add($"{hospital.Name} has active patients.");
+
+            if (errors.Count != 0)
+            {
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Cannot delete hospital",
+                    Errors = errors
+                };
+            }
+
+            return null;
         }
     }
 }

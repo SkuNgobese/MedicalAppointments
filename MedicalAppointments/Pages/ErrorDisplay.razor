@@ -1,0 +1,36 @@
+﻿@using MedicalAppointments.Shared.ViewModels
+
+@if (Error != null && !string.IsNullOrWhiteSpace(Error.Message))
+{
+    if (Error.Message.StartsWith("success: ", StringComparison.OrdinalIgnoreCase))
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded" role="alert">
+            <strong>@Error.Message.Substring(8)</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else if (Error.Errors?.Any() == true)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded" role="alert">
+            <strong>@Error.Message</strong>
+            <ul>
+                @foreach (var item in Error.Errors)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded" role="alert">
+            <strong>@Error.Message</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public ErrorViewModel? Error { get; set; }
+}
