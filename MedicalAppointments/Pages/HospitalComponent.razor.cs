@@ -17,7 +17,6 @@ namespace MedicalAppointments.Pages
         private int? editingAddressId = null;
         private int? editingContactId = null;
 
-        private bool showFormModal = false;
         private bool showDeleteModal = false;
         private Hospital? hospitalToDelete;
 
@@ -57,18 +56,6 @@ namespace MedicalAppointments.Pages
                 hospitals = [];
 
             errorModel = _hospital!.Error;
-        }
-
-        private void ShowFormModal()
-        {
-            isEditing = false;
-            ResetForm();
-            showFormModal = true;
-        }
-
-        private void HideFormModal()
-        {
-            showFormModal = false;
         }
 
         private async Task HandleValidSubmit()

@@ -1,17 +1,51 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+
+<div class="bb-page">
+    <AuthorizeView>
+        <Authorized>
+            <Sidebar @ref="sidebar"
+            IconName="IconName.BootstrapFill"
+            Title="BlckBook Med"
+            DataProvider="SidebarDataProvider" />
+        </Authorized>
+    </AuthorizeView>
 
     <main>
         <div class="top-row px-4 auth">
             <LoginDisplay />
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <ThemeSwitcher Class="ps-3 ps-lg-2" />
+            <a href="https://github.com/SkuNgobese" target="_blank">About</a>
         </div>
 
         <article class="content px-4">
-            @Body
+            <div class="py-2">@Body</div>
         </article>
     </main>
 </div>
+
+@code {
+    Sidebar? sidebar;
+    IEnumerable<NavItem>? navItems;
+
+    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+            new NavItem { Id = "2", Href = "/Hospitals", IconName = IconName.Hospital, Text = "Hospitals"},
+            new NavItem { Id = "3", Href = "/Doctors", IconName = IconName.CapsulePill, Text = "Doctors"},
+            new NavItem { Id = "4", Href = "/Patients", IconName = IconName.People, Text = "Patients"},
+            new NavItem { Id = "5", Href = "/Appointments", IconName = IconName.CalendarDate, Text = "Appointments"},
+        };
+
+        return navItems;
+    }
+}
