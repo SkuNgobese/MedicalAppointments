@@ -127,45 +127,31 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateHospital(int id, [FromBody] Hospital hospital)
+        public async Task<IActionResult> UpdateHospital(int id, [FromBody] HospitalViewModel model)
         {
-            if (hospital == null)
+            var hospital = await _hospital.GetHospitalByIdAsync(id);
+
+            if (model == null)
                 return BadRequest("Invalid hospital data.");
             
-            var existingHospital = await _hospital.GetHospitalByIdAsync(id);
-            if (existingHospital == null)
-                return NotFound($"Hospital with ID {id} not found.");
-
             var hospitals = await _hospital.GetAllHospitalsAsync();
 
-            var validationError = _hospitalValidation.CanUpdateHospital(hospital, [.. hospitals]);
+            var validationError = _hospitalValidation.CanUpdateHospital(hospital!, [.. hospitals]);
             if (validationError != null)
                 return BadRequest(validationError);
 
-            // Create and save Address
-            existingHospital.Address = new()
-            {
-                Id = hospital.Address!.Id,
-                Street = hospital.Address!.Street,
-                City = hospital.Address!.City,
-                Suburb = hospital.Address!.Suburb,
-                PostalCode = hospital.Address!.PostalCode,
-                Country = hospital.Address.Country
-            };
-            await _address.UpdateAddress(existingHospital.Address);
+            hospital!.Name = model.HospitalName;
 
-            // Create and save Contact
-            existingHospital.Contact = new()
-            {
-                Id = hospital.Contact!.Id,
-                ContactNumber = hospital.Contact!.ContactNumber,
-                Email = hospital.Contact!.Email,
-                Fax = hospital.Contact!.Fax
-            };
-            await _contact.UpdateContact(existingHospital.Contact);
+            hospital.Address!.Street = model.AddressDetails!.Street;
+            hospital.Address.Suburb = model.AddressDetails.Suburb;
+            hospital.Address.City = model.AddressDetails.City;
+            hospital.Address.PostalCode = model.AddressDetails.PostalCode;
+            hospital.Address.Country = model.AddressDetails.Country;
 
-            existingHospital.Name = hospital.Name;
-            await _hospital.UpdateHospitalAsync(existingHospital);
+            hospital.Contact!.ContactNumber = model.ContactDetails!.ContactNumber;
+            hospital.Contact.Fax = model.ContactDetails!.Fax;
+
+            await _hospital.UpdateHospitalAsync(hospital);
             
             return Ok(validationError);
         }

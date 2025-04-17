@@ -2,76 +2,54 @@
 @using MedicalAppointments.Shared.Models
 @using MedicalAppointments.Shared.ViewModels
 @inject IHospital hospital
-
 @page "/Hospitals"
 
-<EditForm Model="hospitalVM" OnValidSubmit="HandleValidSubmit" FormName="hospitalForm">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <ErrorDisplay Error="errorModel" />
-    <div class="mb-3">
-        <label class="form-label">Hospital Name</label>
-        <InputText class="form-control" @bind-Value="hospitalVM.HospitalName" />
-    </div>
+<Button Color="ButtonColor.Success" @onclick="OnShowModalClickAsync">Add Hospital</Button>
+<ErrorDisplay Error="errorModel" />
+<Modal @ref="modal" title="Modal title" IsScrollable="true">
+    <BodyTemplate>
+        <EditForm Model="hospitalVM" OnValidSubmit="HandleValidSubmit" FormName="hospitalForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <ErrorDisplay Error="errorModel" />
 
-    <div class="row">
-        <div class="col-md-6">
-            <fieldset class="border p-3 rounded mb-3">
-                <legend class="float-none w-auto px-2">Address</legend>
+            <div class="mb-3">
+                <label class="form-label">Hospital Name</label>
+                <InputText class="form-control" @bind-Value="hospitalVM.HospitalName" />
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Street</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails!.Street" />
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded mb-3">
+                        <legend class="float-none w-auto px-2">Address</legend>
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.AddressDetails!.Street" placeholder="Street" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.AddressDetails.Suburb" placeholder="Suburb" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.AddressDetails.City" placeholder="City" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.AddressDetails.PostalCode" placeholder="Postal Code" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.AddressDetails.Country" placeholder="Country" />
+                    </fieldset>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Suburb</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Suburb" />
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded mb-3">
+                        <legend class="float-none w-auto px-2">Contact</legend>
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails!.ContactNumber" placeholder="Contact Number" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails.Email" placeholder="Email" />
+                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails.Fax" placeholder="Fax" />
+                    </fieldset>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">City</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.City" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Postal Code</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.PostalCode" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Country</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.AddressDetails.Country" />
-                </div>
-            </fieldset>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="OnHideModalClickAsync">Cancel</button>
+            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit" disabled="@isSubmitting">
+                @(isEditing ? "Update" : "Add") Hospital
+            </button>
         </div>
-
-        <div class="col-md-6">
-            <fieldset class="border p-3 rounded mb-3">
-                <legend class="float-none w-auto px-2">Contact</legend>
-
-                <div class="mb-3">
-                    <label class="form-label">Contact Number</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails!.ContactNumber" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.Email" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Fax</label>
-                    <InputText class="form-control" @bind-Value="hospitalVM.ContactDetails.Fax" />
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-        @(isEditing ? "Update" : "Add") Hospital
-    </button>
-</EditForm>
+    </FooterTemplate>
+</Modal>
 <br />
 <hr />
 @if (hospitals == null)

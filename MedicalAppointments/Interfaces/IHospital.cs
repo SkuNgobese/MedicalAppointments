@@ -8,8 +8,8 @@ namespace MedicalAppointments.Interfaces
         ErrorViewModel? Error { get; set; }
         Task<IEnumerable<HospitalViewModel>> GetAllHospitalsAsync();
         Task<ErrorViewModel> AddHospitalAsync(Hospital hospital);
-        Task<Hospital?> GetHospitalByIdAsync(int id);
-        Task<ErrorViewModel> UpdateHospitalAsync(Hospital hospital);
+        Task<HospitalViewModel?> GetHospitalByIdAsync(int id);
+        Task<ErrorViewModel> UpdateHospitalAsync(HospitalViewModel model);
         Task<ErrorViewModel> RemoveHospitalAsync(int hospitalId);
     }
 }

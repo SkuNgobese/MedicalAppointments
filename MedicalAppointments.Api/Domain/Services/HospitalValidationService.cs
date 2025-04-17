@@ -23,16 +23,6 @@ namespace MedicalAppointments.Api.Domain.Services
 
         public ErrorViewModel? CanUpdateHospital(Hospital hospital, List<Hospital> hospitals)
         {
-            if (hospitals.Any(h => h.Name == hospital.Name))
-            {
-                return new ErrorViewModel
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "Validation Error",
-                    Errors = [$"{hospital.Name} already exists."]
-                };
-            }
-
             return null;
         }
 

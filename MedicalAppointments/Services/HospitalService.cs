@@ -44,11 +44,11 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Hospital?> GetHospitalByIdAsync(int id)
+        public async Task<HospitalViewModel?> GetHospitalByIdAsync(int id)
         {
             try
             {
-                return await _http.GetFromJsonAsync<Hospital>($"{_endPoint}/{id}");
+                return await _http.GetFromJsonAsync<HospitalViewModel>($"{_endPoint}/{id}");
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -100,11 +100,11 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<ErrorViewModel> UpdateHospitalAsync(Hospital hospital)
+        public async Task<ErrorViewModel> UpdateHospitalAsync(HospitalViewModel model)
         {
             try
             {
-                var response = await _http.PutAsJsonAsync($"{_endPoint}/{hospital.Id}", hospital);
+                var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}", model);
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)

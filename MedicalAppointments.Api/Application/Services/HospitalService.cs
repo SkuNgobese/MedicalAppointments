@@ -1,7 +1,6 @@
 ﻿using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Application.Interfaces;
-using MedicalAppointments.Api.Infrastructure.Services;
 
 namespace MedicalAppointments.Api.Application.Services
 {
@@ -33,11 +32,11 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task<IEnumerable<Hospital>> GetAllHospitalsAsync()
         {
             var hospitals = await _hospitalRepository.GetAllAsync(
-                                                        h => h.Address!, 
-                                                        h => h.Contact!,
-                                                        h => h.Doctors,
-                                                        h => h.Patients,
-                                                        h => h.Appointments);
+                                            h => h.Address!, 
+                                            h => h.Contact!,
+                                            h => h.Doctors,
+                                            h => h.Patients,
+                                            h => h.Appointments);
 
             if (!hospitals.Any())
                 return [];
@@ -45,8 +44,15 @@ namespace MedicalAppointments.Api.Application.Services
             return hospitals;
         }
 
-        public async Task<Hospital?> GetHospitalByIdAsync(int id) =>
-            await _hospitalRepository.GetByIdAsync(id);
+        public async Task<Hospital?> GetHospitalByIdAsync(int id)
+        {
+            var hospital = await _hospitalRepository.GetByIdAsync(
+                                            id: id,
+                                            h => h.Address!,
+                                            h => h.Contact!);
+
+            return hospital;
+        }
 
         public async Task<Hospital> AddHospitalAsync(Hospital hospital) =>
             await _hospitalRepository.AddAsync(hospital);
