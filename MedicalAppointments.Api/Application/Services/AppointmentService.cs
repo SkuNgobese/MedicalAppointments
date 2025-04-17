@@ -1,5 +1,6 @@
 ﻿using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
+using MedicalAppointments.Shared.Enums;
 using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Api.Application.Services
@@ -19,44 +20,60 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync() => 
                 await _repository.GetAllAsync(
                                         a => a.Hospital!,
+                                        a => a.Hospital!.Address!,
                                         a => a.Doctor!,
+                                        a => a.Doctor!.Contact!,
+                                        a => a.Doctor!.Address!,
                                         a => a.Patient!,
                                         a => a.Patient!.Contact!,
-                                        a => a.Doctor!.Contact!) ?? [];
+                                        a => a.Patient!.Address!) ?? [];
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
-            await _repository.GetAllAsync(
-                                a => a.Hospital == hospital,
-                                a => a.Doctor!,
-                                a => a.Doctor!.Contact!,
-                                a => a.Patient!,
-                                a => a.Patient!.Contact!) ?? [];
+                await _repository.GetAllAsync(
+                                        a => a.Hospital == hospital,
+                                        a => a.Doctor!,
+                                        a => a.Doctor!.Contact!,
+                                        a => a.Doctor!.Address!,
+                                        a => a.Patient!,
+                                        a => a.Patient!.Contact!,
+                                        a => a.Patient!.Address!) ?? [];
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor) =>
-            await _repository.GetAllAsync(
-                                a => a.Doctor == doctor,
-                                a => a.Patient!,
-                                a => a.Patient!.Contact!) ?? [];
+                await _repository.GetAllAsync(
+                                        a => a.Doctor == doctor,
+                                        a => a.Patient!,
+                                        a => a.Patient!.Contact!,
+                                        a => a.Patient!.Address!) ?? [];
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient) =>
-            await _repository.GetAllAsync(
-                                a => a.Patient == patient,
-                                a => a.Doctor!,
-                                a => a.Doctor!.Contact!) ?? [];
+                await _repository.GetAllAsync(
+                                        a => a.Patient == patient,
+                                        a => a.Hospital!,
+                                        a => a.Hospital!.Contact!,
+                                        a => a.Hospital!.Address!,
+                                        a => a.Doctor!,
+                                        a => a.Doctor!.Contact!) ?? [];
 
         public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
-            await _repository.GetByIdAsync(id,
-                                a => a.Doctor!,
-                                a => a.Patient!,
-                                a => a.Patient!.Contact!);
+                await _repository.GetByIdAsync(id,
+                                        a => a.Hospital!,
+                                        a => a.Hospital!.Contact!,
+                                        a => a.Doctor!,
+                                        a => a.Doctor!.Contact!,
+                                        a => a.Patient!,
+                                        a => a.Patient!.Contact!,
+                                        a => a.Patient!.Address!);
 
-        public async Task<Appointment> BookAppointmentAsync(Appointment appointment) => 
-            await _repository.AddAsync(appointment);
+        public async Task<Appointment> AddAppointmentAsync(Appointment appointment) => 
+                await _repository.AddAsync(appointment);
 
         public async Task UpdateAppointmentAsync(Appointment appointment) =>
-            await _repository.UpdateAsync(appointment);
+                await _repository.UpdateAsync(appointment);
 
-        public async Task RemoveAppointmentsAsync(Hospital hospital)
+        public async Task DeleteAppointmentAsync(Appointment appointment) =>
+                await _repository.DeleteAsync(appointment);
+
+        public async Task DeleteAppointmentsAsync(Hospital hospital)
         {
             var appointments = await _repository.GetAllAsync(a => a.Hospital == hospital);
             
@@ -64,7 +81,18 @@ namespace MedicalAppointments.Api.Application.Services
                 return;
 
             foreach (var appointment in appointments)
-                await _repository.DeleteAsync(appointment);
+                await DeleteAppointmentAsync(appointment);
+        }
+
+        public async Task DeleteAppointmentsAsync(Doctor doctor)
+        {
+            var appointments = await _repository.GetAllAsync(a => a.Doctor == doctor);
+
+            if (appointments == null)
+                return;
+
+            foreach (var appointment in appointments)
+                await DeleteAppointmentAsync(appointment);
         }
 
         public async Task<IEnumerable<Appointment?>> GetCurrentUserHospitalAppointmentsAsync()

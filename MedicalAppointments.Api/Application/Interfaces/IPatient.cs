@@ -18,11 +18,11 @@ namespace MedicalAppointments.Api.Application.Interfaces
 
         Task UpdatePatientAsync(Patient patient);
 
-        Task RemovePatientAsync(Patient patient);
+        Task DeletePatientAsync(Patient patient);
 
         Task RemovePatientsAsync(Doctor doctor);
 
-        Task RemovePatientsAsync(Hospital hospital);
+        Task DeletePatientsAsync(Hospital hospital);
 
         Task<bool> ExistsAsync(string email);
         Task<Patient?> GetPatientAsync(string email);

@@ -10,6 +10,7 @@ namespace MedicalAppointments.Services
     public class AppointmentService : IAppointment
     {
         private readonly HttpClient _http;
+        public ErrorViewModel? Error { get; set; } = new();
         private const string _endPoint = "api/Appointments";
 
         public AppointmentService(IHttpClientFactory httpClientFactory) => 
@@ -22,15 +23,51 @@ namespace MedicalAppointments.Services
             {
                 return await _http.GetFromJsonAsync<IEnumerable<AppointmentViewModel>>($"{_endPoint}") ?? [];
             }
-            catch(Exception ex)
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
-                Console.Error.WriteLine($"Error getting doctors: {ex.Message}");
-                throw;
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "No appointments found."
+                };
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while fetching appointments.",
+                    Errors = [ex.Message]
+                };
+                return null!;
             }
         }
 
-        public async Task<Appointment?> GetAppointmentByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<Appointment>($"{_endPoint}/{id}");
+        public async Task<Appointment?> GetAppointmentByIdAsync(int id)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<Appointment>($"{_endPoint}/{id}");
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Appointment not found."
+                };
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while fetching the appointment.",
+                    Errors = [ex.Message]
+                };
+                return null;
+            }
+        }
 
         public async Task<ErrorViewModel> BookAppointmentAsync(AppointmentViewModel model)
         {
@@ -111,16 +148,33 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task ReAssignAppointmentAsync(Appointment appointment, Doctor doctor)
+        public async Task<ErrorViewModel> ReAssignAppointmentAsync(Appointment appointment, Doctor doctor)
         {
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{doctor.Id}/reassign", appointment);
                 response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Appointment reassigned successfully."
+                };
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch (Exception ex)
             {
-                throw;
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while reassigning the appointment.",
+                    Errors = [ex.Message]
+                };
             }
         }
 

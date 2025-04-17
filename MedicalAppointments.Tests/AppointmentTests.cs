@@ -138,7 +138,7 @@ namespace MedicalAppointments.Tests
         public async Task BookAppointmentAsync_ShouldCallAddAsyncOnce()
         {
             // Act
-            await _appointmentService.BookAppointmentAsync(_appointment);
+            await _appointmentService.AddAppointmentAsync(_appointment);
 
             // Assert
             _appointmentRepositoryMock.Verify(repo => repo.AddAsync(_appointment), Times.Once);

@@ -17,6 +17,7 @@ namespace MedicalAppointments.Pages
         private int? editingAddressId = null;
         private int? editingContactId = null;
 
+        private bool showFormModal = false;
         private bool showDeleteModal = false;
         private Hospital? hospitalToDelete;
 
@@ -54,6 +55,20 @@ namespace MedicalAppointments.Pages
                 hospitals = await _hospital.GetAllHospitalsAsync();
             else
                 hospitals = [];
+
+            errorModel = _hospital!.Error;
+        }
+
+        private void ShowFormModal()
+        {
+            isEditing = false;
+            ResetForm();
+            showFormModal = true;
+        }
+
+        private void HideFormModal()
+        {
+            showFormModal = false;
         }
 
         private async Task HandleValidSubmit()
@@ -116,6 +131,7 @@ namespace MedicalAppointments.Pages
         {
             hospitalToDelete = new Hospital
             {
+                Id = (int)hospitalVM.Id!,
                 Name = hospitalVM.HospitalName,
                 Address = new Address
                 {
@@ -140,7 +156,8 @@ namespace MedicalAppointments.Pages
         {
             if (hospitalToDelete is not null)
             {
-                errorModel = await _hospital!.RemoveHospitalAsync(hospitalToDelete);
+                errorModel = await _hospital!.RemoveHospitalAsync(hospitalToDelete.Id);
+                
                 await LoadHospitals();
                 hospitalToDelete = null;
             }

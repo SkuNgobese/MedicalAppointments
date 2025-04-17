@@ -11,6 +11,7 @@ namespace MedicalAppointments.Pages
         public IDoctor? _doctor { get; set; }
 
         protected IEnumerable<DoctorViewModel>? doctors;
+        private ErrorViewModel? errorModel;
 
         private DoctorViewModel doctorVM = new()
         {
@@ -89,10 +90,10 @@ namespace MedicalAppointments.Pages
                 if (editingContactId.HasValue)
                     doctor.Contact.Id = editingContactId.Value;
 
-                await _doctor!.UpdateDoctorAsync(doctor);
+                errorModel = await _doctor!.UpdateDoctorAsync(doctor);
             }
             else
-                await _doctor!.EnrollDoctorAsync(doctor);
+                errorModel = await _doctor!.EnrollDoctorAsync(doctor);
 
             ResetForm();
             await LoadDoctors();
@@ -104,6 +105,8 @@ namespace MedicalAppointments.Pages
                 doctors = await _doctor.GetAllDoctorsAsync();
             else
                 doctors = [];
+
+            errorModel = _doctor!.Error;
         }
 
         private void EditDoctor(DoctorViewModel model)
@@ -133,7 +136,8 @@ namespace MedicalAppointments.Pages
         {
             if (doctorToDelete is not null)
             {
-                await _doctor!.RemoveDoctorAsync(doctorToDelete);
+                errorModel = await _doctor!.RemoveDoctorAsync(doctorToDelete);
+                
                 await LoadDoctors();
             }
 

@@ -8,7 +8,8 @@ namespace MedicalAppointments.Api.Application.Services
     {
         private readonly IRepository<Address> _repository;
 
-        public AddressService(IRepository<Address> repository) => _repository = repository;
+        public AddressService(IRepository<Address> repository) => 
+            _repository = repository;
 
         public async Task<Address> AddAddress(Address address) =>
             await _repository.AddAsync(address);

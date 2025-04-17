@@ -120,7 +120,7 @@ namespace MedicalAppointments.Tests
         public async Task RemovePatientAsync_ShouldCallDeleteAsyncOnce()
         {
             // Act
-            await _patientService.RemovePatientAsync(_patient);
+            await _patientService.DeletePatientAsync(_patient);
 
             // Assert
             _patientRepositoryMock.Verify(repo => repo.DeleteAsync(_patient), Times.Once);

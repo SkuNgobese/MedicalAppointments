@@ -40,9 +40,9 @@ namespace MedicalAppointments.Api.Domain.Services
         {
             var errors = new List<string>();
 
-            if (hospital.Doctors?.Any(p => p.IsActive) == true)
+            if (hospital.Doctors?.Any(d => d.IsActive) == true)
                 errors.Add($"{hospital.Name} has active doctors.");
-
+            
             if (hospital.Patients?.Any(p => p.IsActive) == true)
                 errors.Add($"{hospital.Name} has active patients.");
 
@@ -51,7 +51,7 @@ namespace MedicalAppointments.Api.Domain.Services
                 return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "Cannot delete hospital",
+                    Message = $"Cannot delete {hospital.Name}",
                     Errors = errors
                 };
             }

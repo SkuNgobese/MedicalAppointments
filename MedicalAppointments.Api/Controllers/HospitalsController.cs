@@ -167,7 +167,7 @@ namespace MedicalAppointments.Api.Controllers
             existingHospital.Name = hospital.Name;
             await _hospital.UpdateHospitalAsync(existingHospital);
             
-            return Ok(existingHospital);
+            return Ok(validationError);
         }
 
         // DELETE: api/hospitals/{id}
@@ -181,8 +181,10 @@ namespace MedicalAppointments.Api.Controllers
             var validationError = _hospitalValidation.CanDeleteHospital(hospital);
             if (validationError != null)
                 return BadRequest(validationError);
+
+            await _hospital.RemoveHospitalAsync(hospital);
             
-            return Ok(hospital);
+            return Ok(validationError);
         }
 
         private async Task RegisterHospitalAdminAsync(Hospital hospital)

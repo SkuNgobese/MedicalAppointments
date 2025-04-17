@@ -94,7 +94,7 @@ namespace MedicalAppointments.Tests
         public async Task EnrollDoctorAsync_ShouldCallAddAsyncOnce()
         {
             // Act
-            await _doctorService.EnrollDoctorAsync(_doctor);
+            await _doctorService.AddDoctorAsync(_doctor);
 
             // Assert
             _doctorRepositoryMock.Verify(repo => repo.AddAsync(_doctor), Times.Once);
@@ -114,7 +114,7 @@ namespace MedicalAppointments.Tests
         public async Task RemoveDoctorAsync_ShouldCallDeleteAsyncOnce()
         {
             // Act
-            await _doctorService.RemoveDoctorAsync(_doctor);
+            await _doctorService.DeleteDoctorAsync(_doctor);
 
             // Assert
             _doctorRepositoryMock.Verify(repo => repo.DeleteAsync(_doctor), Times.Once);

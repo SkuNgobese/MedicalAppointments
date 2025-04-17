@@ -3,7 +3,7 @@
 <EditForm Model="doctorVM" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
+    <ErrorDisplay Error="errorModel" />
     <h4>@(isEditing ? "Edit Doctor" : "Add Doctor")</h4>
 
     <div class="mb-3">

@@ -77,7 +77,7 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task UpdatePatientAsync(Patient patient) =>
             await _repository.UpdateAsync(patient);
 
-        public async Task RemovePatientAsync(Patient patient) =>
+        public async Task DeletePatientAsync(Patient patient) =>
             await _repository.DeleteAsync(patient);
 
         public async Task RemovePatientsAsync(Doctor doctor)
@@ -90,11 +90,11 @@ namespace MedicalAppointments.Api.Application.Services
             foreach (var patient in patients)
             {
                 patient.PrimaryDoctor = null;
-                await _repository.UpdateAsync(patient);
+                await UpdatePatientAsync(patient);
             }
         }
 
-        public async Task RemovePatientsAsync(Hospital hospital)
+        public async Task DeletePatientsAsync(Hospital hospital)
         {
             var patients = await _repository.GetAllAsync(d => d.Hospital == hospital);
 
@@ -102,7 +102,7 @@ namespace MedicalAppointments.Api.Application.Services
                 return;
 
             foreach (var patient in patients)
-                await _repository.DeleteAsync(patient);
+                await DeletePatientAsync(patient);
         }
 
         public async Task<bool> ExistsAsync(string email) =>

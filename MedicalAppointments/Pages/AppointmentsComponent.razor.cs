@@ -9,17 +9,16 @@ namespace MedicalAppointments.Pages
     public partial class AppointmentsComponent
     {
         [Inject]
-        public IAppointment? Appointment { get; set; }
+        public IAppointment? _appointment { get; set; }
 
         [Inject]
-        public IPatient? Patient { get; set; }
+        public IPatient? _patient { get; set; }
 
         [Inject]
-        public IDoctor? Doctor { get; set; }
+        public IDoctor? _doctor { get; set; }
 
         protected IEnumerable<AppointmentViewModel>? appointments;
-        private ErrorViewModel? errorModel;
-
+        
         private bool bookModalVisible = false;
         private bool patientNotFound = false;
         private string searchTerm = string.Empty;
@@ -87,24 +86,33 @@ namespace MedicalAppointments.Pages
 
         private bool _loaded = false;
 
+        private ErrorViewModel? errorModel;
+
         protected override async Task OnInitializedAsync()
         {
             if (!_loaded)
             {
                 await LoadAppointments();
-                allDoctors = await LoadDoctorsAsync(); 
+                await LoadDoctorsAsync(); 
                 _loaded = true;
             }
         }
 
         private async Task LoadAppointments()
         {
-            if (Appointment != null)
-                appointments = await Appointment.GetAllAppointmentsAsync();
+            if (_appointment != null)
+                appointments = await _appointment.GetAllAppointmentsAsync();
+
+            errorModel = _appointment!.Error;
         }
 
-        private async Task<IEnumerable<DoctorViewModel>> LoadDoctorsAsync() => 
-            await Doctor!.GetAllDoctorsAsync();
+        private async Task LoadDoctorsAsync()
+        {
+            if (_doctor != null)
+                allDoctors = await _doctor.GetAllDoctorsAsync();
+
+            errorModel = _doctor!.Error;
+        }
 
         private void ShowBookModal()
         {
@@ -144,8 +152,10 @@ namespace MedicalAppointments.Pages
 
         private async Task SearchPatient()
         {
-            existingPatient = await Patient!.GetPatientByIdNumberOrContactAsync(searchTerm);
+            existingPatient = await _patient!.GetPatientByIdNumberOrContactAsync(searchTerm);
             patientNotFound = existingPatient == null;
+
+            errorModel = _patient!.Error;
         }
 
         private async Task ConfirmBooking()
@@ -153,18 +163,29 @@ namespace MedicalAppointments.Pages
             if (patientNotFound && !string.IsNullOrEmpty(selectedDoctorId))
             {
                 newPatient.PrimaryDoctorId = selectedDoctorId;
-                patient = await Patient!.AddPatientAsync(newPatient);
+                patient = await _patient!.AddPatientAsync(newPatient);
 
+                errorModel = _patient!.Error;
+                
+                if (patient == null)
+                {
+                    CloseBookModal();
+                    return;
+                }
+                
                 patientId = patient.Id;
             }
             else
                 patientId = existingPatient?.Id;
 
+            if (patientId == null)
+                return;
+
             newAppointment.DoctorId = selectedDoctorId;
             newAppointment.PatientId = patientId;
 
-            errorModel = await Appointment!.BookAppointmentAsync(newAppointment);
-
+            errorModel = await _appointment!.BookAppointmentAsync(newAppointment);
+            
             await LoadAppointments();
             CloseBookModal();
         }
@@ -179,17 +200,25 @@ namespace MedicalAppointments.Pages
         {
             if (selectedAppointment != null)
             {
-                var appointment = await Appointment!.GetAppointmentByIdAsync(selectedAppointment.Id) 
-                    ?? throw new InvalidOperationException("Appointment not found.");
+                var appointment = await _appointment!.GetAppointmentByIdAsync(selectedAppointment.Id);
+                errorModel = _appointment.Error;
 
-                appointment.Date = selectedAppointment.Date;
-                errorModel = await Appointment!.RescheduleAppointmentAsync(appointment);
+                if (appointment == null)
+                {
+                    rescheduleModalVisible = false;
+                    return;
+                }
 
+                appointment!.Date = selectedAppointment.Date;
+                errorModel = await _appointment!.RescheduleAppointmentAsync(appointment);
+                errorModel = _appointment.Error;
+                
                 rescheduleModalVisible = false;
             }
         }
 
-        private void CloseRescheduleModal() => rescheduleModalVisible = false;
+        private void CloseRescheduleModal() => 
+            rescheduleModalVisible = false;
 
         private void ShowReassignModal(AppointmentViewModel appointmentVM)
         {
@@ -202,13 +231,23 @@ namespace MedicalAppointments.Pages
         {
             if (selectedAppointment != null && !string.IsNullOrEmpty(selectedDoctorId))
             {
-                var doctor = await Doctor!.GetDoctorByIdAsync(selectedDoctorId) 
-                    ?? throw new InvalidOperationException("Doctor not found.");
+                var doctor = await _doctor!.GetDoctorByIdAsync(selectedDoctorId);
+                errorModel = _doctor.Error;
+                if (doctor == null)
+                {
+                    reassignModalVisible = false;
+                    return;
+                }
 
-                var appointment = await Appointment!.GetAppointmentByIdAsync(selectedAppointment.Id)
-                    ?? throw new InvalidOperationException("Appointment not found.");
+                var appointment = await _appointment!.GetAppointmentByIdAsync(selectedAppointment.Id);
+                errorModel = _appointment.Error;
+                if (appointment == null)
+                {
+                    reassignModalVisible = false;
+                    return;
+                }
 
-                await Appointment!.ReAssignAppointmentAsync(appointment, doctor);
+                errorModel = await _appointment!.ReAssignAppointmentAsync(appointment!, doctor!);
                 reassignModalVisible = false;
             }
         }
@@ -217,14 +256,14 @@ namespace MedicalAppointments.Pages
 
         private async Task CancelAppointment(int id)
         {
-            Appointment appointment = await Appointment!.GetAppointmentByIdAsync(id) 
-                ?? throw new InvalidOperationException("Appointment not found.");
+            Appointment? appointment = await _appointment!.GetAppointmentByIdAsync(id);
+            errorModel = _appointment.Error;
 
             if (appointment == null)
                 return;
 
-            errorModel = await Appointment!.CancelAppointmentAsync(appointment);
-
+            errorModel = await _appointment!.CancelAppointmentAsync(appointment!);
+            
             await LoadAppointments();
         }
     }

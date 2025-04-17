@@ -20,6 +20,11 @@ namespace MedicalAppointments.Api.Domain.Services
             return null;
         }
 
+        public ErrorViewModel? CanUpdate(Doctor doctor)
+        {
+            return null;
+        }
+
         public ErrorViewModel? CanRemove(Doctor doctor, DateTime removeDate = default)
         {
             removeDate = removeDate == default ? DateTime.Now : removeDate;
@@ -35,10 +40,7 @@ namespace MedicalAppointments.Api.Domain.Services
             return null;
         }
 
-        public bool CanRetire(Doctor doctor, DateTime retireDate) =>
-            CanRemove(doctor, retireDate) == null;
-
-        public ErrorViewModel? CanUpdate(Doctor doctor, List<Doctor> doctors) =>
-            null;
+        public ErrorViewModel? CanRetire(Doctor doctor, DateTime retireDate) =>
+            CanRemove(doctor, retireDate);
     }
 }

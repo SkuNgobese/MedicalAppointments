@@ -19,7 +19,7 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task<Admin> AddAdminAsync(Admin admin) =>
             await _repository.AddAsync(admin);
 
-        public async Task RemoveAdminAsync(Hospital hospital)
+        public async Task DeleteAdminAsync(Hospital hospital)
         {
             var admins = await _repository.GetAllAsync(sa => sa.Hospital == hospital);
             

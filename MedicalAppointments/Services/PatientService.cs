@@ -10,6 +10,7 @@ namespace MedicalAppointments.Services
     public class PatientService : IPatient
     {
         private readonly HttpClient _http;
+        public ErrorViewModel? Error { get; set; } = new();
         private const string _endPoint = "api/Patients";
 
         public PatientService(IHttpClientFactory httpClientFactory) => 
@@ -23,6 +24,21 @@ namespace MedicalAppointments.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "No patients found."
+                };
+
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while fetching patients.",
+                    Errors = [ex.Message]
+                };
                 return null!;
             }
         }
@@ -35,6 +51,20 @@ namespace MedicalAppointments.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Patient not found."
+                };
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while searching for the patient.",
+                    Errors = [ex.Message]
+                };
                 return null;
             }
         }
@@ -47,6 +77,20 @@ namespace MedicalAppointments.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Patient not found."
+                };
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while fetching the patient.",
+                    Errors = [ex.Message]
+                };
                 return null;
             }
         }
@@ -83,16 +127,64 @@ namespace MedicalAppointments.Services
 
                 return await response.Content.ReadFromJsonAsync<Patient>() ?? null!;
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Patient not found."
+                };
+
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                Error = new ErrorViewModel
+                {
+                    Message = "An error occurred while adding the patient.",
+                    Errors = [ex.Message]
+                };
+
                 return null!;
             }
         }
 
-        public async Task UpdatePatientAsync(Patient patient)
+        public async Task<ErrorViewModel?> UpdatePatientAsync(Patient patient)
         {
-            var response = await _http.PutAsJsonAsync($"{_endPoint}/{patient.Id}", patient);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"{_endPoint}/{patient.Id}", patient);
+                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred."
+                        };
+
+                return new ErrorViewModel
+                {
+                    Message = "Success: Patient updated successfully."
+                };
+            }
+            catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Patient not found."
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ErrorViewModel
+                {
+                    Message = "An error occurred while updating the patient.",
+                    Errors = [ex.Message]
+                };
+            }
         }
 
         public async Task<ErrorViewModel> RemovePatientAsync(Patient patient)
@@ -119,7 +211,7 @@ namespace MedicalAppointments.Services
             {
                 return new ErrorViewModel
                 {
-                    Message = "An error occurred while adding the patient.",
+                    Message = "An error occurred while removing the patient.",
                     Errors = [ex.Message]
                 };
             }

@@ -53,12 +53,12 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task RemoveHospitalAsync(Hospital hospital)
         {
-            await _appointment.RemoveAppointmentsAsync(hospital);
-            await _patient.RemovePatientsAsync(hospital);
-            await _doctor.RemoveDoctorsAsync(hospital);
-            await _sysAdmin.RemoveAdminAsync(hospital);
+            await _appointment.DeleteAppointmentsAsync(hospital);
+            await _patient.DeletePatientsAsync(hospital);
+            await _doctor.DeleteDoctorsAsync(hospital);
+            await _sysAdmin.DeleteAdminAsync(hospital);
 
-            await _hospitalRepository.DeleteAsync(hospital);
+            await _hospitalRepository.DeleteAsync(hospital, h => h.Contact!, h => h.Address!);
         }
 
         public async Task UpdateHospitalAsync(Hospital hospital) =>

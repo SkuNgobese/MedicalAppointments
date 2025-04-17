@@ -1,6 +1,7 @@
 ﻿using MedicalAppointments.Api.Infrastructure.Interfaces;
 using MedicalAppointments.Api.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
 namespace MedicalAppointments.Api.Infrastructure.Services
@@ -102,7 +103,6 @@ namespace MedicalAppointments.Api.Infrastructure.Services
 
         public async Task UpdateAsync(T entity, params Expression<Func<T, object>>[] relatedEntities)
         {
-            // Attach related entities to prevent EF from treating them as new
             foreach (var relatedEntity in relatedEntities)
             {
                 var navigationProperty = relatedEntity.Compile().Invoke(entity);
@@ -122,19 +122,46 @@ namespace MedicalAppointments.Api.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
-        //TODO
-        public async Task DeleteAsync(T entity, params Expression<Func<T, object>>[] includes)
+        
+        public async Task DeleteAsync(T entity, params Expression<Func<T, object>>[] relatedEntities)
         {
-            IQueryable<T> query = _dbSet;
+            if (entity == null) 
+                return;
 
-            foreach (var include in includes)
-                query = query.Include(include);
+            _dbSet.Attach(entity);
 
-            if (entity != null)
+            foreach (var related in relatedEntities)
             {
-                _dbSet.Remove(entity);
-                await _context.SaveChangesAsync();
+                var member = related.Body is MemberExpression memberExpr
+                    ? memberExpr
+                    : (related.Body is UnaryExpression unary && 
+                    unary.Operand is MemberExpression unaryMember ? unaryMember : null);
+
+                if (member == null)
+                    continue;
+
+                var navigationName = member.Member.Name;
+                var navEntry = _context.Entry(entity).Member(navigationName);
+
+                if (navEntry is CollectionEntry collectionEntry)
+                {
+                    await collectionEntry.LoadAsync();
+
+                    var items = (IEnumerable<object>)collectionEntry.CurrentValue!;
+                    foreach (var item in items.ToList())
+                        _context.Remove(item);
+                }
+                else if (navEntry is ReferenceEntry referenceEntry)
+                {
+                    await referenceEntry.LoadAsync();
+
+                    if (referenceEntry.CurrentValue != null)
+                        _context.Remove(referenceEntry.CurrentValue);
+                }
             }
+
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> Exists(Expression<Func<T, bool>> predicate) => 

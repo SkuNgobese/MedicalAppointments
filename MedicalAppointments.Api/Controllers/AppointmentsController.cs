@@ -126,20 +126,20 @@ namespace MedicalAppointments.Api.Controllers
             if (validationError != null)
                 return BadRequest(validationError);
 
-            appointment = await _appointment.BookAppointmentAsync(appointment);
+            await _appointment.AddAppointmentAsync(appointment);
 
-            var appointmentVM = new AppointmentViewModel
-            {
-                Id = appointment!.Id,
-                Date = appointment.Date,
-                Description = appointment.Description,
-                Status = appointment.Status,
-                HospitalId = appointment.Hospital!.Id,
-                DoctorId = appointment.Doctor!.Id,
-                PatientId = appointment.Patient!.Id
-            };
+            //var appointmentVM = new AppointmentViewModel
+            //{
+            //    Id = appointment!.Id,
+            //    Date = appointment.Date,
+            //    Description = appointment.Description,
+            //    Status = appointment.Status,
+            //    HospitalId = appointment.Hospital!.Id,
+            //    DoctorId = appointment.Doctor!.Id,
+            //    PatientId = appointment.Patient!.Id
+            //};
 
-            return Ok(appointmentVM);
+            return Ok(validationError);
         }
 
         [HttpPut("{appointmentId}/reschedule/{newDate}")]
@@ -161,7 +161,7 @@ namespace MedicalAppointments.Api.Controllers
             appointment.Date = newDate;
             await _appointment.UpdateAppointmentAsync(appointment);
 
-            return Ok(appointment);
+            return Ok(validationError);
         }
 
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
@@ -187,7 +187,7 @@ namespace MedicalAppointments.Api.Controllers
             appointment.Doctor = newDoctor;
             await _appointment.UpdateAppointmentAsync(appointment);
 
-            return Ok(appointment);
+            return Ok(validationError);
         }
 
         [HttpPut("{id}/cancel")]

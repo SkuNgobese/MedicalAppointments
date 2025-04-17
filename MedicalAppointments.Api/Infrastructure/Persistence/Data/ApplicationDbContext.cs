@@ -6,10 +6,10 @@ namespace MedicalAppointments.Api.Infrastructure.Persistence.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
+    private object d;
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) => d = new object();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

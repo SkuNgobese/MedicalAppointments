@@ -146,7 +146,28 @@ namespace MedicalAppointments.Api.Controllers
             //Register patient as user
             await _registration.RegisterAsync(patient);
 
-            return Ok(patient);
+            return Ok(validationError);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePatient(string id, [FromBody] Patient patient)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existingPatient = await _patient.GetPatientByIdAsync(id);
+
+            if (existingPatient == null)
+                return NotFound();
+
+            var validationError = _patientValidation.CanUpdatePatient(patient);
+            if (validationError != null)
+                return BadRequest(validationError);
+
+            patient.Id = id;
+            await _patient.UpdatePatientAsync(patient);
+
+            return Ok(validationError);
         }
     }
 }

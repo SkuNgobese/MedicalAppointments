@@ -7,7 +7,7 @@ namespace MedicalAppointments.Api.Application.Interfaces
         Task<IEnumerable<Admin>> GetAllAdminsAsync();
         Task<Admin?> GetAdminAsync(string email);
         Task<Admin> AddAdminAsync(Admin admin);
-        Task RemoveAdminAsync(Hospital hospital);
+        Task DeleteAdminAsync(Hospital hospital);
 
         Task<bool> ExistsAsync(string email);
     }

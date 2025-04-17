@@ -8,7 +8,7 @@ namespace MedicalAppointments.Api.Application.Interfaces
 
         Task<IEnumerable<Doctor>> GetAllDoctorsAsync(Hospital hospital);
 
-        Task<Doctor> EnrollDoctorAsync(Doctor doctor);
+        Task<Doctor> AddDoctorAsync(Doctor doctor);
 
         Task<Doctor?> GetDoctorByIdAsync(string id);
 
@@ -16,9 +16,9 @@ namespace MedicalAppointments.Api.Application.Interfaces
 
         Task UpdateDoctorAsync(Doctor doctor);
 
-        Task RemoveDoctorAsync(Doctor doctor);
+        Task DeleteDoctorAsync(Doctor doctor);
 
-        Task RemoveDoctorsAsync(Hospital hospital);
+        Task DeleteDoctorsAsync(Hospital hospital);
 
         Task<bool> ExistsAsync(string email);
 

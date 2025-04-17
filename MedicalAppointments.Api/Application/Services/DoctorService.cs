@@ -48,7 +48,7 @@ namespace MedicalAppointments.Api.Application.Services
             await _repository.GetByConditionAsync(
                 d => d.Patients.Any(p => p == patient));
 
-        public async Task<Doctor> EnrollDoctorAsync(Doctor doctor) =>
+        public async Task<Doctor> AddDoctorAsync(Doctor doctor) =>
             await _repository.AddAsync(doctor);
 
         public async Task<Doctor?> GetDoctorByIdAsync(string id) =>
@@ -62,10 +62,10 @@ namespace MedicalAppointments.Api.Application.Services
         public async Task UpdateDoctorAsync(Doctor doctor) =>
             await _repository.UpdateAsync(doctor);
 
-        public async Task RemoveDoctorAsync(Doctor doctor) =>
-            await _repository.DeleteAsync(doctor);
+        public async Task DeleteDoctorAsync(Doctor doctor) =>
+            await _repository.DeleteAsync(doctor, d => d.Contact!, d => d.Address!);
 
-        public async Task RemoveDoctorsAsync(Hospital hospital)
+        public async Task DeleteDoctorsAsync(Hospital hospital)
         {
             var doctors = await _repository.GetAllAsync(d => d.Hospital == hospital);
 
@@ -73,7 +73,7 @@ namespace MedicalAppointments.Api.Application.Services
                 return;
 
             foreach (var doctor in doctors)
-                await _repository.DeleteAsync(doctor);
+                await DeleteDoctorAsync(doctor);
         }
 
         public async Task<Doctor?> GetDoctorAsync(string email) => 

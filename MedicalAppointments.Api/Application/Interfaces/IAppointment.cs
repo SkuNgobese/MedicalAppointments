@@ -9,9 +9,11 @@ namespace MedicalAppointments.Api.Application.Interfaces
         Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor);
         Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient);
         Task<Appointment?> GetAppointmentByIdAsync(int id);
-        Task<Appointment> BookAppointmentAsync(Appointment appointment);
+        Task<Appointment> AddAppointmentAsync(Appointment appointment);
         Task UpdateAppointmentAsync(Appointment appointment);
-        Task RemoveAppointmentsAsync(Hospital hospital);
+        Task DeleteAppointmentAsync(Appointment appointment);
+        Task DeleteAppointmentsAsync(Hospital hospital);
+        Task DeleteAppointmentsAsync(Doctor doctor);
         Task<IEnumerable<Appointment?>> GetCurrentUserHospitalAppointmentsAsync();
     }
 }

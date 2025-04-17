@@ -106,12 +106,12 @@ namespace MedicalAppointments.Api.Controllers
                 return BadRequest(validationError);
 
             doctor.Hospital = hospital;
-            doctor = await _doctor.EnrollDoctorAsync(doctor);
+            doctor = await _doctor.AddDoctorAsync(doctor);
 
             //Register doctor as user
             await _registration.RegisterAsync(doctor);
 
-            return Ok(doctor);
+            return Ok(validationError);
         }
 
         // PUT api/<DoctorsController>/{id}
@@ -129,19 +129,21 @@ namespace MedicalAppointments.Api.Controllers
             if (doctor == null)
                 return NotFound($"Doctor with ID {id} not found.");
 
+            var validationError = _doctorValidation.CanUpdate(doctor);
+            if (validationError != null)
+                return BadRequest(validationError);
+
             // Update and save Address
             doctor.Address = model.Address;
-
             await _address.UpdateAddress(doctor.Address!);
 
             // Update and save Contact
             doctor.Contact = model.Contact;
-
             await _contact.UpdateContact(doctor.Contact!);
 
             await _doctor.UpdateDoctorAsync(doctor);
 
-            return Ok(doctor);
+            return Ok(validationError);
         }
 
         // DELETE api/<DoctorsController>/{id}
@@ -157,7 +159,7 @@ namespace MedicalAppointments.Api.Controllers
             if (validationError != null)
                 return BadRequest(validationError);
             
-            await _doctor.RemoveDoctorAsync(doctor);
+            await _doctor.DeleteDoctorAsync(doctor);
 
             return Ok(validationError);
         }
