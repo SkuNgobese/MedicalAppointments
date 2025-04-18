@@ -19,6 +19,8 @@ namespace MedicalAppointments.Pages
         [Inject]
         public IDoctor? _doctor { get; set; }
 
+        List<ToastMessage> messages = [];
+
         protected IEnumerable<AppointmentViewModel>? appointments;
 
         private Modal modalForm = default!;
@@ -183,6 +185,11 @@ namespace MedicalAppointments.Pages
 
             errorModel = await _appointment!.BookAppointmentAsync(newAppointment);
 
+            if (errorModel?.Errors != null && errorModel.Errors.Count > 0)
+                return;
+
+            SuccessMessage("Appointment booked successfully!");
+
             await LoadAppointments();
             await CloseBookModal();
         }
@@ -208,6 +215,8 @@ namespace MedicalAppointments.Pages
 
                 if (errorModel?.Errors != null && errorModel.Errors.Count > 0)
                     return;
+
+                SuccessMessage("Appointment rescheduled successfully!");
 
                 await CloseRescheduleModal();
                 await LoadAppointments();
@@ -251,6 +260,8 @@ namespace MedicalAppointments.Pages
                 if (errorModel?.Errors != null && errorModel.Errors.Count > 0)
                     return;
 
+                SuccessMessage("Appointment reassigned successfully!");
+
                 await CloseReassignModal();
                 await LoadAppointments();
             }
@@ -285,8 +296,20 @@ namespace MedicalAppointments.Pages
             if (errorModel?.Errors != null && errorModel.Errors.Count > 0)
                 return;
 
+            SuccessMessage("Appointment cancelled successfully!");
+
             await CloseCancelModal();
             await LoadAppointments();
+        }
+
+        private void SuccessMessage(string message)
+        {
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Success,
+                Title = "Notification",
+                Message = message
+            });
         }
 
         private async Task CloseRescheduleModal() =>

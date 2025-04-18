@@ -16,8 +16,10 @@ namespace MedicalAppointments.Pages
         private bool isEditing = false;
         private int? editingHospitalId = null;
 
-        private Modal modalMainForm = default!;
+        private Modal modalForm = default!;
         private Modal modalDelete = default!;
+
+        private List<ToastMessage> messages = new();
 
         private Hospital? hospitalToDelete;
 
@@ -44,33 +46,29 @@ namespace MedicalAppointments.Pages
             }
         };
 
-        protected override async Task OnInitializedAsync()
-        {
-            ResetForm();
+        protected override async Task OnInitializedAsync() => 
             await LoadHospitalsAsync();
-        }
 
         private async Task LoadHospitalsAsync()
         {
-            errorModel = null;
-
             if (_hospital != null)
                 hospitals = await _hospital.GetAllHospitalsAsync();
             else
                 hospitals = [];
-
-            errorModel = _hospital!.Error;
         }
 
-        private async Task OnShowModalFormClickAsync()
+        private async Task ShowModalFormAsync()
         {
-            await modalMainForm.ShowAsync();
-        }
-
-        private async Task OnHideModalFormClickAsync()
-        {
+            errorModel = null;
             ResetForm();
-            await modalMainForm.HideAsync();
+            await modalForm.ShowAsync();
+        }
+
+        private async Task HideModalFormAsync()
+        {
+            errorModel = null;
+            ResetForm();
+            await modalForm.HideAsync();
         }
 
         private async Task HandleValidSubmit()
@@ -119,21 +117,21 @@ namespace MedicalAppointments.Pages
                 }
             }
 
-            await LoadHospitalsAsync();
-            ResetForm();
-            await OnHideModalFormClickAsync();
+            SuccessMessage(isEditing ? "Hospital updated successfully." : "Hospital added successfully.");
 
             isSubmitting = false;
+            ResetForm();
+            await modalForm.HideAsync();
+            await LoadHospitalsAsync();
         }
 
         private async Task EditHospital(HospitalViewModel hospital)
         {
             hospitalVM = hospital;
-
             editingHospitalId = hospital.Id;
-
             isEditing = true;
-            await OnShowModalFormClickAsync();
+            isSubmitting = false;
+            await ShowModalFormAsync();
         }
 
         private async Task ConfirmDelete(HospitalViewModel hospitalVM)
@@ -156,10 +154,11 @@ namespace MedicalAppointments.Pages
                 if (errorModel.Errors != null && errorModel.Errors.Count > 0)
                     return;
 
-                await LoadHospitalsAsync();
-                hospitalToDelete = null;
+                SuccessMessage($"Hospital {hospitalToDelete.Name} deleted successfully.");
 
+                hospitalToDelete = null;
                 await modalDelete.HideAsync();
+                await LoadHospitalsAsync();
             }
         }
 
@@ -167,6 +166,16 @@ namespace MedicalAppointments.Pages
         {
             hospitalToDelete = null;
             modalDelete.HideAsync();
+        }
+
+        private void SuccessMessage(string message)
+        {
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Success,
+                Title = "Notification",
+                Message = message
+            });
         }
 
         private void ResetForm()

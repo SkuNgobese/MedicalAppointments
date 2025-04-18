@@ -1,5 +1,5 @@
 ﻿@page "/Doctors"
-<Button Color="ButtonColor.Success" @onclick="OnShowModalFormClickAsync">Add Doctor</Button>
+<Button Color="ButtonColor.Success" @onclick="ShowModalFormAsync">Add Doctor</Button>
 @if (errorModel != null)
 {
     if (errorModel.Errors == null && !string.IsNullOrEmpty(errorModel.Message))
@@ -7,6 +7,8 @@
         <ErrorDisplay Error="errorModel" />
     }
 }
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
 <Modal @ref="modalForm" title="@(isEditing ? "Edit Doctor" : "New Doctor")" IsScrollable="true" Size="ModalSize.Large">
     <BodyTemplate>
@@ -107,7 +109,7 @@
     </BodyTemplate>
     <FooterTemplate>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @onclick="OnHideModalFormClickAsync">Cancel</button>
+            <button type="button" class="btn btn-secondary" @onclick="HideModalFormAsync">Cancel</button>
             <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit" disabled="@isSubmitting">
                 @(isEditing ? "Update" : "Add") Doctor
             </button>

@@ -17,6 +17,8 @@ namespace MedicalAppointments.Pages
         private Modal modalForm = default!;
         private Modal modalDelete = default!;
 
+        List<ToastMessage> messages = [];
+
         private bool isSubmitting = false;
 
         private DoctorViewModel doctorVM = new()
@@ -51,20 +53,17 @@ namespace MedicalAppointments.Pages
 
         private Doctor? doctorToDelete;
 
-        private async Task OnShowModalFormClickAsync()
-        {
-            await ResetForm();
-            await modalForm.ShowAsync();
-        }
-
-        private async Task OnHideModalFormClickAsync()
-        {
-            await modalForm.HideAsync();
-        }
-
         protected override async Task OnInitializedAsync()
         {
             await LoadDoctors();
+        }
+
+        private async Task LoadDoctors()
+        {
+            if (_doctor != null)
+                doctors = await _doctor.GetAllDoctorsAsync();
+            else
+                doctors = [];
         }
 
         private async Task HandleValidSubmit()
@@ -112,22 +111,24 @@ namespace MedicalAppointments.Pages
                     return;
             }
 
-            await ResetForm();
-            await LoadDoctors();
+            SuccessMessage("Doctor saved successfully!");
 
             isSubmitting = false;
+            ResetForm();
+            await modalForm.HideAsync();
+            await LoadDoctors();
         }
 
-        private async Task LoadDoctors()
+        private async Task ShowModalFormAsync()
         {
-            errorModel = null;
+            ResetForm();
+            await modalForm.ShowAsync();
+        }
 
-            if (_doctor != null)
-                doctors = await _doctor.GetAllDoctorsAsync();
-            else
-                doctors = [];
-
-            errorModel = _doctor!.Error;
+        private void HideModalFormAsync()
+        {
+            ResetForm();
+            modalForm.HideAsync();
         }
 
         private void EditDoctor(DoctorViewModel model)
@@ -165,6 +166,9 @@ namespace MedicalAppointments.Pages
                 await LoadDoctors();
             }
 
+            doctorToDelete = null;
+            SuccessMessage("Doctor deleted successfully!");
+
             await modalDelete.HideAsync();
         }
 
@@ -174,7 +178,17 @@ namespace MedicalAppointments.Pages
             modalDelete.HideAsync();
         }
 
-        private async Task ResetForm()
+        private void SuccessMessage(string message)
+        {
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Success,
+                Title = "Notification",
+                Message = message
+            });
+        }
+
+        private void ResetForm()
         {
             errorModel = null;
             isSubmitting = false;
@@ -206,8 +220,6 @@ namespace MedicalAppointments.Pages
 
             editingDoctorId = null;
             isEditing = false;
-
-            await modalForm.HideAsync();
         }
     }
 }

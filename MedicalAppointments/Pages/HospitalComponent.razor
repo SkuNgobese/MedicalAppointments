@@ -4,7 +4,7 @@
 @inject IHospital hospital
 @page "/Hospitals"
 
-<Button Color="ButtonColor.Success" @onclick="OnShowModalFormClickAsync">Add Hospital</Button>
+<Button Color="ButtonColor.Success" @onclick="ShowModalFormAsync">Add Hospital</Button>
 
 @if (errorModel != null)
 {
@@ -14,7 +14,9 @@
     }
 }
 
-<Modal @ref="modalMainForm" title="@(isEditing ? "Edit Hospital" : "New Hospital")" IsScrollable="true" Size="ModalSize.Large">
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<Modal @ref="modalForm" title="@(isEditing ? "Edit Hospital" : "New Hospital")" IsScrollable="true" Size="ModalSize.Large">
     <BodyTemplate>
         <ErrorDisplay Error="errorModel" />
         <EditForm Model="hospitalVM" OnValidSubmit="HandleValidSubmit" FormName="hospitalForm">
@@ -51,7 +53,7 @@
     </BodyTemplate>
     <FooterTemplate>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @onclick="OnHideModalFormClickAsync">Cancel</button>
+            <button type="button" class="btn btn-secondary" @onclick="HideModalFormAsync">Cancel</button>
             <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit" disabled="@isSubmitting">
                 @(isEditing ? "Update" : "Add") Hospital
             </button>
