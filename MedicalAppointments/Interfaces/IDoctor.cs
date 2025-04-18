@@ -10,7 +10,7 @@ namespace MedicalAppointments.Interfaces
         Task<ErrorViewModel> EnrollDoctorAsync(Doctor doctor);
         Task<Doctor?> GetDoctorByIdAsync(string id);
         Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital);
-        Task<ErrorViewModel> UpdateDoctorAsync(Doctor doctor);
-        Task<ErrorViewModel> RemoveDoctorAsync(Doctor doctor);
+        Task<ErrorViewModel> UpdateDoctorAsync(DoctorViewModel model);
+        Task<ErrorViewModel> RemoveDoctorAsync(string id);
     }
 }

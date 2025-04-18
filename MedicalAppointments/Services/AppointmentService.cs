@@ -28,7 +28,8 @@ namespace MedicalAppointments.Services
                 Error = new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Message = "No appointments found."
+                    Message = "No appointments found.",
+                    Errors = [ex.Message]
                 };
                 return null!;
             }
@@ -36,6 +37,7 @@ namespace MedicalAppointments.Services
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while fetching appointments.",
                     Errors = [ex.Message]
                 };
@@ -43,18 +45,19 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Appointment?> GetAppointmentByIdAsync(int id)
+        public async Task<AppointmentViewModel?> GetAppointmentByIdAsync(int id)
         {
             try
             {
-                return await _http.GetFromJsonAsync<Appointment>($"{_endPoint}/{id}");
+                return await _http.GetFromJsonAsync<AppointmentViewModel>($"{_endPoint}/{id}");
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 Error = new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Message = "Appointment not found."
+                    Message = "Appointment not found.",
+                    Errors = [ex.Message]
                 };
                 return null;
             }
@@ -62,6 +65,7 @@ namespace MedicalAppointments.Services
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while fetching the appointment.",
                     Errors = [ex.Message]
                 };
@@ -100,29 +104,34 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = new List<string> { response.ReasonPhrase! }
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment booked successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
-                    Message = "An error occurred while booking an appointment.",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while booking the appointment.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
 
-        public async Task<ErrorViewModel> RescheduleAppointmentAsync(Appointment appointment)
+        public async Task<ErrorViewModel> RescheduleAppointmentAsync(int appointmentId, DateTime newDate)
         {
             try
             {
-                var response = await _http.PutAsJsonAsync($"{_endPoint}/{appointment.Id}/reschedule/", appointment);
+                var response = await _http.PutAsync($"{_endPoint}/{appointmentId}/reschedule/{newDate:O}", null);
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
@@ -130,29 +139,34 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment rescheduled successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while rescheduling the appointment.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
 
-        public async Task<ErrorViewModel> ReAssignAppointmentAsync(Appointment appointment, Doctor doctor)
+        public async Task<ErrorViewModel> ReAssignAppointmentAsync(AppointmentViewModel model, Doctor doctor)
         {
             try
             {
-                var response = await _http.PutAsJsonAsync($"{_endPoint}/{doctor.Id}/reassign", appointment);
+                var response = await _http.PutAsync($"{_endPoint}/{model.Id}/reassign/{doctor.Id}", null);
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
@@ -160,29 +174,33 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
-
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment reassigned successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while reassigning the appointment.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
 
-        public async Task<ErrorViewModel> CancelAppointmentAsync(Appointment appointment)
+        public async Task<ErrorViewModel> CancelAppointmentAsync(AppointmentViewModel model)
         {
             try
             {
-                var response = await _http.PutAsJsonAsync($"{_endPoint}/{appointment.Id}/cancel", appointment);
+                var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}/cancel", model);
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
@@ -190,21 +208,26 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment cancelled successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while cancelling the appointment.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
     }

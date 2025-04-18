@@ -1,104 +1,130 @@
 ﻿@page "/Doctors"
+<Button Color="ButtonColor.Success" @onclick="OnShowModalFormClickAsync">Add Doctor</Button>
+@if (errorModel != null)
+{
+    if (errorModel.Errors == null && !string.IsNullOrEmpty(errorModel.Message))
+    {
+        <ErrorDisplay Error="errorModel" />
+    }
+}
 
-<EditForm Model="doctorVM" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <ErrorDisplay Error="errorModel" />
-    <h4>@(isEditing ? "Edit Doctor" : "Add Doctor")</h4>
+<Modal @ref="modalForm" title="@(isEditing ? "Edit Doctor" : "New Doctor")" IsScrollable="true" Size="ModalSize.Large">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
+        <EditForm Model="doctorVM" OnValidSubmit="HandleValidSubmit" FormName="doctorForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+    
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <InputSelect class="form-control" @bind-Value="doctorVM.Title">
+                    @foreach (var title in titles)
+                    {
+                        <option value="@title">@title</option>
+                    }
+                </InputSelect>
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Title</label>
-        <InputSelect class="form-control" @bind-Value="doctorVM.Title">
-            @foreach (var title in titles)
-            {
-                <option value="@title">@title</option>
-            }
-        </InputSelect>
-    </div>
+            <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <InputText class="form-control" @bind-Value="doctorVM.FirstName" />
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">First Name</label>
-        <InputText class="form-control" @bind-Value="doctorVM.FirstName" />
-    </div>
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <InputText class="form-control" @bind-Value="doctorVM.LastName" />
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Last Name</label>
-        <InputText class="form-control" @bind-Value="doctorVM.LastName" />
-    </div>
+            <div class="mb-3">
+                <label class="form-label">ID Number</label>
+                <InputText class="form-control" @bind-Value="doctorVM.IDNumber" />
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">ID Number</label>
-        <InputText class="form-control" @bind-Value="doctorVM.IDNumber" />
-    </div>
+            <div class="mb-3">
+                <label class="form-label">Specialization</label>
+                <InputText class="form-control" @bind-Value="doctorVM.Specialization" />
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Specialization</label>
-        <InputText class="form-control" @bind-Value="doctorVM.Specialization" />
-    </div>
+            <div class="mb-3">
+                <label class="form-label">Hire Date</label>
+                <InputDate class="form-control" @bind-Value="doctorVM.HireDate" />
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Hire Date</label>
-        <InputDate class="form-control" @bind-Value="doctorVM.HireDate" />
-    </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded mb-3">
+                        <legend class="float-none w-auto px-2">Address</legend>
 
-    <div class="row">
-        <div class="col-md-6">
-            <fieldset class="border p-3 rounded mb-3">
-                <legend class="float-none w-auto px-2">Address</legend>
+                        <div class="mb-3">
+                            <label class="form-label">Street</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails!.Street" />
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Street</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.AddressDetails!.Street" />
+                        <div class="mb-3">
+                            <label class="form-label">Suburb</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Suburb" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.City" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Postal Code</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.PostalCode" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Country</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Country" />
+                        </div>
+                    </fieldset>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Suburb</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Suburb" />
-                </div>
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded mb-3">
+                        <legend class="float-none w-auto px-2">Contact</legend>
 
-                <div class="mb-3">
-                    <label class="form-label">City</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.City" />
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Number</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails!.ContactNumber" />
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Postal Code</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.PostalCode" />
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Email" />
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Country</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Country" />
+                        <div class="mb-3">
+                            <label class="form-label">Fax</label>
+                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Fax" />
+                        </div>
+                    </fieldset>
                 </div>
-            </fieldset>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="OnHideModalFormClickAsync">Cancel</button>
+            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit" disabled="@isSubmitting">
+                @(isEditing ? "Update" : "Add") Doctor
+            </button>
         </div>
-
-        <div class="col-md-6">
-            <fieldset class="border p-3 rounded mb-3">
-                <legend class="float-none w-auto px-2">Contact</legend>
-
-                <div class="mb-3">
-                    <label class="form-label">Contact Number</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.ContactDetails!.ContactNumber" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Email" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Fax</label>
-                    <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Fax" />
-                </div>
-            </fieldset>
-        </div>
-    </div>
-    <button class="btn btn-primary" type="submit">@((isEditing ? "Update" : "Add"))</button>
-</EditForm>
+    </FooterTemplate>
+</Modal>
 <br/>
 <hr/>
-@if (doctors is not null && doctors.Any())
+@if (doctors == null)
+{
+    <p>Loading doctors...</p>
+}
+else if (!doctors.Any())
+{
+    <p>No doctors found.</p>
+}
+else
 {
     <ul class="space-y-2">
         @foreach (var doctor in doctors)
@@ -115,18 +141,18 @@
         }
     </ul>
 }
-else
-{
-    <p>No doctors found.</p>
-}
 
-@if (showDeleteModal)
-{
-    <div class="modal-backdrop">
-        <div class="modal-content">
-            <p>Are you sure you want to delete <strong>@doctorToDelete?.FullName</strong>?</p>
-            <button class="btn btn-danger" @onclick="DeleteDoctor">Yes, Delete</button>
-            <button class="btn btn-secondary" @onclick="() => showDeleteModal = false">Cancel</button>
+<Modal @ref="modalDelete" title="Confirm Delete">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
+        <p>Are you sure you want to delete <strong>@doctorToDelete?.FullName</strong>?</p>
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+            <button type="submit" class="btn btn-danger" @onclick="DeleteDoctor" disabled="@isSubmitting">
+                Yes, Delete
+            </button>
         </div>
-    </div>
-}
+    </FooterTemplate>
+</Modal>

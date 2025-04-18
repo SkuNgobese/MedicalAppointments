@@ -2,6 +2,7 @@
 using MedicalAppointments.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using MedicalAppointments.Shared.ViewModels;
+using BlazorBootstrap;
 
 namespace MedicalAppointments.Pages
 {
@@ -12,6 +13,11 @@ namespace MedicalAppointments.Pages
 
         protected IEnumerable<DoctorViewModel>? doctors;
         private ErrorViewModel? errorModel;
+
+        private Modal modalForm = default!;
+        private Modal modalDelete = default!;
+
+        private bool isSubmitting = false;
 
         private DoctorViewModel doctorVM = new()
         {
@@ -42,11 +48,19 @@ namespace MedicalAppointments.Pages
 
         private bool isEditing = false;
         private string? editingDoctorId = null;
-        private int? editingAddressId = null;
-        private int? editingContactId = null;
-        private bool showDeleteModal = false;
 
         private Doctor? doctorToDelete;
+
+        private async Task OnShowModalFormClickAsync()
+        {
+            await ResetForm();
+            await modalForm.ShowAsync();
+        }
+
+        private async Task OnHideModalFormClickAsync()
+        {
+            await modalForm.HideAsync();
+        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -55,52 +69,59 @@ namespace MedicalAppointments.Pages
 
         private async Task HandleValidSubmit()
         {
-            var doctor = new Doctor
-            {
-                Title = doctorVM.Title,
-                FirstName = doctorVM.FirstName,
-                LastName = doctorVM.LastName,
-                IDNumber = doctorVM.IDNumber,
-                Specialization = doctorVM.Specialization,
-                HireDate = doctorVM.HireDate,
-                Address = new Address
-                {
-                    Street = doctorVM.AddressDetails!.Street,
-                    Suburb = doctorVM.AddressDetails.Suburb,
-                    City = doctorVM.AddressDetails.City,
-                    PostalCode = doctorVM.AddressDetails.PostalCode,
-                    Country = doctorVM.AddressDetails.Country
-                },
-                Contact = new Contact
-                {
-                    ContactNumber = doctorVM.ContactDetails!.ContactNumber,
-                    Fax = doctorVM.ContactDetails.Fax,
-                    Email = doctorVM.ContactDetails.Email
-                }
-            };
-
+            errorModel = null;
+            isSubmitting = true;
 
             if (isEditing && !string.IsNullOrEmpty(editingDoctorId))
             {
-                doctor.Id = editingDoctorId;
+                doctorVM.Id = editingDoctorId;
+                errorModel = await _doctor!.UpdateDoctorAsync(doctorVM);
 
-                if (editingAddressId.HasValue)
-                    doctor.Address.Id = editingAddressId.Value;
-
-                if (editingContactId.HasValue)
-                    doctor.Contact.Id = editingContactId.Value;
-
-                errorModel = await _doctor!.UpdateDoctorAsync(doctor);
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                    return;
             }
             else
+            {
+                var doctor = new Doctor
+                {
+                    Title = doctorVM.Title,
+                    FirstName = doctorVM.FirstName,
+                    LastName = doctorVM.LastName,
+                    IDNumber = doctorVM.IDNumber,
+                    Specialization = doctorVM.Specialization,
+                    HireDate = doctorVM.HireDate,
+                    Address = new Address
+                    {
+                        Street = doctorVM.AddressDetails!.Street,
+                        Suburb = doctorVM.AddressDetails.Suburb,
+                        City = doctorVM.AddressDetails.City,
+                        PostalCode = doctorVM.AddressDetails.PostalCode,
+                        Country = doctorVM.AddressDetails.Country
+                    },
+                    Contact = new Contact
+                    {
+                        ContactNumber = doctorVM.ContactDetails!.ContactNumber,
+                        Fax = doctorVM.ContactDetails.Fax,
+                        Email = doctorVM.ContactDetails.Email
+                    }
+                };
+
                 errorModel = await _doctor!.EnrollDoctorAsync(doctor);
 
-            ResetForm();
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                    return;
+            }
+
+            await ResetForm();
             await LoadDoctors();
+
+            isSubmitting = false;
         }
 
         private async Task LoadDoctors()
         {
+            errorModel = null;
+
             if (_doctor != null)
                 doctors = await _doctor.GetAllDoctorsAsync();
             else
@@ -112,11 +133,12 @@ namespace MedicalAppointments.Pages
         private void EditDoctor(DoctorViewModel model)
         {
             doctorVM = model;
-
             isEditing = true;
+
+            modalForm.ShowAsync();
         }
 
-        private void ConfirmDelete(DoctorViewModel model)
+        private async Task ConfirmDelete(DoctorViewModel model)
         {
             doctorToDelete = new Doctor
             {
@@ -124,28 +146,39 @@ namespace MedicalAppointments.Pages
                 Title = model.Title,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                IDNumber = model.IDNumber,
-                Specialization = model.Specialization,
-                HireDate = model.HireDate
             };
 
-            showDeleteModal = true;
+            await modalDelete.ShowAsync();
         }
 
         private async Task DeleteDoctor()
         {
+            errorModel = null;
+
             if (doctorToDelete is not null)
             {
-                errorModel = await _doctor!.RemoveDoctorAsync(doctorToDelete);
-                
+                errorModel = await _doctor!.RemoveDoctorAsync(doctorToDelete.Id);
+
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                    return;
+
                 await LoadDoctors();
             }
 
-            showDeleteModal = false;
+            await modalDelete.HideAsync();
         }
 
-        private void ResetForm()
+        private void CancelDelete()
         {
+            doctorToDelete = null;
+            modalDelete.HideAsync();
+        }
+
+        private async Task ResetForm()
+        {
+            errorModel = null;
+            isSubmitting = false;
+
             doctorVM = new DoctorViewModel
             {
                 Title = string.Empty,
@@ -172,10 +205,9 @@ namespace MedicalAppointments.Pages
             };
 
             editingDoctorId = null;
-            editingAddressId = null;
-            editingContactId = null;
-
             isEditing = false;
+
+            await modalForm.HideAsync();
         }
     }
 }

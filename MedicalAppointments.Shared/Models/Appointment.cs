@@ -17,6 +17,16 @@ namespace MedicalAppointments.Shared.Models
         [JsonPropertyName("status")]
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Scheduled;
 
+        [JsonPropertyName("createddate")]
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public string? CreatedBy { get; set; }
+
+        [JsonPropertyName("updateddate")]
+        public DateTime? UpdatedDate { get; set; } = DateTime.UtcNow;
+
+        public string? UpdatedBy { get; set; }
+
         public Hospital? Hospital { get; set; }
         public int? HospitalId { get; set; }
 

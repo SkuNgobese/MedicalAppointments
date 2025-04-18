@@ -1,4 +1,5 @@
 ﻿using MedicalAppointments.Api.Application.Interfaces;
+using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Api.Application.Helpers
 {
@@ -11,6 +12,21 @@ namespace MedicalAppointments.Api.Application.Helpers
         {
             _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
+        }
+
+        public async Task<string> GetCurrentUserId()
+        {
+            var user = await GetCurrentUserAsync();
+            return user == null
+                ? throw new InvalidOperationException("Unauthorized.")
+                : user switch
+            {
+                SuperAdmin superAdmin => superAdmin.Id,
+                Admin admin => admin.Id,
+                Doctor doctor => doctor.Id,
+                Patient patient => patient.Id,
+                _ => throw new InvalidOperationException("Unauthorized.")
+            };
         }
 
         public async Task<object?> GetCurrentUserAsync()

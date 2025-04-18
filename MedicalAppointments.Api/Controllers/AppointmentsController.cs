@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using MedicalAppointments.Shared.Models;
 using MedicalAppointments.Shared.Enums;
-using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Domain.Interfaces;
 using MedicalAppointments.Shared.ViewModels;
@@ -20,19 +19,23 @@ namespace MedicalAppointments.Api.Controllers
         private readonly IAppointment _appointment;
         private readonly IAppointmentValidation _appointmentValidation;
 
+        private readonly ICurrentUserHelper _helper;
+
         public AppointmentsController(
             IHospital hospital,
             IDoctor doctor,
             IPatient patient,
             IPatientValidation patientValidation,
             IAppointment appointment,
-            IAppointmentValidation appointmentValidation)
+            IAppointmentValidation appointmentValidation, 
+            ICurrentUserHelper helper)
         {
             _hospital = hospital ?? throw new ArgumentNullException(nameof(hospital));
             _doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
             _patient = patient ?? throw new ArgumentNullException(nameof(patient));
             _appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
             _appointmentValidation = appointmentValidation ?? throw new ArgumentNullException(nameof(appointmentValidation));
+            _helper = helper ?? throw new ArgumentNullException(nameof(helper));
         }
 
         // GET: api/<AppointmentsController>
@@ -93,7 +96,44 @@ namespace MedicalAppointments.Api.Controllers
             if (appointment == null)
                 return NotFound();
 
-            return Ok(appointment);
+            var appointmentVM = new AppointmentViewModel
+            {
+                Id = appointment!.Id,
+                Date = appointment.Date,
+                Description = appointment.Description ?? "",
+                Status = appointment.Status,
+
+                PatientViewModel = appointment.Patient != null ? new PatientViewModel
+                {
+                    Id = appointment.Patient.Id,
+                    Title = appointment.Patient.Title ?? "",
+                    FirstName = appointment.Patient.FirstName ?? "",
+                    LastName = appointment.Patient.LastName ?? "",
+                    IDNumber = appointment.Patient.IDNumber ?? "",
+                    ContactDetails = appointment.Patient.Contact != null ? new ContactViewModel
+                    {
+                        ContactNumber = appointment.Patient.Contact.ContactNumber ?? "",
+                        Email = appointment.Patient.Contact.Email ?? ""
+                    } : null
+                } : null,
+
+                DoctorViewModel = appointment.Doctor != null ? new DoctorViewModel
+                {
+                    Id = appointment.Doctor.Id,
+                    Title = appointment.Doctor.Title ?? "",
+                    FirstName = appointment.Doctor.FirstName ?? "",
+                    LastName = appointment.Doctor.LastName ?? "",
+                    Specialization = appointment.Doctor.Specialization ?? ""
+                } : null,
+
+                HospitalViewModel = appointment.Hospital != null ? new HospitalViewModel
+                {
+                    Id = appointment.Hospital.Id,
+                    HospitalName = appointment.Hospital.Name ?? ""
+                } : null
+            };
+
+            return Ok(appointmentVM);
         }
 
         // POST api/<AppointmentsController>
@@ -126,18 +166,9 @@ namespace MedicalAppointments.Api.Controllers
             if (validationError != null)
                 return BadRequest(validationError);
 
+            appointment.CreatedDate = DateTime.Now;
+            appointment.CreatedBy = await _helper.GetCurrentUserId();
             await _appointment.AddAppointmentAsync(appointment);
-
-            //var appointmentVM = new AppointmentViewModel
-            //{
-            //    Id = appointment!.Id,
-            //    Date = appointment.Date,
-            //    Description = appointment.Description,
-            //    Status = appointment.Status,
-            //    HospitalId = appointment.Hospital!.Id,
-            //    DoctorId = appointment.Doctor!.Id,
-            //    PatientId = appointment.Patient!.Id
-            //};
 
             return Ok(validationError);
         }
@@ -148,7 +179,7 @@ namespace MedicalAppointments.Api.Controllers
             var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
             if (hospital == null)
-                return BadRequest(ModelState);
+                return BadRequest("Unauthorized");
 
             var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)
@@ -159,6 +190,8 @@ namespace MedicalAppointments.Api.Controllers
                 return BadRequest(validationError);
 
             appointment.Date = newDate;
+            appointment.UpdatedDate = DateTime.Now;
+            appointment.UpdatedBy = await _helper.GetCurrentUserId();
             await _appointment.UpdateAppointmentAsync(appointment);
 
             return Ok(validationError);
@@ -170,7 +203,7 @@ namespace MedicalAppointments.Api.Controllers
             var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
             if (hospital == null)
-                return BadRequest(ModelState);
+                return BadRequest("Unauthorized");
 
             var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
             if (appointment == null)
@@ -185,6 +218,8 @@ namespace MedicalAppointments.Api.Controllers
                 return BadRequest(validationError);
 
             appointment.Doctor = newDoctor;
+            appointment.UpdatedDate = DateTime.Now;
+            appointment.UpdatedBy = await _helper.GetCurrentUserId();
             await _appointment.UpdateAppointmentAsync(appointment);
 
             return Ok(validationError);
@@ -193,6 +228,11 @@ namespace MedicalAppointments.Api.Controllers
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> CancelAppointment(int id)
         {
+            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+
+            if (hospital == null)
+                return BadRequest("Unauthorized");
+
             var appointment = await _appointment.GetAppointmentByIdAsync(id);
             if (appointment == null)
                 return NotFound("Appointment not found.");
@@ -202,6 +242,8 @@ namespace MedicalAppointments.Api.Controllers
                 return BadRequest(validationError);
 
             appointment.Status = AppointmentStatus.Cancelled;
+            appointment.UpdatedDate = DateTime.Now;
+            appointment.UpdatedBy = await _helper.GetCurrentUserId();
             appointment.Description = "Cancelled by the patient.";
             await _appointment.UpdateAppointmentAsync(appointment);
             

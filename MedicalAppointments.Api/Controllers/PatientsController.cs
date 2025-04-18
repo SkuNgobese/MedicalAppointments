@@ -146,7 +146,32 @@ namespace MedicalAppointments.Api.Controllers
             //Register patient as user
             await _registration.RegisterAsync(patient);
 
-            return Ok(validationError);
+            var patientVM = new PatientViewModel
+            {
+                Id = patient!.Id,
+                Title = patient.Title!,
+                FirstName = patient.FirstName!,
+                LastName = patient.LastName!,
+                IDNumber = patient.IDNumber!,
+                ContactDetails = new ContactViewModel
+                {
+                    Id = patient.Contact!.Id,
+                    ContactNumber = patient.Contact.ContactNumber,
+                    Email = patient.Contact.Email,
+                    Fax = patient.Contact.Fax
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Id = patient.Address!.Id,
+                    Street = patient.Address.Street!,
+                    Suburb = patient.Address.Suburb!,
+                    City = patient.Address.City!,
+                    PostalCode = patient.Address.PostalCode!,
+                    Country = patient.Address.Country!
+                }
+            };
+
+            return Ok(patientVM);
         }
 
         [HttpPut("{id}")]

@@ -15,22 +15,15 @@ namespace MedicalAppointments.Pages
 
         private bool isEditing = false;
         private int? editingHospitalId = null;
-        private int? editingAddressId = null;
-        private int? editingContactId = null;
 
-        private Modal modal = default!;
+        private Modal modalMainForm = default!;
+        private Modal modalDelete = default!;
 
-        private bool showDeleteModal = false;
         private Hospital? hospitalToDelete;
 
         private bool isSubmitting = false;
 
         private ErrorViewModel? errorModel;
-
-        protected override async Task OnInitializedAsync()
-        {
-            await LoadHospitalsAsync();
-        }
 
         private HospitalViewModel hospitalVM = new()
         {
@@ -50,9 +43,17 @@ namespace MedicalAppointments.Pages
                 Email = string.Empty
             }
         };
-    
+
+        protected override async Task OnInitializedAsync()
+        {
+            ResetForm();
+            await LoadHospitalsAsync();
+        }
+
         private async Task LoadHospitalsAsync()
         {
+            errorModel = null;
+
             if (_hospital != null)
                 hospitals = await _hospital.GetAllHospitalsAsync();
             else
@@ -61,15 +62,15 @@ namespace MedicalAppointments.Pages
             errorModel = _hospital!.Error;
         }
 
-        private async Task OnShowModalClickAsync()
+        private async Task OnShowModalFormClickAsync()
         {
-            await modal.ShowAsync();
+            await modalMainForm.ShowAsync();
         }
 
-        private async Task OnHideModalClickAsync()
+        private async Task OnHideModalFormClickAsync()
         {
             ResetForm();
-            await modal.HideAsync();
+            await modalMainForm.HideAsync();
         }
 
         private async Task HandleValidSubmit()
@@ -81,6 +82,12 @@ namespace MedicalAppointments.Pages
             {
                 hospitalVM.Id = editingHospitalId;
                 errorModel = await _hospital!.UpdateHospitalAsync(hospitalVM);
+
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                {
+                    isSubmitting = false;
+                    return;
+                }
             }
             else
             {
@@ -104,11 +111,17 @@ namespace MedicalAppointments.Pages
                 };
                 
                 errorModel = await _hospital!.AddHospitalAsync(hospital);
+
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                {
+                    isSubmitting = false;
+                    return;
+                }
             }
 
             await LoadHospitalsAsync();
             ResetForm();
-            await OnHideModalClickAsync();
+            await OnHideModalFormClickAsync();
 
             isSubmitting = false;
         }
@@ -118,36 +131,20 @@ namespace MedicalAppointments.Pages
             hospitalVM = hospital;
 
             editingHospitalId = hospital.Id;
-            editingAddressId = hospital.AddressDetails!.Id;
-            editingContactId = hospital.ContactDetails?.Id;
 
             isEditing = true;
-            await OnShowModalClickAsync();
+            await OnShowModalFormClickAsync();
         }
 
-        private void ConfirmDelete(HospitalViewModel hospitalVM)
+        private async Task ConfirmDelete(HospitalViewModel hospitalVM)
         {
             hospitalToDelete = new Hospital
             {
                 Id = (int)hospitalVM.Id!,
-                Name = hospitalVM.HospitalName,
-                Address = new Address
-                {
-                    Street = hospitalVM.AddressDetails!.Street,
-                    Suburb = hospitalVM.AddressDetails.Suburb,
-                    City = hospitalVM.AddressDetails.City,
-                    PostalCode = hospitalVM.AddressDetails.PostalCode,
-                    Country = hospitalVM.AddressDetails.Country
-                },
-                Contact = new Contact
-                {
-                    ContactNumber = hospitalVM.ContactDetails!.ContactNumber,
-                    Fax = hospitalVM.ContactDetails.Fax,
-                    Email = hospitalVM.ContactDetails.Email
-                }
+                Name = hospitalVM.HospitalName
             };
 
-            showDeleteModal = true;
+            await modalDelete.ShowAsync();
         }
 
         private async Task DeleteConfirmed()
@@ -155,22 +152,28 @@ namespace MedicalAppointments.Pages
             if (hospitalToDelete is not null)
             {
                 errorModel = await _hospital!.RemoveHospitalAsync(hospitalToDelete.Id);
-                
+
+                if (errorModel.Errors != null && errorModel.Errors.Count > 0)
+                    return;
+
                 await LoadHospitalsAsync();
                 hospitalToDelete = null;
-            }
 
-            showDeleteModal = false;
+                await modalDelete.HideAsync();
+            }
         }
 
         private void CancelDelete()
         {
             hospitalToDelete = null;
-            showDeleteModal = false;
+            modalDelete.HideAsync();
         }
 
         private void ResetForm()
         {
+            errorModel = null;
+            isSubmitting = false;
+
             hospitalVM = new HospitalViewModel
             {
                 HospitalName = string.Empty,
@@ -191,8 +194,6 @@ namespace MedicalAppointments.Pages
             };
 
             editingHospitalId = null;
-            editingAddressId = null;
-            editingContactId = null;
 
             isEditing = false;
         }

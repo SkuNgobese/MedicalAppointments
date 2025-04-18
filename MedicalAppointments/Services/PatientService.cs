@@ -36,6 +36,7 @@ namespace MedicalAppointments.Services
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while fetching patients.",
                     Errors = [ex.Message]
                 };
@@ -62,6 +63,7 @@ namespace MedicalAppointments.Services
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while searching for the patient.",
                     Errors = [ex.Message]
                 };
@@ -95,7 +97,7 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Patient> AddPatientAsync(PatientViewModel model)
+        public async Task<PatientViewModel> AddPatientAsync(PatientViewModel model)
         {
             try
             {
@@ -125,7 +127,22 @@ namespace MedicalAppointments.Services
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", patient);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<Patient>() ?? null!;
+                if (!response.IsSuccessStatusCode)
+                    Error = await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
+                        new ErrorViewModel
+                        {
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
+                        };
+
+                Error = new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Success: Patient added successfully."
+                };
+
+                return await response.Content.ReadFromJsonAsync<PatientViewModel>() ?? null!;
             }
             catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -134,7 +151,6 @@ namespace MedicalAppointments.Services
                     StatusCode = StatusCodes.Status404NotFound,
                     Message = "Patient not found."
                 };
-
                 return null!;
             }
             catch (Exception ex)
@@ -144,7 +160,6 @@ namespace MedicalAppointments.Services
                     Message = "An error occurred while adding the patient.",
                     Errors = [ex.Message]
                 };
-
                 return null!;
             }
         }
@@ -161,11 +176,13 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
 
                 return new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Patient updated successfully."
                 };
             }
@@ -181,6 +198,7 @@ namespace MedicalAppointments.Services
             {
                 return new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while updating the patient.",
                     Errors = [ex.Message]
                 };
@@ -199,11 +217,13 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
 
                 return new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Patient removed successfully."
                 };
             }
@@ -211,6 +231,7 @@ namespace MedicalAppointments.Services
             {
                 return new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while removing the patient.",
                     Errors = [ex.Message]
                 };

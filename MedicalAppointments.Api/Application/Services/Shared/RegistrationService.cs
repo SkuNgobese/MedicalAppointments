@@ -30,6 +30,9 @@ namespace MedicalAppointments.Api.Application.Services.Shared
             if (string.IsNullOrWhiteSpace(email))
                 return;
 
+            if (await _userStore.FindByNameAsync(email.ToUpper(), CancellationToken.None) != null)
+                return;
+
             var existingUser = !string.IsNullOrEmpty(userData.Id) ? await _userManager.FindByIdAsync(userData.Id) : await _userManager.FindByEmailAsync(email.ToUpper());
 
             T? user = existingUser as T;
@@ -60,8 +63,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
                 _userManager.AddPasswordAsync(user, password).Wait();
                 result = await _userManager.UpdateAsync(user);
             }
-                
-
+            
             if (result.Succeeded)
             {
                 string role = typeof(T).Name switch

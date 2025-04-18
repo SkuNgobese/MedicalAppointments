@@ -4,5 +4,6 @@
     {
         Task<object?> GetCurrentUserAsync();
         Task<string?> GetUserRoleAsync();
+        Task<string> GetCurrentUserId();
     }
 }

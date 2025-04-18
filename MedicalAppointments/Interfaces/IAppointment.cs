@@ -7,10 +7,10 @@ namespace MedicalAppointments.Interfaces
     {
         ErrorViewModel? Error { get; set; }
         Task<IEnumerable<AppointmentViewModel>> GetAllAppointmentsAsync();
-        Task<Appointment?> GetAppointmentByIdAsync(int id);
-        Task<ErrorViewModel> BookAppointmentAsync(AppointmentViewModel appointment);
-        Task<ErrorViewModel> RescheduleAppointmentAsync(Appointment appointment);
-        Task<ErrorViewModel> ReAssignAppointmentAsync(Appointment appointment, Doctor doctor);
-        Task<ErrorViewModel> CancelAppointmentAsync(Appointment appointment);
+        Task<AppointmentViewModel?> GetAppointmentByIdAsync(int id);
+        Task<ErrorViewModel> BookAppointmentAsync(AppointmentViewModel model);
+        Task<ErrorViewModel> RescheduleAppointmentAsync(int appointmentId, DateTime newDate);
+        Task<ErrorViewModel> ReAssignAppointmentAsync(AppointmentViewModel model, Doctor doctor);
+        Task<ErrorViewModel> CancelAppointmentAsync(AppointmentViewModel model);
     }
 }

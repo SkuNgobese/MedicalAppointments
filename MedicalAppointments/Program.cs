@@ -40,9 +40,9 @@ builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IAppointment, AppointmentService>();
 builder.Services.AddScoped<IPatient, PatientService>();
 
-builder.Services.AddBlazorBootstrap();
-
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();
+
+builder.Services.AddBlazorBootstrap();
 
 await builder.Build().RunAsync();

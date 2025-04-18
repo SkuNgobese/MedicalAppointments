@@ -30,13 +30,13 @@ namespace MedicalAppointments.Services
                     StatusCode = StatusCodes.Status404NotFound,
                     Message = "No hospitals found."
                 };
-
                 return null!;
             }
             catch (Exception ex)
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while fetching hospitals.",
                     Errors = [ex.Message]
                 };
@@ -63,6 +63,7 @@ namespace MedicalAppointments.Services
             {
                 Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while fetching the hospital.",
                     Errors = [ex.Message]
                 };
@@ -82,21 +83,26 @@ namespace MedicalAppointments.Services
                         new ErrorViewModel
                         {
                             StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred."
+                            Message = "An unknown error occurred.",
+                            Errors = [response.ReasonPhrase]
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital added successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while adding the hospital.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
 
@@ -116,18 +122,22 @@ namespace MedicalAppointments.Services
                             Message = "An unknown error occurred."
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital updated successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while updating the hospital.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
 
@@ -147,18 +157,22 @@ namespace MedicalAppointments.Services
                             Message = "An unknown error occurred."
                         };
 
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital removed successfully."
                 };
+                return Error;
             }
             catch (Exception ex)
             {
-                return new ErrorViewModel
+                Error = new ErrorViewModel
                 {
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while removing the hospital.",
                     Errors = [ex.Message]
                 };
+                return Error;
             }
         }
     }

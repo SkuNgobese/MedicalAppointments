@@ -1,12 +1,68 @@
 ﻿@page "/Appointments"
 
-<h2 class="text-2xl font-bold mb-4">Appointments</h2>
-<ErrorDisplay Error="errorModel" />
+<Button Color="ButtonColor.Success" @onclick="ShowBookModal">Book Appointment</Button>
+@if (errorModel != null)
+{
+    if (errorModel.Errors == null && !string.IsNullOrEmpty(errorModel.Message))
+    {
+        <ErrorDisplay Error="errorModel" />
+    }
+}
 
-<button class="btn btn-primary mb-4" @onclick="ShowBookModal">Book Appointment</button>
-<hr/>
-<br/>
-@if (appointments is not null && appointments.Any())
+<Modal @ref="modalForm" title="New Appointment" IsScrollable="true" Size="ModalSize.Large">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
+        <input class="form-control mb-2" placeholder="Patient ID Number or Contact Number" @bind="searchTerm" />
+        <button class="btn btn-outline mb-2" @onclick="SearchPatient">Search Patient</button>
+
+        @if (patientNotFound)
+        {
+            <div class="mb-2">
+                <InputSelect class="form-control mb-2" placeholder="Title" @bind-Value="newPatient.Title">
+                    <option value="">-- Select Title --</option>
+                    @foreach (var title in titles)
+                    {
+                        <option value="@title">@title</option>
+                    }
+                </InputSelect>
+                <input class="form-control mb-2" placeholder="First Name" @bind="newPatient.FirstName" />
+                <input class="form-control mb-2" placeholder="Last Name" @bind="newPatient.LastName" />
+                <input class="form-control mb-2" placeholder="ID Number" @bind="newPatient.IDNumber" />
+                <input class="form-control mb-2" placeholder="Contact Number" @bind="newPatient.ContactDetails!.ContactNumber" />
+                <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
+            </div>
+        }
+
+        <InputSelect class="form-control mb-2" placeholder="Doctor" @bind-value="selectedDoctorId">
+            <option value="">-- Select Doctor --</option>
+            @foreach (var doc in allDoctors)
+            {
+                <option value="@doc.Id">@doc.FullName</option>
+            }
+        </InputSelect>
+
+        <InputText class="form-control mb-2" placeholder="Reason for visit" @bind-value="newAppointment.Description" />
+        <input type="datetime-local" class="form-control mb-2" @bind-value="newAppointment.Date" />
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @onclick="CloseBookModal">Cancel</button>
+            <button type="submit" class="btn btn-primary" @onclick="ConfirmBooking">Book</button>
+        </div>
+    </FooterTemplate>
+</Modal>
+<hr />
+<br />
+<h2 class="text-2xl font-bold mb-4">Appointments</h2>
+@if (appointments == null)
+{
+    <p>Loading appointments...</p>
+}
+else if (!appointments.Any())
+{
+    <p>No appointments found.</p>
+}
+else
 {
     <ul class="space-y-4">
         @foreach (var appointment in appointments)
@@ -14,10 +70,11 @@
             <li class="p-4 border rounded shadow-sm bg-white">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="font-semibold">@appointment.PatientViewModel!.FullName
+                        <p class="font-semibold">
+                            @appointment.PatientViewModel!.FullName
                             @if (appointment.PatientViewModel.ContactDetails != null)
                             {
-                                <span> - @appointment.PatientViewModel.ContactDetails.ContactNumber</span> 
+                                <span> - @appointment.PatientViewModel.ContactDetails.ContactNumber</span>
                                 <a> - @appointment.PatientViewModel.ContactDetails!.Email</a>
                             }
                         </p>
@@ -27,7 +84,7 @@
                         </p>
                     </div>
                     <div class="space-x-2">
-                        <button class="btn btn-danger" @onclick="() => CancelAppointment(appointment.Id)">Cancel</button>
+                        <button class="btn btn-danger" @onclick="() => ShowCancelModal(appointment)">Cancel</button>
                         <button class="btn btn-warning" @onclick="() => ShowRescheduleModal(appointment)">Reschedule</button>
                         <button class="btn btn-secondary" @onclick="() => ShowReassignModal(appointment)">Reassign</button>
                     </div>
@@ -36,30 +93,25 @@
         }
     </ul>
 }
-else
-{
-    <p>No appointments found.</p>
-}
 
-@* Reschedule Modal *@
-@if (rescheduleModalVisible)
-{
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="text-lg font-bold mb-2">Reschedule Appointment</h3>
-            <input type="datetime-local" @bind="rescheduleDate" class="form-control mb-2" />
-            <button class="btn btn-primary" @onclick="ConfirmReschedule">Save</button>
-            <button class="btn btn-outline" @onclick="CloseRescheduleModal">Cancel</button>
+@*Reschedule Modal *@
+<Modal @ref="modalReschedule" title="Reschedule Appointment">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
+        <input type="datetime-local" @bind="selectedAppointment!.Date" class="form-control mb-2" />
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @onclick="CloseRescheduleModal">Cancel</button>
+            <button type="submit" class="btn btn-primary" @onclick="ConfirmReschedule">Reschedule</button>
         </div>
-    </div>
-}
+    </FooterTemplate>
+</Modal>
 
 @* Reassign Modal *@
-@if (reassignModalVisible)
-{
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="text-lg font-bold mb-2">Reassign Appointment</h3>
+<Modal @ref="modalReassign" title="Reassign Appointment">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
             <select class="form-control mb-2" @bind="selectedDoctorId">
                 <option disabled value="">-- Select Doctor --</option>
                 @foreach (var doc in allDoctors)
@@ -67,51 +119,25 @@ else
                     <option value="@doc.Id">@doc.FullName</option>
                 }
             </select>
-            <button class="btn btn-primary" @onclick="ConfirmReassign">Save</button>
-            <button class="btn btn-outline" @onclick="CloseReassignModal">Cancel</button>
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @onclick="CloseReassignModal">Cancel</button>
+            <button type="submit" class="btn btn-primary" @onclick="ConfirmReassign">Reassign</button>
         </div>
-    </div>
-}
+    </FooterTemplate>
+</Modal>
 
-@if (bookModalVisible)
-{
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="text-lg font-bold mb-2">Book New Appointment</h3>
-
-            <input class="form-control mb-2" placeholder="Patient ID Number or Contact Number" @bind="searchTerm" />
-            <button class="btn btn-outline mb-2" @onclick="SearchPatient">Search Patient</button>
-
-            @if (patientNotFound)
-            {
-                <div class="mb-2">
-                    <InputSelect class="form-control mb-2" @bind-Value="newPatient.Title">
-                        @foreach (var title in titles)
-                        {
-                            <option value="@title">@title</option>
-                        }
-                    </InputSelect>
-                    <input class="form-control mb-2" placeholder="First Name" @bind="newPatient.FirstName" />
-                    <input class="form-control mb-2" placeholder="Last Name" @bind="newPatient.LastName" />
-                    <input class="form-control mb-2" placeholder="ID Number" @bind="newPatient.IDNumber" />
-                    <input class="form-control mb-2" placeholder="Contact Number" @bind="newPatient.ContactDetails!.ContactNumber" />
-                    <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
-                </div>
-            }
-
-            <InputSelect class="form-control mb-2" @bind-value="selectedDoctorId">
-                <option value="">-- Select Doctor --</option>
-                @foreach (var doc in allDoctors)
-                {
-                    <option value="@doc.Id">@doc.FullName</option>
-                }
-            </InputSelect>
-
-            <InputText class="form-control mb-2" @bind-value="newAppointment.Description" />
-            <input type="datetime-local" class="form-control mb-2" @bind-value="newAppointment.Date" />
-
-            <button class="btn btn-primary" @onclick="ConfirmBooking">Book</button>
-            <button class="btn btn-outline" @onclick="CloseBookModal">Cancel</button>
+@* Cancel Modal *@
+<Modal @ref="modalCancel" title="Cancel Appointment">
+    <BodyTemplate>
+        <ErrorDisplay Error="errorModel" />
+        <p>Are you sure you want to cancel <strong>@selectedAppointment!.Date.ToString("HH:mm")</strong> appointment with: <strong>@selectedAppointment!.PatientViewModel?.FullName</strong>?</p>
+    </BodyTemplate>
+    <FooterTemplate>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @onclick="CloseCancelModal">Cancel</button>
+            <button type="submit" class="btn btn-danger" @onclick="ConfirmCancel">Cancel Appointment</button>
         </div>
-    </div>
-}
+    </FooterTemplate>
+</Modal>

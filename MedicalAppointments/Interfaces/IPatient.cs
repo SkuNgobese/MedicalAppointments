@@ -7,7 +7,7 @@ namespace MedicalAppointments.Interfaces
     {
         ErrorViewModel? Error { get; set; }
         Task<IEnumerable<PatientViewModel>> GetAllPatientsAsync();
-        Task<Patient> AddPatientAsync(PatientViewModel model);
+        Task<PatientViewModel> AddPatientAsync(PatientViewModel model);
         Task<PatientViewModel?> GetPatientByIdNumberOrContactAsync(string term);
         Task<Patient?> GetPatientByIdAsync(string id);
         Task<ErrorViewModel?> UpdatePatientAsync(Patient patient);
