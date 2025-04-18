@@ -13,7 +13,7 @@
     <main>
         <div class="top-row px-4 auth">
             <LoginDisplay />
-            <ThemeSwitcher Class="ps-3 ps-lg-2" />
+            <ThemeSwitcher Position="DropdownMenuPosition.End" />
             <a href="https://github.com/SkuNgobese" target="_blank">About</a>
         </div>
 
@@ -24,6 +24,7 @@
 </div>
 
 @code {
+    bool applyPurpleStyle = false;
     Sidebar? sidebar;
     IEnumerable<NavItem>? navItems;
 
@@ -48,4 +49,34 @@
 
         return navItems;
     }
+
+    private void ToggleSidebarStyles() => applyPurpleStyle = !applyPurpleStyle;
+}
+
+@if (applyPurpleStyle)
+{
+    <style>
+        :root {
+            --bb-sidebar-width: 270px;
+            --bb-sidebar-collapsed-width: 50px;
+            --bb-sidebar-background-color: rgba(234, 234, 234, 1);
+            --bb-sidebar-top-row-background-color: rgba(0,0,0,0.08);
+            --bb-sidebar-top-row-border-color: rgb(194,192,192);
+            --bb-sidebar-title-text-color: rgb(0,0,0);
+            --bb-sidebar-brand-icon-color: #6f42c1;
+            --bb-sidebar-brand-image-width: 24px;
+            --bb-sidebar-brand-image-height: 24px;
+            --bb-sidebar-title-badge-text-color: rgb(255,255,255);
+            --bb-sidebar-title-badge-background-color: rgba(25,135,84,var(--bs-bg-opacity,1));
+            --bb-sidebar-navbar-toggler-icon-color: rgb(0,0,0);
+            --bb-sidebar-navbar-toggler-background-color: rgba(0,0,0,0.08);
+            --bb-sidebar-content-border-color: rgb(194,192,192);
+            --bb-sidebar-nav-item-text-color: rgba(0,0,0,0.9);
+            --bb-sidebar-nav-item-text-active-color-rgb: 0,0,0;
+            --bb-sidebar-nav-item-text-hover-color: rgba(var(--bb-sidebar-nav-item-text-active-color-rgb),0.9);
+            --bb-sidebar-nav-item-text-active-color: rgba(var(--bb-sidebar-nav-item-text-active-color-rgb),0.9);
+            --bb-sidebar-nav-item-background-hover-color: rgba(var(--bb-sidebar-nav-item-text-active-color-rgb),0.08);
+            --bb-sidebar-nav-item-group-background-color: rgba(var(--bb-sidebar-nav-item-text-active-color-rgb),0.08);
+        }
+    </style>
 }

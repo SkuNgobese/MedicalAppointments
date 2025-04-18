@@ -164,11 +164,11 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<ErrorViewModel?> UpdatePatientAsync(Patient patient)
+        public async Task<ErrorViewModel?> UpdatePatientAsync(PatientViewModel model)
         {
             try
             {
-                var response = await _http.PutAsJsonAsync($"{_endPoint}/{patient.Id}", patient);
+                var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}", model);
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
@@ -205,11 +205,11 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<ErrorViewModel> RemovePatientAsync(Patient patient)
+        public async Task<ErrorViewModel> RemovePatientAsync(string patientId)
         {
             try
             { 
-                var response = await _http.DeleteAsync($"{_endPoint}/{patient.Id}");
+                var response = await _http.DeleteAsync($"{_endPoint}/{patientId}");
                 response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)

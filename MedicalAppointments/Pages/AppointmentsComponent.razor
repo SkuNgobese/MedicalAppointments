@@ -34,7 +34,18 @@
                 <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
             </div>
         }
-
+        else
+        {
+            if (existingPatient != null)
+            {
+                <div class="mb-2">
+                    <input class="form-control mb-2" placeholder="First Name" @bind="existingPatient!.FirstName" />
+                    <input class="form-control mb-2" placeholder="Last Name" @bind="existingPatient.LastName" />
+                    <input class="form-control mb-2" placeholder="ID Number" @bind="existingPatient.IDNumber" />
+                </div>
+            }
+        }
+        
         <InputSelect class="form-control mb-2" placeholder="Doctor" @bind-value="selectedDoctorId">
             <option value="">-- Select Doctor --</option>
             @foreach (var doc in allDoctors)

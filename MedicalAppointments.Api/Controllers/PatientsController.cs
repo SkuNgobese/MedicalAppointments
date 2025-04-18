@@ -175,7 +175,7 @@ namespace MedicalAppointments.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePatient(string id, [FromBody] Patient patient)
+        public async Task<IActionResult> UpdatePatient(string id, [FromBody] PatientViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -185,12 +185,24 @@ namespace MedicalAppointments.Api.Controllers
             if (existingPatient == null)
                 return NotFound();
 
-            var validationError = _patientValidation.CanUpdatePatient(patient);
+            var validationError = _patientValidation.CanUpdatePatient(existingPatient);
             if (validationError != null)
                 return BadRequest(validationError);
 
-            patient.Id = id;
-            await _patient.UpdatePatientAsync(patient);
+            existingPatient.Title = model.Title;
+            existingPatient.FirstName = model.FirstName;
+            existingPatient.LastName = model.LastName;
+            existingPatient.IDNumber = model.IDNumber;
+            existingPatient.Contact!.ContactNumber = model.ContactDetails!.ContactNumber;
+            existingPatient.Contact.Email = model.ContactDetails.Email;
+            existingPatient.Contact.Fax = model.ContactDetails.Fax;
+            existingPatient.Address!.Street = model.AddressDetails!.Street;
+            existingPatient.Address.Suburb = model.AddressDetails.Suburb;
+            existingPatient.Address.City = model.AddressDetails.City;
+            existingPatient.Address.PostalCode = model.AddressDetails.PostalCode;
+            existingPatient.Address.Country = model.AddressDetails.Country;
+
+            await _patient.UpdatePatientAsync(existingPatient);
 
             return Ok(validationError);
         }

@@ -70,37 +70,34 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<Doctor?> GetDoctorByIdAsync(string id, Hospital hospital)
+        public async Task<ErrorViewModel> EnrollDoctorAsync(DoctorViewModel model)
         {
             try
             {
-                return await _http.GetFromJsonAsync<Doctor>($"{_endPoint}/{id}?Id={hospital.Id}");
-            }
-            catch(HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-            {
-                Error = new ErrorViewModel
+                var doctor = new Doctor
                 {
-                    StatusCode = StatusCodes.Status404NotFound,
-                    Message = "Doctor not found."
+                    Title = model.Title,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    IDNumber = model.IDNumber,
+                    Specialization = model.Specialization,
+                    HireDate = model.HireDate,
+                    Address = new Address
+                    {
+                        Street = model.AddressDetails!.Street,
+                        Suburb = model.AddressDetails.Suburb,
+                        City = model.AddressDetails.City,
+                        PostalCode = model.AddressDetails.PostalCode,
+                        Country = model.AddressDetails.Country
+                    },
+                    Contact = new Contact
+                    {
+                        ContactNumber = model.ContactDetails!.ContactNumber,
+                        Fax = model.ContactDetails.Fax,
+                        Email = model.ContactDetails.Email
+                    }
                 };
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Error = new ErrorViewModel
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "An error occurred while fetching the doctor.",
-                    Errors = [ex.Message]
-                };
-                return null;
-            }
-        }
 
-        public async Task<ErrorViewModel> EnrollDoctorAsync(Doctor doctor)
-        {
-            try
-            {
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", doctor);
                 response.EnsureSuccessStatusCode();
 

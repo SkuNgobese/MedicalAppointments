@@ -81,31 +81,7 @@ namespace MedicalAppointments.Pages
             }
             else
             {
-                var doctor = new Doctor
-                {
-                    Title = doctorVM.Title,
-                    FirstName = doctorVM.FirstName,
-                    LastName = doctorVM.LastName,
-                    IDNumber = doctorVM.IDNumber,
-                    Specialization = doctorVM.Specialization,
-                    HireDate = doctorVM.HireDate,
-                    Address = new Address
-                    {
-                        Street = doctorVM.AddressDetails!.Street,
-                        Suburb = doctorVM.AddressDetails.Suburb,
-                        City = doctorVM.AddressDetails.City,
-                        PostalCode = doctorVM.AddressDetails.PostalCode,
-                        Country = doctorVM.AddressDetails.Country
-                    },
-                    Contact = new Contact
-                    {
-                        ContactNumber = doctorVM.ContactDetails!.ContactNumber,
-                        Fax = doctorVM.ContactDetails.Fax,
-                        Email = doctorVM.ContactDetails.Email
-                    }
-                };
-
-                errorModel = await _doctor!.EnrollDoctorAsync(doctor);
+                errorModel = await _doctor!.EnrollDoctorAsync(doctorVM);
 
                 if (errorModel.Errors != null && errorModel.Errors.Count > 0)
                     return;

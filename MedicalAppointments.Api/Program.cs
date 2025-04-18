@@ -17,6 +17,8 @@ using MedicalAppointments.Api.Domain.Services;
 using MedicalAppointments.Api.Application.Helpers;
 using MedicalAppointments.Api.Application.Interfaces.Shared;
 using MedicalAppointments.Api.Application.Services.Shared;
+using MedicalAppointments.Api.Infrastructure.POCOs;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +99,9 @@ builder.Services.AddScoped<ICurrentUserHelper, CurrentUserHelper>();
 // Register user-related services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped(typeof(IRegistrationService<>), typeof(RegistrationService<>));
+
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 

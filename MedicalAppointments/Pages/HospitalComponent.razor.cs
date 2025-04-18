@@ -89,26 +89,7 @@ namespace MedicalAppointments.Pages
             }
             else
             {
-                var hospital = new Hospital
-                {
-                    Name = hospitalVM.HospitalName,
-                    Address = new Address
-                    {
-                        Street = hospitalVM.AddressDetails!.Street,
-                        Suburb = hospitalVM.AddressDetails.Suburb,
-                        City = hospitalVM.AddressDetails.City,
-                        PostalCode = hospitalVM.AddressDetails.PostalCode,
-                        Country = hospitalVM.AddressDetails.Country
-                    },
-                    Contact = new Contact
-                    {
-                        ContactNumber = hospitalVM.ContactDetails!.ContactNumber,
-                        Fax = hospitalVM.ContactDetails.Fax,
-                        Email = hospitalVM.ContactDetails.Email
-                    }
-                };
-                
-                errorModel = await _hospital!.AddHospitalAsync(hospital);
+                errorModel = await _hospital!.AddHospitalAsync(hospitalVM);
 
                 if (errorModel.Errors != null && errorModel.Errors.Count > 0)
                 {

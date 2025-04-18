@@ -71,10 +71,29 @@ namespace MedicalAppointments.Services
             }
         }
 
-        public async Task<ErrorViewModel> AddHospitalAsync(Hospital hospital)
+        public async Task<ErrorViewModel> AddHospitalAsync(HospitalViewModel model)
         {
             try
             {
+                var hospital = new Hospital
+                {
+                    Name = model.HospitalName,
+                    Address = new Address
+                    {
+                        Street = model.AddressDetails!.Street,
+                        Suburb = model.AddressDetails.Suburb,
+                        City = model.AddressDetails.City,
+                        PostalCode = model.AddressDetails.PostalCode,
+                        Country = model.AddressDetails.Country
+                    },
+                    Contact = new Contact
+                    {
+                        ContactNumber = model.ContactDetails!.ContactNumber,
+                        Fax = model.ContactDetails.Fax,
+                        Email = model.ContactDetails.Email
+                    }
+                };
+
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", hospital);
                 response.EnsureSuccessStatusCode();
 
