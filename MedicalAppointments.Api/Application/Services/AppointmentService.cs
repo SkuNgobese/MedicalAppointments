@@ -30,7 +30,9 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Hospital hospital) =>
                 await _repository.GetAllAsync(
-                                        a => a.Hospital == hospital,
+                                        a => a.Hospital == hospital && 
+                                        a.Date > DateTime.Now &&
+                                        a.Status != AppointmentStatus.Cancelled,
                                         a => a.Doctor!,
                                         a => a.Doctor!.Contact!,
                                         a => a.Doctor!.Address!,
@@ -40,14 +42,18 @@ namespace MedicalAppointments.Api.Application.Services
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Doctor doctor) =>
                 await _repository.GetAllAsync(
-                                        a => a.Doctor == doctor,
+                                        a => a.Doctor == doctor &&
+                                        a.Date > DateTime.Now &&
+                                        a.Status != AppointmentStatus.Cancelled,
                                         a => a.Patient!,
                                         a => a.Patient!.Contact!,
                                         a => a.Patient!.Address!) ?? [];
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync(Patient patient) =>
                 await _repository.GetAllAsync(
-                                        a => a.Patient == patient,
+                                        a => a.Patient == patient &&
+                                        a.Date > DateTime.Now &&
+                                        a.Status != AppointmentStatus.Cancelled,
                                         a => a.Hospital!,
                                         a => a.Hospital!.Contact!,
                                         a => a.Hospital!.Address!,

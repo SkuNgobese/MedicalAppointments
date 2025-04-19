@@ -1,6 +1,6 @@
-﻿@page "/Doctors"
+﻿@page "/Patients"
 
-<Button Color="ButtonColor.Success" @onclick="ShowModalFormAsync">Add Doctor</Button>
+<Button Color="ButtonColor.Success" @onclick="ShowModalFormAsync">Add Patient</Button>
 
 @if (errorModel != null)
 {
@@ -12,16 +12,16 @@
 
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
-<Modal @ref="modalForm" title="@(isEditing ? "Edit Doctor" : "New Doctor")" IsScrollable="true" Size="ModalSize.Large">
+<Modal @ref="modalForm" title="@(isEditing ? "Edit Patient" : "New Patient")" IsScrollable="true" Size="ModalSize.Large">
     <BodyTemplate>
         <ErrorDisplay Error="errorModel" />
-        <EditForm Model="doctorVM" OnValidSubmit="HandleValidSubmit" FormName="doctorForm">
+        <EditForm Model="patientVM" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
-    
+
             <div class="mb-3">
                 <label class="form-label">Title</label>
-                <InputSelect class="form-control" @bind-Value="doctorVM!.Title">
+                <InputSelect class="form-control" @bind-Value="patientVM!.Title">
                     @foreach (var title in titles)
                     {
                         <option value="@title">@title</option>
@@ -31,27 +31,17 @@
 
             <div class="mb-3">
                 <label class="form-label">First Name</label>
-                <InputText class="form-control" @bind-Value="doctorVM.FirstName" />
+                <InputText class="form-control" @bind-Value="patientVM.FirstName" />
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Last Name</label>
-                <InputText class="form-control" @bind-Value="doctorVM.LastName" />
+                <InputText class="form-control" @bind-Value="patientVM.LastName" />
             </div>
 
             <div class="mb-3">
                 <label class="form-label">ID Number</label>
-                <InputText class="form-control" @bind-Value="doctorVM.IDNumber" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Specialization</label>
-                <InputText class="form-control" @bind-Value="doctorVM.Specialization" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Hire Date</label>
-                <InputDate class="form-control" @bind-Value="doctorVM.HireDate" />
+                <InputText class="form-control" @bind-Value="patientVM.IDNumber" />
             </div>
 
             <div class="row">
@@ -61,27 +51,27 @@
 
                         <div class="mb-3">
                             <label class="form-label">Street</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails!.Street" />
+                            <InputText class="form-control" @bind-Value="patientVM.AddressDetails!.Street" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Suburb</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Suburb" />
+                            <InputText class="form-control" @bind-Value="patientVM.AddressDetails.Suburb" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">City</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.City" />
+                            <InputText class="form-control" @bind-Value="patientVM.AddressDetails.City" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Postal Code</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.PostalCode" />
+                            <InputText class="form-control" @bind-Value="patientVM.AddressDetails.PostalCode" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Country</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.AddressDetails.Country" />
+                            <InputText class="form-control" @bind-Value="patientVM.AddressDetails.Country" />
                         </div>
                     </fieldset>
                 </div>
@@ -92,7 +82,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Contact Number</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails!.ContactNumber" />
+                            <InputText class="form-control" @bind-Value="patientVM.ContactDetails!.ContactNumber" />
                         </div>
 
                         <div class="mb-3">
@@ -101,12 +91,12 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">@@</span>
                                 </div>
-                                <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Email" />
+                                <InputText class="form-control" @bind-Value="patientVM.ContactDetails.Email" />
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Fax</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Fax" />
+                            <InputText class="form-control" @bind-Value="patientVM.ContactDetails.Fax" />
                         </div>
                     </fieldset>
                 </div>
@@ -115,50 +105,51 @@
     </BodyTemplate>
     <FooterTemplate>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @onclick="HideModalFormAsync">Cancel</button>
+            <button type="button" class="btn btn-secondary" @onclick="CloseFormModal">Cancel</button>
             <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit" disabled="@isSubmitting">
-                @(isEditing ? "Update" : "Add") Doctor
+                @(isEditing ? "Update" : "Add") Patient
             </button>
         </div>
     </FooterTemplate>
 </Modal>
-<br/>
-<hr/>
-@if (doctors == null)
+<br />
+<hr />
+@if (patients == null)
 {
-    <p>Loading doctors...</p>
+    <p>Loading patients...</p>
 }
-else if (!doctors.Any())
+else if (!patients.Any())
 {
-    <p>No doctors found.</p>
+    <p>No patients found.</p>
 }
 else
 {
-    <ul class="space-y-2">
-        @foreach (var doctor in doctors)
+    <ul class="list-group">
+        @foreach (var patient in patients)
         {
-            <li class="p-4 border rounded shadow-sm flex justify-between items-center">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                    <strong>@doctor.FullName</strong> - @doctor.Specialization
+                    <strong>@patient.FullName</strong> - @patient.IDNumber
                 </span>
                 <span>
-                    <button class="btn btn-sm btn-warning" @onclick="() => EditDoctor(doctor)">Edit</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(doctor)">Delete</button>
+                    <button class="btn btn-sm btn-warning me-2" @onclick="() => EditPatient(patient)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(patient)">Delete</button>
                 </span>
             </li>
         }
     </ul>
 }
 
+<!-- Confirm Delete Modal -->
 <Modal @ref="modalDelete" title="Confirm Delete">
     <BodyTemplate>
         <ErrorDisplay Error="errorModel" />
-        <p>Are you sure you want to delete <strong>@doctorToDelete?.FullName</strong>?</p>
+        <p>Are you sure you want to delete <strong>@patientToDelete?.FullName</strong>?</p>
     </BodyTemplate>
     <FooterTemplate>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
-            <button type="submit" class="btn btn-danger" @onclick="DeleteDoctor" disabled="@isSubmitting">
+            <button type="submit" class="btn btn-danger" @onclick="DeleteConfirmed" disabled="@isSubmitting">
                 Yes, Delete
             </button>
         </div>

@@ -21,30 +21,7 @@ namespace MedicalAppointments.Pages
 
         private bool isSubmitting = false;
 
-        private DoctorViewModel doctorVM = new()
-        {
-            Title = string.Empty,
-            FirstName = string.Empty,
-            LastName = string.Empty,
-            IDNumber = string.Empty,
-            Specialization = string.Empty,
-            HireDate = DateTime.Now,
-
-            AddressDetails = new AddressViewModel()
-            {
-                Street = string.Empty,
-                Suburb = string.Empty,
-                City = string.Empty,
-                PostalCode = string.Empty,
-                Country = string.Empty
-            },
-            ContactDetails = new ContactViewModel()
-            {
-                ContactNumber = string.Empty,
-                Fax = string.Empty,
-                Email = string.Empty
-            }
-        };
+        private DoctorViewModel? doctorVM;
 
         private List<string> titles = ["Dr", "Mr", "Mrs", "Miss", "Ms", "Prof"];
 
@@ -55,6 +32,31 @@ namespace MedicalAppointments.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            doctorVM = new()
+            {
+                Title = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                IDNumber = string.Empty,
+                Specialization = string.Empty,
+                HireDate = DateTime.Now,
+
+                AddressDetails = new AddressViewModel()
+                {
+                    Street = string.Empty,
+                    Suburb = string.Empty,
+                    City = string.Empty,
+                    PostalCode = string.Empty,
+                    Country = string.Empty
+                },
+                ContactDetails = new ContactViewModel()
+                {
+                    ContactNumber = string.Empty,
+                    Fax = string.Empty,
+                    Email = string.Empty
+                }
+            };
+
             await LoadDoctors();
         }
 
@@ -73,7 +75,7 @@ namespace MedicalAppointments.Pages
 
             if (isEditing && !string.IsNullOrEmpty(editingDoctorId))
             {
-                doctorVM.Id = editingDoctorId;
+                doctorVM!.Id = editingDoctorId;
                 errorModel = await _doctor!.UpdateDoctorAsync(doctorVM);
 
                 if (errorModel.Errors != null && errorModel.Errors.Count > 0)
@@ -81,7 +83,7 @@ namespace MedicalAppointments.Pages
             }
             else
             {
-                errorModel = await _doctor!.EnrollDoctorAsync(doctorVM);
+                errorModel = await _doctor!.EnrollDoctorAsync(doctorVM!);
 
                 if (errorModel.Errors != null && errorModel.Errors.Count > 0)
                     return;

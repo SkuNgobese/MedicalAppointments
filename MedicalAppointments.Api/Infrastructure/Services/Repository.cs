@@ -25,7 +25,8 @@ namespace MedicalAppointments.Api.Infrastructure.Services
             return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         }
 
-        public async Task<T?> GetByIdAsync(string id, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> GetByIdAsync(
+            string id, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -35,7 +36,8 @@ namespace MedicalAppointments.Api.Infrastructure.Services
             return await query.FirstOrDefaultAsync(e => EF.Property<string>(e, "Id") == id);
         }
 
-        public async Task<T?> GetByConditionAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> GetByConditionAsync(
+            Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -77,10 +79,8 @@ namespace MedicalAppointments.Api.Infrastructure.Services
             return entity;
         }
 
-        //TODO
         public async Task<T> AddAsync(T entity, params Expression<Func<T, object>>[] relatedEntities)
         {
-            // Add related entities if they exist
             foreach (var relatedEntity in relatedEntities)
             {
                 var navigationProperty = relatedEntity.Compile().Invoke(entity);
@@ -88,8 +88,8 @@ namespace MedicalAppointments.Api.Infrastructure.Services
                     await _context.AddAsync(navigationProperty);
             }
 
-            await _dbSet.AddAsync(entity); // Add the main entity
-            await _context.SaveChangesAsync(); // Save changes
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
 
             return entity;
         }
