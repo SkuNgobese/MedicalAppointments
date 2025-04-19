@@ -59,14 +59,11 @@ namespace MedicalAppointments.Pages
 
         private async Task ShowModalFormAsync()
         {
-            errorModel = null;
-            ResetForm();
             await modalForm.ShowAsync();
         }
 
         private async Task HideModalFormAsync()
         {
-            errorModel = null;
             ResetForm();
             await modalForm.HideAsync();
         }
@@ -161,7 +158,6 @@ namespace MedicalAppointments.Pages
 
         private void ResetForm()
         {
-            errorModel = null;
             isSubmitting = false;
 
             hospitalVM = new HospitalViewModel

@@ -19,6 +19,8 @@ namespace MedicalAppointments.Shared.ViewModels
         [Required, DisplayName("ID Number")]
         public string? IDNumber { get; set; }
 
+        public string? Role { get; set; } = "User";
+
         public string FullName => $"{Title}. {FirstName?[..1] ?? ""} {LastName ?? ""}".Trim();
 
         public AddressViewModel? AddressDetails { get; set; }

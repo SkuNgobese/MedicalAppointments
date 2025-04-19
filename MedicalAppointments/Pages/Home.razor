@@ -1,3 +1,52 @@
 ﻿@page "/"
+@using MedicalAppointments.Shared.ViewModels
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard</PageTitle>
+
+@if (loading)
+{
+    <p>Loading dashboard...</p>
+}
+else
+{
+    @switch (role)
+    {
+        case "SuperAdmin":
+            <SuperAdminDashboard />
+            break;
+        case "SysAdmin":
+            <AdminDashboard />
+            break;
+        case "Doctor":
+            <DoctorDashboard />
+            break;
+        case "Patient":
+            <PatientDashboard />
+            break;
+        default:
+            <p class="text-danger">Unauthorized.</p>
+            break;
+    }
+}
+
+@code {
+    string role = "";
+    bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var user = await Http.GetFromJsonAsync<UserViewModel>("api/Auth");
+            role = user?.Role ?? "";
+        }
+        catch
+        {
+            //Navigation.NavigateTo("/login");
+        }
+
+        loading = false;
+    }
+}

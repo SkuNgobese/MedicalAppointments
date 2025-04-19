@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
     <Authorized>
@@ -15,5 +16,15 @@
     public void BeginLogOut()
     {
         Navigation.NavigateToLogout("Logout");
+    }
+
+    private string? fullName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        fullName = user.FindFirst("fullName")?.Value ?? user.Identity?.Name!;
     }
 }
