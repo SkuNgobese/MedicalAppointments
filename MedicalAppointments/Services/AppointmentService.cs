@@ -4,6 +4,7 @@ using MedicalAppointments.Shared.ViewModels;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace MedicalAppointments.Services
 {
@@ -97,33 +98,38 @@ namespace MedicalAppointments.Services
                 };
 
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", appointment);
-                response.EnsureSuccessStatusCode();
-
+                
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = new List<string> { response.ReasonPhrase! }
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
 
-                Error = new ErrorViewModel
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment booked successfully."
                 };
-                return Error;
             }
             catch (Exception ex)
             {
-                Error = new ErrorViewModel
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while booking the appointment.",
                     Errors = [ex.Message]
                 };
-                return Error;
             }
         }
 
@@ -132,33 +138,38 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.PutAsync($"{_endPoint}/{appointmentId}/reschedule/{newDate:O}", null);
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
 
-                Error = new ErrorViewModel
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Appointment rescheduled successfully."
                 };
-                return Error;
             }
             catch (Exception ex)
             {
-                Error = new ErrorViewModel
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while rescheduling the appointment.",
                     Errors = [ex.Message]
                 };
-                return Error;
             }
         }
 
@@ -167,16 +178,24 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.PutAsync($"{_endPoint}/{model.Id}/reassign/{doctor.Id}", null);
-                response.EnsureSuccessStatusCode();
-
+                
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
                 Error = new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
@@ -201,16 +220,23 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}/cancel", model);
-                response.EnsureSuccessStatusCode();
-
+                
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
 
                 Error = new ErrorViewModel
                 {

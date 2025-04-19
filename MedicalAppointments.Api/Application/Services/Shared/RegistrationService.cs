@@ -85,7 +85,7 @@ namespace MedicalAppointments.Api.Application.Services.Shared
                 await _userManager.AddToRoleAsync(user, role);
             }
 
-            SendCredentials(role, user.Hospital?.Name!, email, password, $"{user.FullName}").Wait();
+            SendCredentials(role, hospital?.Name!, email, password, $"{user.FullName}").Wait();
         }
 
         public async Task<bool> UpdateUserAsync(T userData)

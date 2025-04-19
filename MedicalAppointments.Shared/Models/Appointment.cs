@@ -20,20 +20,17 @@ namespace MedicalAppointments.Shared.Models
         [JsonPropertyName("createddate")]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
+        [JsonPropertyName("createdby")]
         public string? CreatedBy { get; set; }
 
         [JsonPropertyName("updateddate")]
         public DateTime? UpdatedDate { get; set; } = DateTime.UtcNow;
 
+        [JsonPropertyName("updatedby")]
         public string? UpdatedBy { get; set; }
 
         public Hospital? Hospital { get; set; }
-        public int? HospitalId { get; set; }
-
         public Doctor? Doctor { get; set; }
-        public string? DoctorId { get; set; }
-
         public Patient? Patient { get; set; }
-        public string? PatientId { get; set; }
     }
 }

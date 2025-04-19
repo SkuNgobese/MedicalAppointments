@@ -133,6 +133,8 @@ namespace MedicalAppointments.Pages
             if (string.IsNullOrEmpty(searchTerm))
                 return;
 
+            ResetPatient();
+
             existingPatient = await _patient!.GetPatientByIdNumberOrContactAsync(searchTerm);
             patientNotFound = existingPatient == null;
 
@@ -359,6 +361,103 @@ namespace MedicalAppointments.Pages
             };
 
             newPatient = new()
+            {
+                Title = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                IDNumber = string.Empty,
+                ContactDetails = new ContactViewModel
+                {
+                    ContactNumber = string.Empty,
+                    Email = string.Empty,
+                    Fax = string.Empty
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Street = string.Empty,
+                    Suburb = string.Empty,
+                    City = string.Empty,
+                    PostalCode = string.Empty,
+                    Country = string.Empty
+                }
+            };
+
+            existingPatient = new()
+            {
+                Title = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                IDNumber = string.Empty,
+                ContactDetails = new ContactViewModel
+                {
+                    ContactNumber = string.Empty,
+                    Email = string.Empty,
+                    Fax = string.Empty
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Street = string.Empty,
+                    Suburb = string.Empty,
+                    City = string.Empty,
+                    PostalCode = string.Empty,
+                    Country = string.Empty
+                }
+            };
+        }
+
+        private void ResetPatient()
+        {
+            existingPatient = null;
+            newAppointment = new()
+            {
+                Date = DateTime.Now,
+                Description = string.Empty,
+                Status = AppointmentStatus.Scheduled,
+                HospitalViewModel = new HospitalViewModel
+                {
+                    Id = 0,
+                    HospitalName = string.Empty
+                },
+                DoctorViewModel = new DoctorViewModel
+                {
+                    Id = "0",
+                    Title = string.Empty,
+                    FirstName = string.Empty,
+                    LastName = string.Empty,
+                    Specialization = string.Empty
+                },
+                PatientViewModel = new PatientViewModel
+                {
+                    Id = "0",
+                    Title = string.Empty,
+                    FirstName = string.Empty,
+                    LastName = string.Empty
+                }
+            };
+
+            newPatient = new()
+            {
+                Title = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                IDNumber = string.Empty,
+                ContactDetails = new ContactViewModel
+                {
+                    ContactNumber = string.Empty,
+                    Email = string.Empty,
+                    Fax = string.Empty
+                },
+                AddressDetails = new AddressViewModel
+                {
+                    Street = string.Empty,
+                    Suburb = string.Empty,
+                    City = string.Empty,
+                    PostalCode = string.Empty,
+                    Country = string.Empty
+                }
+            };
+
+            existingPatient = new()
             {
                 Title = string.Empty,
                 FirstName = string.Empty,

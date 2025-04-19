@@ -1,5 +1,6 @@
 ﻿using MedicalAppointments.Api.Application.Interfaces;
 using MedicalAppointments.Api.Infrastructure.Interfaces;
+using MedicalAppointments.Api.Infrastructure.Services;
 using MedicalAppointments.Shared.Models;
 
 namespace MedicalAppointments.Api.Application.Services
@@ -77,8 +78,8 @@ namespace MedicalAppointments.Api.Application.Services
         }
 
         public async Task<Doctor?> GetDoctorAsync(string email) => 
-            await _repository.GetByConditionAsync(d => d.Email == email);
-
+            await _repository.GetByConditionAsync(d => d.Email == email, d => d.Hospital!) ?? null;
+        
         public async Task<bool> ExistsAsync(string email) => 
             await _repository.Exists(d => d.Email == email);
 

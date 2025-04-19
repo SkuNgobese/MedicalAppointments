@@ -44,7 +44,12 @@
                     <fieldset class="border p-3 rounded mb-3">
                         <legend class="float-none w-auto px-2">Contact</legend>
                         <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails!.ContactNumber" placeholder="Contact Number" />
-                        <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails.Email" placeholder="Email" />
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@@</span>
+                            </div>
+                            <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails.Email" placeholder="Email" />
+                        </div>
                         <InputText class="form-control mb-2" @bind-Value="hospitalVM.ContactDetails.Fax" placeholder="Fax" />
                     </fieldset>
                 </div>

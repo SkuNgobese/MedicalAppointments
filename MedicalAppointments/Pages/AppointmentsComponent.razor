@@ -31,12 +31,17 @@
                 <input class="form-control mb-2" placeholder="Last Name" @bind="newPatient.LastName" />
                 <input class="form-control mb-2" placeholder="ID Number" @bind="newPatient.IDNumber" />
                 <input class="form-control mb-2" placeholder="Contact Number" @bind="newPatient.ContactDetails!.ContactNumber" />
-                <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">@@</span>
+                    </div>
+                    <input class="form-control mb-2" placeholder="Email" @bind="newPatient.ContactDetails.Email" />
+                </div>
             </div>
         }
         else
         {
-            if (existingPatient != null)
+            if (existingPatient != null && !string.IsNullOrEmpty(existingPatient.Id))
             {
                 <div class="mb-2">
                     <input class="form-control mb-2" placeholder="First Name" @bind="existingPatient!.FirstName" />

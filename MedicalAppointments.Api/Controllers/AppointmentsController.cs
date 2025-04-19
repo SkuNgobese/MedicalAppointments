@@ -42,212 +42,284 @@ namespace MedicalAppointments.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
-            var appointments = await _appointment.GetCurrentUserHospitalAppointmentsAsync();
-
-            if (appointments == null)
-                return NotFound();
-
-            var appointmentVM = appointments.Select(a => new AppointmentViewModel
+            try
             {
-                Id = a!.Id,
-                Date = a.Date,
-                Description = a.Description ?? "",
-                Status = a.Status,
+                var appointments = await _appointment.GetCurrentUserHospitalAppointmentsAsync();
 
-                PatientViewModel = a.Patient != null ? new PatientViewModel
+                if (appointments == null)
+                    return NotFound();
+
+                var appointmentVM = appointments.Select(a => new AppointmentViewModel
                 {
-                    Id = a.Patient.Id,
-                    Title = a.Patient.Title ?? "",
-                    FirstName = a.Patient.FirstName ?? "",
-                    LastName = a.Patient.LastName ?? "",
-                    IDNumber = a.Patient.IDNumber ?? "",
-                    ContactDetails = a.Patient.Contact != null ? new ContactViewModel
+                    Id = a!.Id,
+                    Date = a.Date,
+                    Description = a.Description ?? "",
+                    Status = a.Status,
+
+                    PatientViewModel = a.Patient != null ? new PatientViewModel
                     {
-                        ContactNumber = a.Patient.Contact.ContactNumber ?? "",
-                        Email = a.Patient.Contact.Email ?? ""
+                        Id = a.Patient.Id,
+                        Title = a.Patient.Title ?? "",
+                        FirstName = a.Patient.FirstName ?? "",
+                        LastName = a.Patient.LastName ?? "",
+                        IDNumber = a.Patient.IDNumber ?? "",
+                        ContactDetails = a.Patient.Contact != null ? new ContactViewModel
+                        {
+                            ContactNumber = a.Patient.Contact.ContactNumber ?? "",
+                            Email = a.Patient.Contact.Email ?? ""
+                        } : null
+                    } : null,
+
+                    DoctorViewModel = a.Doctor != null ? new DoctorViewModel
+                    {
+                        Id = a.Doctor.Id,
+                        Title = a.Doctor.Title ?? "",
+                        FirstName = a.Doctor.FirstName ?? "",
+                        LastName = a.Doctor.LastName ?? "",
+                        Specialization = a.Doctor.Specialization ?? ""
+                    } : null,
+
+                    HospitalViewModel = a.Hospital != null ? new HospitalViewModel
+                    {
+                        Id = a.Hospital.Id,
+                        HospitalName = a.Hospital.Name ?? ""
                     } : null
-                } : null,
+                });
 
-                DoctorViewModel = a.Doctor != null ? new DoctorViewModel
+                return Ok(appointmentVM);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
                 {
-                    Id = a.Doctor.Id,
-                    Title = a.Doctor.Title ?? "",
-                    FirstName = a.Doctor.FirstName ?? "",
-                    LastName = a.Doctor.LastName ?? "",
-                    Specialization = a.Doctor.Specialization ?? ""
-                } : null,
-
-                HospitalViewModel = a.Hospital != null ? new HospitalViewModel
-                {
-                    Id = a.Hospital.Id,
-                    HospitalName = a.Hospital.Name ?? ""
-                } : null
-            });
-
-            return Ok(appointmentVM);
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving the appointments.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         // GET api/<AppointmentsController>/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAppointment(int id)
         {
-            var appointment = await _appointment.GetAppointmentByIdAsync(id);
-
-            if (appointment == null)
-                return NotFound();
-
-            var appointmentVM = new AppointmentViewModel
+            try
             {
-                Id = appointment!.Id,
-                Date = appointment.Date,
-                Description = appointment.Description ?? "",
-                Status = appointment.Status,
+                var appointment = await _appointment.GetAppointmentByIdAsync(id);
 
-                PatientViewModel = appointment.Patient != null ? new PatientViewModel
+                if (appointment == null)
+                    return NotFound();
+
+                var appointmentVM = new AppointmentViewModel
                 {
-                    Id = appointment.Patient.Id,
-                    Title = appointment.Patient.Title ?? "",
-                    FirstName = appointment.Patient.FirstName ?? "",
-                    LastName = appointment.Patient.LastName ?? "",
-                    IDNumber = appointment.Patient.IDNumber ?? "",
-                    ContactDetails = appointment.Patient.Contact != null ? new ContactViewModel
+                    Id = appointment!.Id,
+                    Date = appointment.Date,
+                    Description = appointment.Description ?? "",
+                    Status = appointment.Status,
+
+                    PatientViewModel = appointment.Patient != null ? new PatientViewModel
                     {
-                        ContactNumber = appointment.Patient.Contact.ContactNumber ?? "",
-                        Email = appointment.Patient.Contact.Email ?? ""
+                        Id = appointment.Patient.Id,
+                        Title = appointment.Patient.Title ?? "",
+                        FirstName = appointment.Patient.FirstName ?? "",
+                        LastName = appointment.Patient.LastName ?? "",
+                        IDNumber = appointment.Patient.IDNumber ?? "",
+                        ContactDetails = appointment.Patient.Contact != null ? new ContactViewModel
+                        {
+                            ContactNumber = appointment.Patient.Contact.ContactNumber ?? "",
+                            Email = appointment.Patient.Contact.Email ?? ""
+                        } : null
+                    } : null,
+
+                    DoctorViewModel = appointment.Doctor != null ? new DoctorViewModel
+                    {
+                        Id = appointment.Doctor.Id,
+                        Title = appointment.Doctor.Title ?? "",
+                        FirstName = appointment.Doctor.FirstName ?? "",
+                        LastName = appointment.Doctor.LastName ?? "",
+                        Specialization = appointment.Doctor.Specialization ?? ""
+                    } : null,
+
+                    HospitalViewModel = appointment.Hospital != null ? new HospitalViewModel
+                    {
+                        Id = appointment.Hospital.Id,
+                        HospitalName = appointment.Hospital.Name ?? ""
                     } : null
-                } : null,
+                };
 
-                DoctorViewModel = appointment.Doctor != null ? new DoctorViewModel
+                return Ok(appointmentVM);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
                 {
-                    Id = appointment.Doctor.Id,
-                    Title = appointment.Doctor.Title ?? "",
-                    FirstName = appointment.Doctor.FirstName ?? "",
-                    LastName = appointment.Doctor.LastName ?? "",
-                    Specialization = appointment.Doctor.Specialization ?? ""
-                } : null,
-
-                HospitalViewModel = appointment.Hospital != null ? new HospitalViewModel
-                {
-                    Id = appointment.Hospital.Id,
-                    HospitalName = appointment.Hospital.Name ?? ""
-                } : null
-            };
-
-            return Ok(appointmentVM);
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving the appointment.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         // POST api/<AppointmentsController>
         [HttpPost]
         public async Task<IActionResult> BookNew([FromBody] Appointment appointment)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var  hospital = await _hospital.GetCurrentUserHospitalAsync();
-            
-            if (hospital == null)
-                return BadRequest("Hospital not found.");
+                var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            var doctor = await _doctor.GetDoctorByIdAsync(appointment.Doctor!.Id, hospital);
+                if (hospital == null)
+                    return BadRequest("Hospital not found.");
 
-            if (doctor == null)
-                return BadRequest("Doctor not found.");
+                var doctor = await _doctor.GetDoctorByIdAsync(appointment.Doctor!.Id, hospital);
 
-            var patient = await _patient.GetPatientByIdAsync(appointment.Patient!.Id);
+                if (doctor == null)
+                    return BadRequest("Doctor not found.");
 
-            if (patient == null)
-                return BadRequest("Patient not found.");
+                var patient = await _patient.GetPatientByIdAsync(appointment.Patient!.Id);
 
-            appointment.Hospital = hospital;
-            appointment.Doctor = doctor;
-            appointment.Patient = patient;
+                if (patient == null)
+                    return BadRequest("Patient not found.");
 
-            var validationError = _appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient);
-            if (validationError != null)
-                return BadRequest(validationError);
+                appointment.Hospital = hospital;
+                appointment.Doctor = doctor;
+                appointment.Patient = patient;
 
-            appointment.CreatedDate = DateTime.Now;
-            appointment.CreatedBy = await _helper.GetCurrentUserId();
-            await _appointment.AddAppointmentAsync(appointment);
+                var validationError = _appointmentValidation.CanSchedule(appointment.Date, appointment.Doctor, appointment.Patient);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            return Ok(validationError);
+                appointment.CreatedDate = DateTime.Now;
+                appointment.CreatedBy = await _helper.GetCurrentUserId();
+                await _appointment.AddAppointmentAsync(appointment);
+
+                return Ok(validationError);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while booking the appointment.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         [HttpPut("{appointmentId}/reschedule/{newDate}")]
         public async Task<IActionResult> RescheduleAppointment(int appointmentId, DateTime newDate)
         {
-            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+            try
+            {
+                var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            if (hospital == null)
-                return BadRequest("Unauthorized");
+                if (hospital == null)
+                    return BadRequest("Unauthorized");
 
-            var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
-            if (appointment == null)
-                return NotFound("Appointment not found.");
+                var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
+                if (appointment == null)
+                    return NotFound("Appointment not found.");
 
-            var validationError = _appointmentValidation.CanReschedule(newDate, appointment);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var validationError = _appointmentValidation.CanReschedule(newDate, appointment);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            appointment.Date = newDate;
-            appointment.UpdatedDate = DateTime.Now;
-            appointment.UpdatedBy = await _helper.GetCurrentUserId();
-            await _appointment.UpdateAppointmentAsync(appointment);
+                appointment.Date = newDate;
+                appointment.UpdatedDate = DateTime.Now;
+                appointment.UpdatedBy = await _helper.GetCurrentUserId();
+                await _appointment.UpdateAppointmentAsync(appointment);
 
-            return Ok(validationError);
+                return Ok(validationError);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while rescheduling the appointment.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         [HttpPut("{appointmentId}/reassign/{doctorId}")]
         public async Task<IActionResult> ReAssignAppointment(int appointmentId, string doctorId)
         {
-            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+            try
+            {
+                var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            if (hospital == null)
-                return BadRequest("Unauthorized");
+                if (hospital == null)
+                    return BadRequest("Unauthorized");
 
-            var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
-            if (appointment == null)
-                return NotFound("Appointment not found.");
+                var appointment = await _appointment.GetAppointmentByIdAsync(appointmentId);
+                if (appointment == null)
+                    return NotFound("Appointment not found.");
 
-            var newDoctor = await _doctor.GetDoctorByIdAsync(doctorId, hospital);
-            if (newDoctor == null)
-                return NotFound("Doctor not found.");
+                var newDoctor = await _doctor.GetDoctorByIdAsync(doctorId, hospital);
+                if (newDoctor == null)
+                    return NotFound("Doctor not found.");
 
-            var validationError = _appointmentValidation.CanReassign(newDoctor, appointment);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var validationError = _appointmentValidation.CanReassign(newDoctor, appointment);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            appointment.Doctor = newDoctor;
-            appointment.UpdatedDate = DateTime.Now;
-            appointment.UpdatedBy = await _helper.GetCurrentUserId();
-            await _appointment.UpdateAppointmentAsync(appointment);
+                appointment.Doctor = newDoctor;
+                appointment.UpdatedDate = DateTime.Now;
+                appointment.UpdatedBy = await _helper.GetCurrentUserId();
+                await _appointment.UpdateAppointmentAsync(appointment);
 
-            return Ok(validationError);
+                return Ok(validationError);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while reassigning the appointment.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> CancelAppointment(int id)
         {
-            var hospital = await _hospital.GetCurrentUserHospitalAsync();
+            try
+            {
+                var hospital = await _hospital.GetCurrentUserHospitalAsync();
 
-            if (hospital == null)
-                return BadRequest("Unauthorized");
+                if (hospital == null)
+                    return BadRequest("Unauthorized");
 
-            var appointment = await _appointment.GetAppointmentByIdAsync(id);
-            if (appointment == null)
-                return NotFound("Appointment not found.");
+                var appointment = await _appointment.GetAppointmentByIdAsync(id);
+                if (appointment == null)
+                    return NotFound("Appointment not found.");
 
-            var validationError = _appointmentValidation.CanCancel(appointment);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var validationError = _appointmentValidation.CanCancel(appointment);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            appointment.Status = AppointmentStatus.Cancelled;
-            appointment.UpdatedDate = DateTime.Now;
-            appointment.UpdatedBy = await _helper.GetCurrentUserId();
-            appointment.Description = "Cancelled by the patient.";
-            await _appointment.UpdateAppointmentAsync(appointment);
-            
-            return Ok(appointment);
+                appointment.Status = AppointmentStatus.Cancelled;
+                appointment.UpdatedDate = DateTime.Now;
+                appointment.UpdatedBy = await _helper.GetCurrentUserId();
+                appointment.Description = "Cancelled by the patient.";
+                await _appointment.UpdateAppointmentAsync(appointment);
+
+                return Ok(appointment);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while cancelling the appointment.",
+                    Errors = [ex.Message]
+                });
+            }
         }
     }
 }

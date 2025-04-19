@@ -95,9 +95,13 @@
 
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Email" />
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">@@</span>
+                                </div>
+                                <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Email" />
+                            </div>
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label">Fax</label>
                             <InputText class="form-control" @bind-Value="doctorVM.ContactDetails.Fax" />

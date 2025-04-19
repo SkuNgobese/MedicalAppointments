@@ -16,6 +16,7 @@ namespace MedicalAppointments.Api.Infrastructure.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            return;
             using var client = new SmtpClient(_smtp.Host, _smtp.Port)
             {
                 Credentials = new NetworkCredential(_smtp.User, _smtp.Password),

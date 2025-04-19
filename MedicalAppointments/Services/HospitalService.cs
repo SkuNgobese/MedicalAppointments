@@ -5,6 +5,7 @@ using MedicalAppointments.Shared.ViewModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using System.Text.Json;
 
 namespace MedicalAppointments.Services
 {
@@ -95,33 +96,38 @@ namespace MedicalAppointments.Services
                 };
 
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", hospital);
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ?? 
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
 
-                Error = new ErrorViewModel
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital added successfully."
                 };
-                return Error;
             }
             catch (Exception ex)
             {
-                Error = new ErrorViewModel
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while adding the hospital.",
                     Errors = [ex.Message]
                 };
-                return Error;
             }
         }
 
@@ -130,33 +136,38 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}", model);
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Errors = [response.ReasonPhrase],
-                            Message = "An unknown error occurred."
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
 
-                Error = new ErrorViewModel
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital updated successfully."
                 };
-                return Error;
             }
             catch (Exception ex)
             {
-                Error = new ErrorViewModel
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while updating the hospital.",
                     Errors = [ex.Message]
                 };
-                return Error;
             }
         }
 
@@ -165,33 +176,38 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.DeleteAsync($"{_endPoint}/{hospitalId}");
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Errors = [response.ReasonPhrase],
-                            Message = "An unknown error occurred."
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
 
-                Error = new ErrorViewModel
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
+
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Success: Hospital removed successfully."
                 };
-                return Error;
             }
             catch (Exception ex)
             {
-                Error = new ErrorViewModel
+                return new ErrorViewModel
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while removing the hospital.",
                     Errors = [ex.Message]
                 };
-                return Error;
             }
         }
     }

@@ -40,6 +40,5 @@ namespace MedicalAppointments.Shared.Models
 
         public Contact? Contact { get; set; }
         public Address? Address { get; set; }
-        public Hospital? Hospital { get; set; }
     }
 }

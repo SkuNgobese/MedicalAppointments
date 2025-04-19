@@ -41,151 +41,218 @@ namespace MedicalAppointments.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHospitals()
         {
-            var _hospitals = await _hospital.GetAllHospitalsAsync();
-
-            if(_hospitals == null)
-                return NotFound();
-
-            var hospitalVM = _hospitals.Select(h => new HospitalViewModel
+            try
             {
-                Id = h.Id,
-                HospitalName = h.Name,
-                ContactDetails = new ContactViewModel 
-                { 
-                    Id = h.Contact!.Id, 
-                    ContactNumber = h.Contact!.ContactNumber, 
-                    Email = h.Contact?.Email, 
-                    Fax = h.Contact!.Fax 
-                },
-                AddressDetails = new AddressViewModel 
-                { 
-                    Id = h.Address!.Id, 
-                    Street = h.Address!.Street!, 
-                    Suburb = h.Address!.Street!, 
-                    City = h.Address!.City!, 
-                    Country = h.Address!.Country!,
-                    PostalCode = h.Address!.PostalCode! 
-                }
-            });
+                var _hospitals = await _hospital.GetAllHospitalsAsync();
 
-            return Ok(hospitalVM);
+                if (_hospitals == null)
+                    return NotFound();
+
+                var hospitalVM = _hospitals.Select(h => new HospitalViewModel
+                {
+                    Id = h.Id,
+                    HospitalName = h.Name,
+                    ContactDetails = new ContactViewModel
+                    {
+                        Id = h.Contact!.Id,
+                        ContactNumber = h.Contact!.ContactNumber,
+                        Email = h.Contact?.Email,
+                        Fax = h.Contact!.Fax
+                    },
+                    AddressDetails = new AddressViewModel
+                    {
+                        Id = h.Address!.Id,
+                        Street = h.Address!.Street!,
+                        Suburb = h.Address!.Street!,
+                        City = h.Address!.City!,
+                        Country = h.Address!.Country!,
+                        PostalCode = h.Address!.PostalCode!
+                    }
+                });
+
+                return Ok(hospitalVM);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while fetching hospitals.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         // GET: api/hospitals/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHospital(int id)
         {
-            var hospital = await _hospital.GetHospitalByIdAsync(id);
-
-            if (hospital == null)
-                return BadRequest("Invalid hospital ID.");
-
-            var hospitalVM = new HospitalViewModel
+            try
             {
-                Id = hospital.Id,
-                HospitalName = hospital.Name,
-                ContactDetails = new ContactViewModel
-                {
-                    Id = hospital.Contact!.Id,
-                    ContactNumber = hospital.Contact!.ContactNumber,
-                    Email = hospital.Contact?.Email,
-                    Fax = hospital.Contact!.Fax
-                },
-                AddressDetails = new AddressViewModel
-                {
-                    Id = hospital.Address!.Id,
-                    Street = hospital.Address!.Street!,
-                    Suburb = hospital.Address!.Street!,
-                    City = hospital.Address!.City!,
-                    Country = hospital.Address!.Country!,
-                    PostalCode = hospital.Address!.PostalCode!
-                }
-            };
+                var hospital = await _hospital.GetHospitalByIdAsync(id);
 
-            return Ok(hospitalVM);
+                if (hospital == null)
+                    return BadRequest("Invalid hospital ID.");
+
+                var hospitalVM = new HospitalViewModel
+                {
+                    Id = hospital.Id,
+                    HospitalName = hospital.Name,
+                    ContactDetails = new ContactViewModel
+                    {
+                        Id = hospital.Contact!.Id,
+                        ContactNumber = hospital.Contact!.ContactNumber,
+                        Email = hospital.Contact?.Email,
+                        Fax = hospital.Contact!.Fax
+                    },
+                    AddressDetails = new AddressViewModel
+                    {
+                        Id = hospital.Address!.Id,
+                        Street = hospital.Address!.Street!,
+                        Suburb = hospital.Address!.Street!,
+                        City = hospital.Address!.City!,
+                        Country = hospital.Address!.Country!,
+                        PostalCode = hospital.Address!.PostalCode!
+                    }
+                };
+
+                return Ok(hospitalVM);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while fetching hospitals.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> AddHospital([FromBody] Hospital hospital)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            // Validate before adding
-            var hospitals = await _hospital.GetAllHospitalsAsync();
+                // Validate before adding
+                var hospitals = await _hospital.GetAllHospitalsAsync();
 
-            var validationError = _hospitalValidation.CanAddHospital(hospital, [.. hospitals]);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var validationError = _hospitalValidation.CanAddHospital(hospital, [.. hospitals]);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            hospital = await _hospital.AddHospitalAsync(hospital);
+                hospital = await _hospital.AddHospitalAsync(hospital);
 
-            // Register the Hospital Admin as a user
-            await RegisterHospitalAdminAsync(hospital);
+                // Register the Hospital Admin as a user
+                await RegisterHospitalAdminAsync(hospital);
 
-            return Ok(validationError);
+                return Ok(validationError);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while adding the hospital.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateHospital(int id, [FromBody] HospitalViewModel model)
         {
-            var hospital = await _hospital.GetHospitalByIdAsync(id);
+            try
+            {
+                var hospital = await _hospital.GetHospitalByIdAsync(id);
 
-            if (model == null)
-                return BadRequest("Invalid hospital data.");
-            
-            var hospitals = await _hospital.GetAllHospitalsAsync();
+                if (model == null)
+                    return BadRequest("Invalid hospital data.");
 
-            var validationError = _hospitalValidation.CanUpdateHospital(hospital!, [.. hospitals]);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var hospitals = await _hospital.GetAllHospitalsAsync();
 
-            hospital!.Name = model.HospitalName;
+                var validationError = _hospitalValidation.CanUpdateHospital(hospital!, [.. hospitals]);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            hospital.Address!.Street = model.AddressDetails!.Street;
-            hospital.Address.Suburb = model.AddressDetails.Suburb;
-            hospital.Address.City = model.AddressDetails.City;
-            hospital.Address.PostalCode = model.AddressDetails.PostalCode;
-            hospital.Address.Country = model.AddressDetails.Country;
+                hospital!.Name = model.HospitalName;
 
-            hospital.Contact!.ContactNumber = model.ContactDetails!.ContactNumber;
-            hospital.Contact.Fax = model.ContactDetails!.Fax;
+                hospital.Address!.Street = model.AddressDetails!.Street;
+                hospital.Address.Suburb = model.AddressDetails.Suburb;
+                hospital.Address.City = model.AddressDetails.City;
+                hospital.Address.PostalCode = model.AddressDetails.PostalCode;
+                hospital.Address.Country = model.AddressDetails.Country;
 
-            await _hospital.UpdateHospitalAsync(hospital);
-            
-            return Ok(validationError);
+                hospital.Contact!.ContactNumber = model.ContactDetails!.ContactNumber;
+                hospital.Contact.Fax = model.ContactDetails!.Fax;
+
+                await _hospital.UpdateHospitalAsync(hospital);
+
+                return Ok(validationError);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while updating the hospital.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         // DELETE: api/hospitals/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHospital(int id)
         {
-            var hospital = await _hospital.GetHospitalByIdAsync(id);
-            if (hospital == null)
-                return NotFound($"Hospital with ID {id} not found.");
+            try
+            {
+                var hospital = await _hospital.GetHospitalByIdAsync(id);
+                if (hospital == null)
+                    return NotFound($"Hospital with ID {id} not found.");
 
-            var validationError = _hospitalValidation.CanDeleteHospital(hospital);
-            if (validationError != null)
-                return BadRequest(validationError);
+                var validationError = _hospitalValidation.CanDeleteHospital(hospital);
+                if (validationError != null)
+                    return BadRequest(validationError);
 
-            await _hospital.RemoveHospitalAsync(hospital);
-            
-            return Ok(validationError);
+                await _hospital.RemoveHospitalAsync(hospital);
+
+                return Ok(validationError);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorViewModel
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while deleting the hospital.",
+                    Errors = [ex.Message]
+                });
+            }
         }
 
         private async Task RegisterHospitalAdminAsync(Hospital hospital)
         {
-            var admin = new Admin
+            try
             {
-                Title = "Admin",
-                FirstName = hospital.Name,
-                LastName = "Admin",
-                Hospital = hospital
-            };
+                var admin = new Admin
+                {
+                    Title = "Admin",
+                    FirstName = hospital.Name,
+                    LastName = "Admin",
+                    Hospital = hospital
+                };
 
-            admin = await _admin.AddAdminAsync(admin);
+                admin = await _admin.AddAdminAsync(admin);
 
-            await _registration.RegisterAsync(admin, null!, hospital);
+                await _registration.RegisterAsync(admin, null!, hospital);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while registering the hospital admin.", ex);
+            }
         }
     }
 }

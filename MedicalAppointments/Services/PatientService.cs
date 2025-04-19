@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using MedicalAppointments.Shared.ViewModels;
 using System.Net;
 using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace MedicalAppointments.Services
 {
@@ -107,7 +108,6 @@ namespace MedicalAppointments.Services
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     IDNumber = model.IDNumber,
-                    PrimaryDoctorId = model.Id,
                     Contact = new Contact
                     {
                         Email = model.ContactDetails!.Email,
@@ -121,11 +121,14 @@ namespace MedicalAppointments.Services
                         City = model.AddressDetails!.City,
                         PostalCode = model.AddressDetails!.PostalCode,
                         Country = model.AddressDetails.Country
-                    }
+                    },
+                    PrimaryDoctor = new Doctor
+                    {
+                        Id = model.PrimaryDoctorId!
+                    },
                 };
 
                 var response = await _http.PostAsJsonAsync($"{_endPoint}", patient);
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
                     Error = await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
@@ -169,16 +172,23 @@ namespace MedicalAppointments.Services
             try
             {
                 var response = await _http.PutAsJsonAsync($"{_endPoint}/{model.Id}", model);
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
 
                 return new ErrorViewModel
                 {
@@ -210,16 +220,23 @@ namespace MedicalAppointments.Services
             try
             { 
                 var response = await _http.DeleteAsync($"{_endPoint}/{patientId}");
-                response.EnsureSuccessStatusCode();
 
                 if (!response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<ErrorViewModel>() ??
-                        new ErrorViewModel
-                        {
-                            StatusCode = StatusCodes.Status500InternalServerError,
-                            Message = "An unknown error occurred.",
-                            Errors = [response.ReasonPhrase]
-                        };
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    ErrorViewModel? error = JsonSerializer.Deserialize<ErrorViewModel>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return error ?? new ErrorViewModel
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        Message = "An error occurred.",
+                        Errors = [json]
+                    };
+                }
 
                 return new ErrorViewModel
                 {
